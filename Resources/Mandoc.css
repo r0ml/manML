@@ -1,0 +1,57 @@
+
+@property --tag-width {
+  initial-value: 4en;
+  inherits: true;
+}
+
+body { color: blue; margin-left: 3em; font: serif; }
+q { quotes: "“" "”" "‘" "’" }
+q.single { quotes: "‘" "’" }
+h4 { margin-left: -2.5em; margin-bottom: 3px; }
+h5 { margin-left: -1.5em; margin-bottom: 3px; }
+td { vertical-align: top; }
+code { white-space: pre; }
+blockquote { white-space: pre; margin-top: 0em; margin-bottom: 0em; font-family: "Courier"}
+a.manref { color: darkviolet; text-decoration: none; }
+a.manref:hover { text-decoration: underline; }
+
+.angles::before { content: "<"; }
+.angles::after { content: ">"; }
+.argument { font-style: italic; color: purple; }
+.author { background-color: lightgray; color: black; font-style: bold; font-family: "Baskerville"; }
+.bibliographic { margin-top: 0.5em; }
+.bold { font-weight: bold; }
+.command { font-weight: bold; color: purple; }
+.defined-variable { color: green; font-weight: bold; font-style: italic; }
+.directive { color: black; font-weight: bold; font-family: "Courier"; }
+.environment { font: fixedwidth; color: orange; }
+.error { color: red; font-weight: bold; }
+.flag { font-weight: bold; color: purple; }
+.function-arg { font-weight: bold; color: darksalmon; }
+.function-name { font-weight: bold; color: black; }
+.function-type { font-weight: bold; color: darkkhaki; }
+.hang { text-indentation: -6em; text-padding: 6em; margin-top: 1em; }
+.include { font-weight: bold; color: black; }
+.italic { font-style: italic; }
+.library { font-style: bold; color: darkolivegreen; }
+.list-item { clear: both; margin-top: 0.5em; padding-top: 0.5em; }
+.literal { font-family: "Courier"; background-color: lightcyan }
+/* .literal::before { content: "'"; } */
+/* .literal::after { content: "'"; } */
+.os { color: navy; }
+.path { color: violet; }
+.roman { }
+.regular { }
+.serious { font-weight: bold; }
+.small-caps { font-variant-caps: small-caps; }
+.standard { color: green; }
+.tag {  }
+.tag-description { width: calc(100% - var(--tag-width) ); float: right; }
+.tag-list { list-style-type: none; list-style-position: inside; }
+.title { font-weight: bold; font-style: italic; }
+.unimplemented { color: red; background-color: lightgrey; }
+.unimplemented::before { content: "-->"; }
+.unimplemented::after { content: "<--"; }
+.utility { font-style: italic; font-weight: bold; }
+.variable { color: purple; font-weight: bold; }
+.volume::before { content: "vol. " }
