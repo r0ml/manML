@@ -139,6 +139,7 @@ class Mandoc {
   
   func nextArg(_ tknz: Tokenizer) -> Token? {
     guard let k = tknz.peekToken() else { return nil }
+    
     if k.isMacro {
       return macro(tknz)
     }
@@ -151,9 +152,9 @@ class Mandoc {
     if line.isEmpty {
       return "<p>\n"
     } else if line.first != "." {
-      return span("body", String(Tokenizer("", lineNo, definitions: parseState.definedString).escaped(line)))
+      return span("body", String(Tokenizer("", lineNo, parseState: parseState).escaped(line)))
     } else {
-      let tknz = Tokenizer(line.dropFirst(), lineNo, definitions: parseState.definedString )
+      let tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState )
       return parseLine(tknz)
       //        thisLine.append( parseState.previousClosingDelimiter )
     }

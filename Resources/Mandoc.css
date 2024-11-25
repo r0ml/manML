@@ -34,7 +34,8 @@ a.manref:hover { text-decoration: underline; }
 .include { font-weight: bold; color: black; }
 .italic { font-style: italic; }
 .library { font-style: bold; color: darkolivegreen; }
-.list-item { clear: both; margin-top: 0.5em; padding-top: 0.5em; }
+.list-item { clear: both; margin-top: var(--compact); padding-top: var(--compact); }
+
 .literal { font-family: "Courier"; background-color: lightcyan }
 /* .literal::before { content: "'"; } */
 /* .literal::after { content: "'"; } */

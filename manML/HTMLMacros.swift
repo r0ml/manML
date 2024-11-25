@@ -7,7 +7,10 @@ import Foundation
 
 extension Mandoc {
   func taggedParagraph(_ tag : String, _ description : any StringProtocol) -> String {
-    return #"<div class="list-item">"# + span("tag", tag) + #"<div class="tag-description">"# + description + #"</div></div><div style="clear: both;"></div>"#
+    var m = #"<div class="list-item">"# + span("tag", tag + "&nbsp;")
+    m.append(#"<div class="tag-description">"# + description + "</div>")
+    m.append(#"</div><div style="clear: both;"></div>"#)
+    return m
   }
   
   func pageHeader(_ name : any StringProtocol , _ section : any StringProtocol, _ title : any StringProtocol) -> String {

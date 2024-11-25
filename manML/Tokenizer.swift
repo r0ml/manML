@@ -483,14 +483,16 @@ class Tokenizer : IteratorProtocol {
   let middleDelimiters = "|"
   
 //  var previousClosingDelimiter = ""
-  var definitions : [String : String]
+//  var definitions : [String : String]
+  var parseState : ParseState
   
   var fontStyling = false
   var fontSizing = false
   
-  init(_ s : any StringProtocol, _ pos : Int, definitions: [String : String]) {
+  init(_ s : any StringProtocol, _ pos : Int, parseState : ParseState) { //   definitions: [String : String]) {
     string = Substring(s)
-    self.definitions = definitions
+//    self.definitions = parseState.definedString
+    self.parseState = parseState
     stringPos = pos
   }
   
@@ -523,6 +525,11 @@ class Tokenizer : IteratorProtocol {
     } else {
       k = popWord()
     }
+    nextWord = nil
+    
+    if let k, closingDelimiters.contains(k) {
+      return Token(value: "", closingDelimiter: String(k), isMacro: false)
+    }
     
     nextWord = popWord()
     var cd : String = ""
@@ -542,7 +549,7 @@ class Tokenizer : IteratorProtocol {
       }
     }
     
-    if nextWord == "Ns" || nextWord == "Ap" { cd = String(cd.dropLast()) }
+    if nextWord == "Ns" || nextWord == "Ap" || !parseState.spacingMode { cd = String(cd.dropLast()) }
     
     if var k {
       let isMacro = macroList.contains(k)
@@ -643,11 +650,11 @@ extension Tokenizer {
       s.removeFirst(3)
       // at this point, I'm looking for a defined string -- but there is no marker for where the string ends.
       // So we keep trying adding one character at a time until we give up
-      let mx = definitions.keys.max(by: { $0.count < $1.count } )?.count ?? 1
+      let mx = parseState.definedString.keys.max(by: { $0.count < $1.count } )?.count ?? 1
       for n in 1...mx {
         let pp = s.prefix(n)
-        if definitions.keys.contains(String(pp)) {
-          let res = definitions[String(pp)]!
+        if parseState.definedString.keys.contains(String(pp)) {
+          let res = parseState.definedString[String(pp)]!
           s.removeFirst(n)
           return res
         }

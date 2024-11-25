@@ -260,8 +260,10 @@ extension Mandoc {
         thisCommand = span("directive", j.value) + "<br/>"
         thisDelim = j.closingDelimiter
       case "Fl":
-        // This was upended by "ctags"
-        while let j = nextArg(tknz) {
+        // This was upended by "ctags" and "ssh"
+        while let jj = tknz.peekToken()?.value,
+              !(jj == "Ar" || jj == "Xo") ,
+              let j = nextArg(tknz) {
           thisCommand.append("<nobr>" + span("flag", "-"+j.value)+"</nobr>")
           if tknz.peekToken()?.value == "|"  {
             let _ = tknz.popToken()
@@ -360,10 +362,15 @@ extension Mandoc {
         
       case "Nm":
         // in the case of ".Nm :" , the : winds up as the closing delimiter for the macro name.
+        if parseState.inSynopsis { thisCommand.append("<br>") }
         if let j = nextArg(tknz) {
           if name == nil { name = String(j.value) }
-          if parseState.inSynopsis { thisCommand.append("<br/>") }
-          thisCommand.append( span("utility", j.value) )
+//          if parseState.inSynopsis { thisCommand.append("<br/>") }
+          if j.value.isEmpty {
+            thisCommand.append(span("utility", name ?? ""))
+          } else {
+            thisCommand.append( span("utility", j.value) )
+          }
           thisDelim = j.closingDelimiter
         } else {
           if let name { thisCommand.append( span("utility", name)) }
@@ -401,6 +408,10 @@ extension Mandoc {
         else {
           let v = ProcessInfo.processInfo.operatingSystemVersion
           os = "macOS \(v.majorVersion).\(v.minorVersion)"  }
+      case "Ox":
+        let j = tknz.rest
+        thisCommand = span("os", "OpenBSD\(j.value)")
+
       case "Pa":
         while let j = nextArg(tknz) {
           thisCommand.append(thisDelim)
@@ -443,6 +454,10 @@ extension Mandoc {
         parseState.inSynopsis = j.value == "SYNOPSIS"
         thisDelim = j.closingDelimiter
         
+      case "Sm": // spacing mode
+        let j = tknz.rest.value
+        parseState.spacingMode = j.lowercased() != "off"
+        
       case "Sq":
         let sq = parseLine(tknz)
         thisCommand = "<q class=\"single\">\(sq)</q>"
@@ -472,6 +487,9 @@ extension Mandoc {
       case "Tn":
         let j = parseLine(tknz)
         thisCommand = span("small-caps", j)
+      case "Ux":
+        thisCommand = span("os", "UNIX")
+        
       case "Va":
         let j = parseLine(tknz) // tknz.rest
         thisCommand = span("variable", j)
@@ -487,6 +505,12 @@ extension Mandoc {
         let j = parseLine(tknz)
         thisCommand = "<br>"+span("variable", j)
         thisDelim = "\n"
+        
+      case "Xc":
+        let _ = tknz.rest
+        
+      case "Xo": // extend item
+        thisCommand = macroBlock(["Xc"])
         
       case "Xr":
         if let j = tknz.next(),

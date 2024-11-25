@@ -88,16 +88,14 @@ class RsState {
 class ParseState {
   // ============================
 
-//   var wasFa = false
-//  var isFa = false
-
-  // ============================
   var rsState : RsState?
-
+  
   // ============================
   var inSynopsis = false
 
   var authorSplit = false
+  
+  var spacingMode = true
   
   // ============================
   var definedString = [String:String]()

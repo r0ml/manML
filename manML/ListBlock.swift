@@ -179,7 +179,7 @@ extension Mandoc {
       case "-ohang":
         thisCommand = span("unimplemented", "Bl " + jj )
       case "-tag":
-        thisCommand = "<div class=\"tag-list\" style=\"margin-top: 0.5em; --tag-width: \(width) \">"
+        thisCommand = "<div class=\"tag-list\" style=\"margin-top: 0.5em; --tag-width: \(width); --compact: \(compact ? 0 : 0.5)em \">"
         bs.bl = .tag
 
       default:
@@ -212,7 +212,7 @@ extension Mandoc {
       var line = linesSlice.first!
       
       if line.hasPrefix(".") {
-        var tknz = Tokenizer(line.dropFirst(), lineNo, definitions: parseState.definedString)
+        var tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState)
         if let pt = tknz.peekToken(),
            enders.contains( String(pt.value) ) {
           break
@@ -222,7 +222,7 @@ extension Mandoc {
         if let k = line.firstMatch(of: /\\\"/) {
           cc = String(line.suffix(from: k.endIndex))
           line = line.prefix(upTo: k.startIndex)
-          tknz = Tokenizer(line.dropFirst(), lineNo, definitions: parseState.definedString)
+          tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState)
         }
         
         let pl = parseLine(tknz, bs)
@@ -231,7 +231,7 @@ extension Mandoc {
         output.append("\n")
       } else {
         linesSlice.removeFirst()
-        output.append(contentsOf: span("body", Tokenizer(line, lineNo, definitions: parseState.definedString).escaped(line)))
+        output.append(contentsOf: span("body", Tokenizer(line, lineNo, parseState: parseState).escaped(line)))
         output.append(contentsOf: "\n")
       }
     }
