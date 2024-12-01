@@ -386,10 +386,11 @@ extension Mandoc {
         }
         
       case "Oc":
-        thisCommand = "]"
+        let _ = tknz.rest
         
       case "Oo":
-        thisCommand = "["
+        let k = macroBlock(["Oc"])
+        thisCommand = "["+k+"]"
         
       case "Op":
         // in "apply", the .Ns macro is applied here, but "cd" is already " "
@@ -432,9 +433,10 @@ extension Mandoc {
         }
         
       case "Ql":
-        if let j = tknz.next()?.value {
-          thisCommand = span("literal", j)
-        }
+        let j = tknz.rest
+        thisCommand = span("literal", j.value)
+        thisDelim = j.closingDelimiter
+        
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
         thisCommand = "<q>\(parseLine(tknz))</q>"
@@ -549,7 +551,7 @@ extension Mandoc {
         let k = macroBlock(["TP", "PP", "SH"])
         thisCommand = taggedParagraph(currentTag, k)
         
-      case "PP":
+      case "P", "PP":
         thisCommand = "<p>"
         
       case "RS":
@@ -689,11 +691,31 @@ extension Mandoc {
         let _ = tknz.rest
         
       case "IP":
-        thisCommand = "<p style=\"margin-left: 3em;\" >"
+        let k = tknz.next()
+        var ind = 3
+        if let dd = tknz.next() {
+          if let i = Int(dd.value) { ind = i }
+        }
+
+        let kk = macroBlock(["IP"])
+        
+        if ind > 0 {
+          thisCommand = "<div style=\"margin-left: \(ind)em;\">" + (k?.value ?? "") + " " + kk + "</div>"
+        }
+        
+        // thisCommand = "<p style=\"margin-left: \(ind)em;\">\(k?.value ?? "")"
+        
+      case "nf":
+        var j = textBlock(["fi"], parseState: parseState)
+        if j.hasSuffix("\n.") { j.removeLast(2) }
+        thisCommand = "<pre>\(j)</pre>"
+
+      case "fi":
+        let _ = tknz.rest
         
       case "SS":
         if let j = tknz.next()?.value {
-          thisCommand = "<h5 style=\"margin-left: -4.5em; font-size: 1em;\">\(j)</h5>"
+          thisCommand = "<h5>" + span(nil, j) + "</h5>"
         }
         
       case "SM":

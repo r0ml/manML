@@ -206,6 +206,24 @@ extension Mandoc {
     return thisCommand
   }
   
+  func textBlock(_ enders : [String], parseState: ParseState) -> String {
+      var output = ""
+    while(!linesSlice.isEmpty) {
+      var line = linesSlice.first!
+      if line.hasPrefix(".") {
+        var tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState)
+        if let pt = tknz.peekToken(),
+           enders.contains( String(pt.value) ) {
+          break
+        }
+      }
+      linesSlice.removeFirst()
+      output.append(contentsOf: Tokenizer("", lineNo, parseState: parseState).escaped(line) )
+      output.append("\n")
+    }
+    return String(output.dropLast())
+  }
+  
   func macroBlock(_ enders : [String], _ bs : BlockState? = nil) -> String {
     var output = ""
     while !linesSlice.isEmpty {
@@ -213,10 +231,12 @@ extension Mandoc {
       
       if line.hasPrefix(".") {
         var tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState)
-        if let pt = tknz.peekToken(),
-           enders.contains( String(pt.value) ) {
-          break
-        }
+        if let pt = tknz.peekToken() {
+          if enders.contains( String(pt.value) ) {
+            break
+          }
+        } else { break } // if enders.contains("") { break}
+        
         linesSlice.removeFirst()
         var cc : String? = nil
         if let k = line.firstMatch(of: /\\\"/) {
