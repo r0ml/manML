@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,12 +15,13 @@
 		E71177A82CE119C800236F4A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E766B3AC2CC178310081E3A4 /* Assets.xcassets */; };
 		E71177A92CE119C800236F4A /* Mandoc.css in Resources */ = {isa = PBXBuildFile; fileRef = E766B3CC2CC30EE50081E3A4 /* Mandoc.css */; };
 		E71177AA2CE119D600236F4A /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3BF2CC19AB70081E3A4 /* Tokenizer.swift */; };
-		E71177AB2CE119DD00236F4A /* Manpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3B12CC178310081E3A4 /* Manpath.swift */; };
 		E71177AC2CE11A2C00236F4A /* HTMLMacros.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3C32CC19E730081E3A4 /* HTMLMacros.swift */; };
 		E71177AD2CE11C4A00236F4A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3AB2CC178310081E3A4 /* AppDelegate.swift */; };
 		E71177AE2CE1213100236F4A /* Definitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3C12CC19C3E0081E3A4 /* Definitions.swift */; };
 		E71177B02CE1215C00236F4A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71177AF2CE1215C00236F4A /* Extensions.swift */; };
 		E71177B22CE1218200236F4A /* CommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E70560542CC86957001A9FAB /* CommandRunner.swift */; };
+		E73637F02CFCC83D00D56A6B /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E73637EF2CFCC83D00D56A6B /* Settings.swift */; };
+		E73637F12CFCCF8800D56A6B /* Manpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3B12CC178310081E3A4 /* Manpath.swift */; };
 		E7AEBD842CF108A100E468CF /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD832CF1089D00E468CF /* README.md */; };
 		E7AEBD892CF1264200E468CF /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD882CF1264200E468CF /* TODO.md */; };
 		E7E43BDC2CECD9A7007F3A48 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7E43BD32CECD9A7007F3A48 /* Preview Assets.xcassets */; };
@@ -34,6 +35,7 @@
 		E70560542CC86957001A9FAB /* CommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRunner.swift; sourceTree = "<group>"; };
 		E71176602CE0411C00236F4A /* manML.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = manML.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E71177AF2CE1215C00236F4A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		E73637EF2CFCC83D00D56A6B /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		E73928702CD07D88004809E2 /* MandocMacro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandocMacro.swift; sourceTree = "<group>"; };
 		E7447B282CD87EEF0051248B /* ParseState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParseState.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		E7447B2A2CD9F16B0051248B /* ListBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListBlock.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				E7E43BD42CECD9A7007F3A48 /* Preview Content */,
 				E7E43BDA2CECD9A7007F3A48 /* Process.swift */,
 				E766B3BF2CC19AB70081E3A4 /* Tokenizer.swift */,
+				E73637EF2CFCC83D00D56A6B /* Settings.swift */,
 			);
 			path = manML;
 			sourceTree = "<group>";
@@ -178,7 +181,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1610;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					E711765F2CE0411C00236F4A = {
 						CreatedOnToolsVersion = 16.1;
@@ -186,7 +189,6 @@
 				};
 			};
 			buildConfigurationList = F487F4A1141EADEF0093D633 /* Build configuration list for PBXProject "manML" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -194,6 +196,7 @@
 				Base,
 			);
 			mainGroup = F487F49C141EADEF0093D633;
+			preferredProjectObjectVersion = 77;
 			productRefGroup = F487F4A8141EADEF0093D633 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -225,6 +228,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E71177AE2CE1213100236F4A /* Definitions.swift in Sources */,
+				E73637F12CFCCF8800D56A6B /* Manpath.swift in Sources */,
 				E7E43BDF2CECD9A7007F3A48 /* ContentView.swift in Sources */,
 				E7E43BE02CECD9A7007F3A48 /* manMLApp.swift in Sources */,
 				E7E43BE12CECD9A7007F3A48 /* Process.swift in Sources */,
@@ -234,10 +238,10 @@
 				E71177AC2CE11A2C00236F4A /* HTMLMacros.swift in Sources */,
 				E71177A62CE119B500236F4A /* Mandoc.swift in Sources */,
 				E71177A72CE119B500236F4A /* ParseState.swift in Sources */,
+				E73637F02CFCC83D00D56A6B /* Settings.swift in Sources */,
 				E711766F2CE0F2E700236F4A /* HTMLView.swift in Sources */,
 				E71177B22CE1218200236F4A /* CommandRunner.swift in Sources */,
 				E71177AA2CE119D600236F4A /* Tokenizer.swift in Sources */,
-				E71177AB2CE119DD00236F4A /* Manpath.swift in Sources */,
 				E71177B02CE1215C00236F4A /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -355,6 +359,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -403,6 +408,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;

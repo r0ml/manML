@@ -5,7 +5,6 @@ import Foundation
 import AppKit
 
 class Mandoc {
-  var manpath : Manpath
   private var origInput : [Substring]
   private var input : String
   var date : String?
@@ -22,7 +21,6 @@ class Mandoc {
     input = s
     origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
     linesSlice = ArraySlice(origInput)
-    manpath = await Manpath()
   }
   
   func macroPrefix(_ lin : Substring) -> (String, String)? {
@@ -35,7 +33,6 @@ class Mandoc {
   }
   
   func generateBody(_ input : String) -> String {
-//    var lianesSlice = ArraySlice(input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline))
     var output = ""
 
     while !linesSlice.isEmpty {
@@ -110,9 +107,6 @@ class Mandoc {
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
     let header = "<html><head><title>Mandoc</title><style>\(kk)</style></head><body>"
-//    var currentAttrs = AttributeContainer()
-//    currentAttrs = AttributeContainer.foregroundColor(.red)
-
     let output = generateBody(input)
     
     return """

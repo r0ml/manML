@@ -241,7 +241,7 @@ extension Mandoc {
 //          thisDelim = j.closingDelimiter
         }
       case "Ex":
-        let ign = tknz.next() // should equal "-std"
+        let _ = tknz.next() // should equal "-std"
         let j = tknz.next()?.value ?? Substring(name ?? "??")
         thisCommand = "The \(span("utility",j)) utility exits 0 on success, and >0 if an error occurs."
         
@@ -591,17 +591,17 @@ extension Mandoc {
          }
          */
         var toggle = true
-        var cd = ""
+//        let cd = ""
         while let j = tknz.next()?.value {
           if toggle {
-            thisCommand.append( cd + span("bold", j) )
+            thisCommand.append( span("bold", j) )
           } else {
-            thisCommand.append( cd + span("regular", j))
+            thisCommand.append( span("regular", j))
           }
           toggle.toggle()
           //         cd = tknz.closingDelimiter
         }
-        thisCommand.append(cd)
+//        thisCommand.append(cd)
         
       case "IR":
         var toggle = true

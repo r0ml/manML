@@ -150,7 +150,7 @@ extension Mandoc {
       k = tknz.next()
     }
     
-    var compact = k?.value == "-compact"
+    let isCompact = k?.value == "-compact"
     var thisCommand = ""
     
     let jj = String(j?.value ?? "")
@@ -179,7 +179,7 @@ extension Mandoc {
       case "-ohang":
         thisCommand = span("unimplemented", "Bl " + jj )
       case "-tag":
-        thisCommand = "<div class=\"tag-list\" style=\"margin-top: 0.5em; --tag-width: \(width); --compact: \(compact ? 0 : 0.5)em \">"
+        thisCommand = "<div class=\"tag-list\" style=\"margin-top: 0.5em; --tag-width: \(width); --compact: \(isCompact ? 0 : 0.5)em \">"
         bs.bl = .tag
 
       default:
@@ -209,9 +209,9 @@ extension Mandoc {
   func textBlock(_ enders : [String], parseState: ParseState) -> String {
       var output = ""
     while(!linesSlice.isEmpty) {
-      var line = linesSlice.first!
+      let line = linesSlice.first!
       if line.hasPrefix(".") {
-        var tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState)
+        let tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState)
         if let pt = tknz.peekToken(),
            enders.contains( String(pt.value) ) {
           break

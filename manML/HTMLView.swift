@@ -154,7 +154,7 @@ document.addEventListener('click', function(event) {
           let kk = Int(mm)!
           ss.sourceLine = kk
         }
-        print("Mouse clicked with message: \(messageBody)")
+//        print("Mouse clicked with message: \(messageBody)")
 //        wv.getPos()
       }
     }

@@ -10,7 +10,8 @@ struct ContentView: View {
   @State var error : String = ""
   @State var modern = true
   @State var mandoc : String = ""
-  
+  var manpath : Manpath
+
   var ss : Sourcerer = Sourcerer()
   
     var body: some View {
@@ -26,9 +27,9 @@ struct ContentView: View {
                 Task {
                   ss.which = mantext
                   if modern {
-                    await readManFile(ss.which)
+                    mandoc = await readManFile(ss.which)
                   } else {
-                    getTheHTML()
+                    html = getTheHTML()
                   }
                 }
               }
@@ -48,9 +49,9 @@ struct ContentView: View {
           Task {
             ss.which = mantext
             if modern {
-              await readManFile(ss.which)
+              mandoc = await readManFile(ss.which)
             } else {
-              getTheHTML()
+              html = getTheHTML()
             }
           }
         }
@@ -59,9 +60,9 @@ struct ContentView: View {
             if mantext != ss.which {
               mantext = ss.which
               if modern {
-                await readManFile(ss.which)
+                mandoc = await readManFile(ss.which)
               } else {
-                getTheHTML()
+                html = getTheHTML()
               }
             }
           }
@@ -69,18 +70,19 @@ struct ContentView: View {
         .onChange(of: mandoc) {
           Task {
             ss.manSource = mandoc
-            html = await Mandoc(mandoc).toHTML()
+            let h = await Mandoc(mandoc).toHTML()
+            html = h
           }
         }
         .onChange(of: modern) {
           Task {
             if modern {
               mandoc = ""
-              await readManFile(ss.which)
+              mandoc = await readManFile(ss.which)
               ss.manSource = mandoc
               html = await Mandoc(mandoc).toHTML()
             } else {
-              getTheHTML()
+              html = getTheHTML()
             }
           }
         }
@@ -102,19 +104,22 @@ struct ContentView: View {
         }
     }
 
-  func getTheHTML() {
+  func getTheHTML() -> String {
     error = ""
     do {
-      let (c, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(ss.which)`")
-      html = o!
+      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(ss.which)`")
+      
       error = e!
+      return o!
+      
     } catch(let e) {
       error = e.localizedDescription
     }
+    return ""
   }
   
-  func readManFile(_ man : String) async {
-    let ad = AppDelegate()
+  func readManFile(_ man : String) async -> String {
+    let ad = (NSApp.delegate) as? AppDelegate
     let manx = man.split(separator: " ", omittingEmptySubsequences: true)
     var manu : String
     if manx.count == 1 {
@@ -124,7 +129,7 @@ struct ContentView: View {
     } else {
       manu = ""
     }
-    let pp = await ad.mandocFind(URL(string: "mandoc:///\(manu)")!)
+    let pp = mandocFind( URL(string: "mandoc:///\(manu)")!)
     if pp.count == 0 {
       error = "not found: \(man)"
 /*    } else if pp.count > 1 {
@@ -133,15 +138,17 @@ struct ContentView: View {
       a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
 */    } else if pp.count >= 1 {
       do {
-        mandoc = try String(contentsOf: pp[0], encoding: .utf8)
+        return try String(contentsOf: pp[0], encoding: .utf8)
       } catch(let e) {
         error = e.localizedDescription
       }
     }
+    error = "not found: \(man)"
+    return ""
   }
   
   func makeMenu(_ s : [URL] ) -> NSMenu {
-    var a = NSMenu(title: "Manual")
+    let a = NSMenu(title: "Manual")
     openers = []
     let i = s.map { p in
       let mi = NSMenuItem()
@@ -155,8 +162,21 @@ struct ContentView: View {
     a.items = i
     return a
   }
+  
+  
+  func mandocFind( _ k : URL) -> [URL] {
+    if k.scheme == "mandoc" {
+      let j = k.pathComponents
+      if j.count < 2 { return [] }
+      let j1 = j[1]
+      var j2 = j.count > 2 ? j[2] : nil
+      if j2?.isEmpty == true { j2 = nil }
+      let pp = manpath.find(j1, j2)
+      return pp
+    } else {
+      return [k]
+    }
+  }
+
 }
 
-#Preview {
-    ContentView()
-}

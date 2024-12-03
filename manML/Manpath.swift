@@ -5,20 +5,95 @@ import Foundation
 
 // see command manpath -- might not need the pathhelper stuff
 
-actor Manpath {
+@Observable class Manpath {
   
+  let key = "manpath"
+  let defaultMansect = "1:2:3:4:5:6:7:8:9:n"
+
+  let defaultManpath: [String] = [
+    "/usr/share/man",
+    "/usr/local/share/man",
+    "/opt/homebrew/share/man",
+    "/opt/share/man",
+    "/opt/local/share/man",
+    "/Library/Developer/CommandLineTools/usr/share/man",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man",
+    "/Applications/Xcode.app/Contents/Developer/usr/share/man",
+    "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/man",
+    "~/man",
+    "~/share/man"
+    ]
+
   // only adjust manpath if already set
 
-  private var manpath : [URL]?
+  var addedManpath : [URL] = []
+  var manpath : [URL] { addedManpath + defaultManpath.map { URL(fileURLWithPath: $0) } }
   var mansect : [String]?
 
-  var defaultMansect = "1:2:3:4:5:6:7:8:9:n"
-  
-  public init() async {
-    await initManpath()
+  public init() {
+//    await initManpath()
+    addedManpath = retrieveSecurityScopedBookmarks()
+    
+  }
+
+  func remove(path: String?) {
+    if let path {
+      addedManpath = addedManpath.filter { $0.relativePath != path }
+      let jj = URL(fileURLWithPath: path).absoluteString
+      if var k = UserDefaults.standard.dictionary(forKey: key) as? [String: Data] {
+        if k.contains(where: { (x) -> Bool in x.key == jj } ) {
+          k.removeValue(forKey: jj)
+          UserDefaults.standard.set(k, forKey: key)
+          UserDefaults.standard.synchronize()
+        }
+      }
+
+    }
   }
   
+  func retrieveSecurityScopedBookmarks() -> [URL] {
+      var retrievedURLs: [URL] = []
+      
+      // Retrieve the saved bookmarks dictionary from UserDefaults
+      guard var bookmarks = UserDefaults.standard.dictionary(forKey: key) as? [String: Data] else {
+          return []
+      }
+      
+    var stale : [String] = []
+      for (urlString, bookmarkData) in bookmarks {
+          do {
+              var isStale = false
+              
+              // Resolve the bookmark to a URL
+              let resolvedURL = try URL(
+                  resolvingBookmarkData: bookmarkData,
+                  options: .withSecurityScope,
+                  relativeTo: nil,
+                  bookmarkDataIsStale: &isStale
+              )
+              
+            if isStale || defaultManpath.contains(resolvedURL.relativePath) {
+                stale.append(urlString)
+//                  print("Bookmark for URL \(urlString) is stale.")
+              } else {
+                retrievedURLs.append(resolvedURL)
+              }
+          } catch {
+              print("Failed to resolve bookmark for \(urlString): \(error.localizedDescription)")
+          }
+      }
+    if !stale.isEmpty {
+      stale.forEach { bookmarks.removeValue(forKey: $0) }
+      UserDefaults.standard.set(bookmarks, forKey: key)
+    }
+    
+    return retrievedURLs
+  }
   
+
+  
+  
+  /*
   func initManpath() async {
     if let mp = ProcessInfo.processInfo.environment["MANPATH"] {
       manpath = mp.components(separatedBy: ":").map { URL(fileURLWithPath: $0) }
@@ -36,6 +111,7 @@ actor Manpath {
       mansect = ms
     }
   }
+  */
   
   func parsePathForMan() async -> [URL] {
     var res = [URL]()
@@ -61,7 +137,7 @@ actor Manpath {
 
     let j = try! await captureStdout( URL(fileURLWithPath: "/usr/bin/xcode-select"), ["--show-manpaths"])
 //    if let j {
-      let (a,b,c) = j
+      let (_,b,_) = j
       if let b {
         let n = b.split(whereSeparator: (\.isNewline))
         for i in n {
@@ -85,34 +161,45 @@ actor Manpath {
       sect = mansect ?? []
     }
     
-    for p in manpath ?? [] {
+    for p in manpath {
+      let _ = p.startAccessingSecurityScopedResource()
+          defer { p.stopAccessingSecurityScopedResource() }
       if let s = section {
-
-//        for s in sect {
+        
+        //        for s in sect {
         let pp = p.appendingPathComponent("man\(s.first!)").appendingPathComponent(name).appendingPathExtension(s)
         if FileManager.default.fileExists(atPath: pp.path) {
           res.append( pp )
         }
       } else {
-        let ll = try? FileManager.default.contentsOfDirectory(at: p, includingPropertiesForKeys: nil)
-        for j in ll ?? [] {
-//          let rr = j.appendingPathComponent(j)
-          if let kk = try? FileManager.default.contentsOfDirectory( at: j, includingPropertiesForKeys: nil ) {
-            for z in kk {
-              if z.deletingPathExtension().lastPathComponent == name {
-                res.append(z)
+        do {
+          let ll = try FileManager.default.contentsOfDirectory(at: p, includingPropertiesForKeys: nil)
+          for j in ll {
+            //          let rr = j.appendingPathComponent(j)
+            do {
+              let kk = try FileManager.default.contentsOfDirectory( at: j, includingPropertiesForKeys: nil )
+              for z in kk {
+                
+                if z.deletingPathExtension().lastPathComponent == name {
+                  res.append(z)
+                }
               }
+            } catch(let e) {
+              // ignore the error
             }
           }
+        } catch(let e) {
+          // ignore the error
         }
+        
       }
-    }
+  }
     return res
   }
   
   
   func link(_ link : String) -> URL? {
-    for p in manpath ?? [] {
+    for p in manpath {
       let pg = URL(fileURLWithPath: link, relativeTo: p)
 //      let pp = "\(p)/\(link)"
       if FileManager.default.fileExists(atPath: pg.path) {
@@ -122,6 +209,7 @@ actor Manpath {
     return nil
   }
   
+  /*
   func manConf() -> ([URL],[String]) {
     let k = try! String(contentsOf: URL(fileURLWithPath: "/etc/man.conf"), encoding: .utf8)
     let l = k.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -140,4 +228,5 @@ actor Manpath {
     }
     return (res, ms.components(separatedBy: ":"))
   }
+   */
 }

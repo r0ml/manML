@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict/>
+  <dict>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+    <key>com.apple.security.files.bookmarks.app-scope</key>
+    <true/>
+    <key>com.apple.security.files.user-selected.read-only</key>
+    <true/>
+    <key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
+    <array>
+      <string>/usr/share/man/</string>
+      <string>/usr/local/share/man/</string>
+      <string>/opt/homebrew/share/man/</string>
+      <string>/opt/share/man/</string>
+      <string>/opt/local/share/man/</string>
+      <string>/Library/Developer/CommandLineTools/usr/share/man/</string>
+      <string>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man/</string>
+      <string>/Applications/Xcode.app/Contents/Developer/usr/share/man/</string>
+      <string>/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/man/</string>
+      <string>/etc/man.conf</string>
+    </array>
+    <key>com.apple.security.temporary-exception.files.home-relative-path.read-only</key>
+    <array>
+      <string>man/</string>
+      <string>share/man/</string>
+    </array>
+    <key>com.apple.security.network.client</key>
+    <true/>
+  </dict>
 </plist>

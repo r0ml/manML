@@ -8,27 +8,19 @@ import SwiftUI
 
 
 class AppDelegate : NSObject, NSApplicationDelegate {
+  var manpath : Manpath
 
-  func mandocFind(_ k : URL) async -> [URL] {
-    if k.scheme == "mandoc" {
-      let j = k.pathComponents
-      if j.count < 2 { return [] }
-      let j1 = j[1]
-      var j2 = j.count > 2 ? j[2] : nil
-      if j2?.isEmpty == true { j2 = nil }
-      let pp = await Manpath().find(j1, j2)
-      return pp
-    } else {
-      return [k]
-    }
+  init(manpath: Manpath) {
+    self.manpath = manpath
   }
 
+  /*
   func application(_ app : NSApplication, open: [URL]) {
     //    print(open)
     Task {
       for k in open {
         if k.scheme == "mandoc" {
-          let pp = await mandocFind(k)
+          let pp = mandocFind(k)
           if pp.count == 0 {
             print("not found")
 /*          } else if pp.count > 1 {
@@ -45,10 +37,10 @@ class AppDelegate : NSObject, NSApplicationDelegate {
       }
     }
   }
-
+ */
 
   func makeMenu(_ s : [URL] ) -> NSMenu {
-    var a = NSMenu(title: "Manual")
+    let a = NSMenu(title: "Manual")
     openers = []
     let i = s.map { p in
       let mi = NSMenuItem()
