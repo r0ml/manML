@@ -330,6 +330,8 @@ extension Mandoc {
             thisCommand = "<li>" + currentDescription + "</li>"
           case .hang:
             thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
+          case .table:
+            thisCommand = "<tr><td>\(currentTag) \(currentDescription)</td></tr>"
           default:
             thisCommand = span("unimplemented", "BLError")
         }
@@ -485,7 +487,9 @@ extension Mandoc {
         thisCommand = span("serious", thisCommand)
       
       case "Ta":
-        thisCommand = "\t"
+//        thisCommand = "\t"
+          thisCommand = "</td><td>"
+        
       case "Tn":
         let j = parseLine(tknz)
         thisCommand = span("small-caps", j)

@@ -10,6 +10,7 @@ extension Mandoc {
     case _enum
     case item
     case hang
+    case table // -column
   }
   
   // State for tagged paragraphs
@@ -158,7 +159,9 @@ extension Mandoc {
       case "-bullet":
         thisCommand = span("unimplemented", "Bl " + jj )
       case "-column":
-        thisCommand = span("unimplemented", "Bl " + jj )
+//        thisCommand = span("unimplemented", "Bl " + jj )
+        thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width)\">"
+        bs.bl = .table
       case "-dash":
         thisCommand = span("unimplemented", "Bl " + jj )
       case "-diag":
@@ -186,6 +189,8 @@ extension Mandoc {
         thisCommand = span("unimplemented", "Bl " + jj )
     }
     
+    let _ = tknz.rest
+    
     let blk = macroBlock( ["El"] , bs)
     thisCommand.append(blk)
     
@@ -199,6 +204,8 @@ extension Mandoc {
         thisCommand.append("</ul>")
       case .hang:
         thisCommand.append("</div>")
+      case .table:
+        thisCommand.append("</table>")
       default:
         thisCommand.append(span("unimplemented", "BLError"))
     }

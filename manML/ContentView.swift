@@ -119,7 +119,7 @@ struct ContentView: View {
   }
   
   func readManFile(_ man : String) async -> String {
-    let ad = (NSApp.delegate) as? AppDelegate
+//    let ad = (NSApp.delegate) as? AppDelegate
     let manx = man.split(separator: " ", omittingEmptySubsequences: true)
     var manu : String
     if manx.count == 1 {
@@ -137,6 +137,7 @@ struct ContentView: View {
       let a = makeMenu(pp)
       a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
 */    } else if pp.count >= 1 {
+      error = ""
       do {
         return try String(contentsOf: pp[0], encoding: .utf8)
       } catch(let e) {
