@@ -17,7 +17,7 @@ class Mandoc {
   
   var parseState = ParseState()
 
-  init(_ s : String) async {
+  init(_ s : String) {
     input = s
     origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
     linesSlice = ArraySlice(origInput)

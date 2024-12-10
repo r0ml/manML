@@ -11,6 +11,7 @@ extension Mandoc {
     case item
     case hang
     case table // -column
+    case bullet
   }
   
   // State for tagged paragraphs
@@ -157,7 +158,8 @@ extension Mandoc {
     let jj = String(j?.value ?? "")
     switch jj {
       case "-bullet":
-        thisCommand = span("unimplemented", "Bl " + jj )
+        thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"
+        bs.bl = .bullet
       case "-column":
 //        thisCommand = span("unimplemented", "Bl " + jj )
         thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width)\">"
@@ -167,7 +169,7 @@ extension Mandoc {
       case "-diag":
         thisCommand = span("unimplemented", "Bl " + jj )
       case "-enum":
-        thisCommand = "<ol style=\"margin-left: \(width); margin-top: 0.5em; \">"
+        thisCommand = "<ol style=\"margin-top: 0.5em; \">"
         bs.bl = ._enum
       case "-hang":
         thisCommand = "<div class=\"hang\" style=\"text-indent: -\(width); padding-left: \(width); margin-top: 0.5em; \">"
@@ -200,7 +202,7 @@ extension Mandoc {
         thisCommand.append( #"</div><div style="clear: both;"></div>"# )
       case ._enum:
         thisCommand.append("</ol>")
-      case .item:
+      case .item, .bullet:
         thisCommand.append("</ul>")
       case .hang:
         thisCommand.append("</div>")

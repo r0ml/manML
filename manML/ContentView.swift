@@ -70,7 +70,8 @@ struct ContentView: View {
         .onChange(of: mandoc) {
           Task {
             ss.manSource = mandoc
-            let h = await Mandoc(mandoc).toHTML()
+            let md = await Mandoc(mandoc)
+            let h = await md.toHTML()
             html = h
           }
         }
@@ -93,8 +94,10 @@ struct ContentView: View {
               // log.error("\(err.localizedDescription)")
               if let d = data,
                  let f = String.init(data: d, encoding: .utf8) {
-                mandoc = f
-                mantext = ""
+                Task { @MainActor in 
+                  mandoc = f
+                  mantext = ""
+                }
               }
               
             }

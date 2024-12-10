@@ -455,7 +455,7 @@ let escapeSequences = [
    
    // ====================
    
-   "&" : "", // "&#x200B;", // zero width space
+   "&" : "&#x200B;", // "&#x200B;", // zero width space
    " " : "&nbsp;",
    "|" : "&#8239;", // narrow non-breaking space
    "," : "&#8202;", // hair space

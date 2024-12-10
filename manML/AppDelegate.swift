@@ -39,7 +39,7 @@ class AppDelegate : NSObject, NSApplicationDelegate {
   }
  */
 
-  func makeMenu(_ s : [URL] ) -> NSMenu {
+  @MainActor func makeMenu(_ s : [URL] ) -> NSMenu {
     let a = NSMenu(title: "Manual")
     openers = []
     let i = s.map { p in
@@ -56,7 +56,7 @@ class AppDelegate : NSObject, NSApplicationDelegate {
   }
 }
 
-var openers : [Opener] = []
+@MainActor var openers : [Opener] = []
 
 class Opener : NSObject {
   var url : URL
@@ -80,11 +80,12 @@ class Opener : NSObject {
         print("resolving symbolic link \(url.path): \(e.localizedDescription)")
       }
     }
+    let lurl = url
     Task {
       do {
-        try await NSDocumentController.shared.openDocument(withContentsOf: url, display: true )
+        try await NSDocumentController.shared.openDocument(withContentsOf: lurl, display: true )
       } catch(let e) {
-        print("attempting to open document \(url.path): \(e.localizedDescription)")
+        print("attempting to open document \(lurl.path): \(e.localizedDescription)")
       }
     }
   }

@@ -82,7 +82,8 @@ extension Mandoc {
         if let jj = nextArg(tknz) {
           thisCommand.append(span("argument", jj.value))
           thisDelim = jj.closingDelimiter
-          while let kk = nextArg(tknz) {
+          while tknz.peekToken()?.value != "|",
+                let kk = nextArg(tknz) {
             thisCommand.append(thisDelim)
             thisCommand.append(span("argument", kk.value))
             thisDelim = kk.closingDelimiter
@@ -108,7 +109,9 @@ extension Mandoc {
         thisCommand = span("unimplemented", "Bf")
         
       case "Bk": // keep block on single line
-        thisCommand = span("unimplemented", "Bk")
+        let _ = tknz.rest // it should be `-words`
+        let j = macroBlock(["Ek"])
+        thisCommand = j
         
       case "Bl": // begin list.
         // FIXME: not all list types are supported yet
@@ -164,8 +167,8 @@ extension Mandoc {
         thisDelim = j.closingDelimiter
 
       case "Cm": // command modifiers
-        if let j = macro(tknz) {
-          thisCommand = span("command", j.value)
+        while let j = macro(tknz) {
+          thisCommand.append(thisDelim + span("command", j.value) )
           thisDelim = j.closingDelimiter
         }
 
@@ -221,6 +224,9 @@ extension Mandoc {
       case "Ed":
         thisCommand = "</blockquote>"
 
+      case "Ek":
+        let _ = tknz.rest
+
       case "El":
         thisCommand = span("unimplemented", ".El encountered without .Bl")
 
@@ -262,9 +268,14 @@ extension Mandoc {
       case "Fl":
         // This was upended by "ctags" and "ssh"
         while let jj = tknz.peekToken()?.value,
-              !(jj == "Ar" || jj == "Xo") ,
+              !(jj == "Ar" || jj == "Xo" || jj == "Ns") ,
               let j = nextArg(tknz) {
-          thisCommand.append("<nobr>" + span("flag", "-"+j.value)+"</nobr>")
+          if j.value == "\\" {
+            thisCommand.append(" ")
+             thisDelim = ""
+          } else {
+            thisCommand.append("<nobr>" + span("flag", "-"+j.value)+"</nobr>")
+          }
           if tknz.peekToken()?.value == "|"  {
             let _ = tknz.popToken()
             thisCommand.append("&ensp;| " /* &ensp;" */)
@@ -326,7 +337,7 @@ extension Mandoc {
         switch bs?.bl {
           case .tag:
             thisCommand = taggedParagraph(currentTag, currentDescription) // "</div></div>"
-          case .item, ._enum:
+          case .item, ._enum, .bullet:
             thisCommand = "<li>" + currentDescription + "</li>"
           case .hang:
             thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
