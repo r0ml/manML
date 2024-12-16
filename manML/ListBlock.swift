@@ -12,6 +12,7 @@ extension Mandoc {
     case hang
     case table // -column
     case bullet
+    case dash
   }
   
   // State for tagged paragraphs
@@ -165,7 +166,8 @@ extension Mandoc {
         thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width)\">"
         bs.bl = .table
       case "-dash":
-        thisCommand = span("unimplemented", "Bl " + jj )
+        thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"
+        bs.bl = .dash
       case "-diag":
         thisCommand = span("unimplemented", "Bl " + jj )
       case "-enum":
@@ -202,7 +204,7 @@ extension Mandoc {
         thisCommand.append( #"</div><div style="clear: both;"></div>"# )
       case ._enum:
         thisCommand.append("</ol>")
-      case .item, .bullet:
+      case .item, .bullet, .dash:
         thisCommand.append("</ul>")
       case .hang:
         thisCommand.append("</div>")

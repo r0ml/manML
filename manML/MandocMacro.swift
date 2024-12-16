@@ -1,25 +1,27 @@
 //
 // Copyright (c) 1868 Charles Babbage
 // Modernized by Robert "r0ml" Lefkowitz <code@liberally.net> in 2024
-    
+
 import Foundation
 
 let knownLibraries = ["libc" : "Standard C Library",
                       "libm" : "Math Library"
-                      ]
+]
 let faDelim = ",&ensp;"
 
 extension Mandoc {
   /** Evaluation of a single Mandoc ( or roff ) macro returning the HTML string  which is the output.
-        The tokenizer is advanced by consuming the arguments.  It does not necessarily consume the entire line.
+   The tokenizer is advanced by consuming the arguments.  It does not necessarily consume the entire line.
    */
   func macro(_ tknz : Tokenizer, _ bs : BlockState? = nil) -> Token? {
     
     
- guard let thisToken = tknz.next() else { return nil }
+    guard let thisToken = tknz.next() else { return nil }
     var thisCommand = ""
     var thisDelim = ""
     
+    // FIXME: use these categories?
+ /*
     if blockFullExplicit.keys.contains(String(thisToken.value) ) {
       
     } else if blockFullImplicit.keys.contains(String(thisToken.value) ) {
@@ -33,9 +35,10 @@ extension Mandoc {
     } else {
       
     }
-
-//    parseState.isFa = false
-//    parseState.previousClosingDelimiter = ""
+   */
+    
+    //    parseState.isFa = false
+    //    parseState.previousClosingDelimiter = ""
     
     switch thisToken.value {
       case "%A": parseState.rsState?.author.append( String(tknz.rest.value) )
@@ -52,7 +55,7 @@ extension Mandoc {
       case "%T": parseState.rsState?.article = String(tknz.rest.value)
       case "%U": parseState.rsState?.uri = String(tknz.rest.value)
       case "%V": parseState.rsState?.volume = String(tknz.rest.value)
-
+        
       case "Ac": // end Ao
         thisCommand = ">"
         thisDelim = "&thinsp;"
@@ -72,12 +75,12 @@ extension Mandoc {
         
       case "Ap": // apostrophe
         thisCommand = "'"
-      
+        
       case "Aq": // enclose rest of line in angle brackets
         let j = tknz.rest
-          thisCommand.append(span(nil, "&lt;\(j.value)&gt;"))
-          thisDelim = j.closingDelimiter
-
+        thisCommand.append(span(nil, "&lt;\(j.value)&gt;"))
+        thisDelim = j.closingDelimiter
+        
       case "Ar": // command arguments
         if let jj = nextArg(tknz) {
           thisCommand.append(span("argument", jj.value))
@@ -91,7 +94,7 @@ extension Mandoc {
         } else {
           thisCommand.append(span("argument", "file") + " " + span("argument", "…"))
         }
-
+        
       case "At": // at&t unix version
         if let jt = tknz.next() {
           thisCommand = "<nobr>"+span("os", att[String(jt.value)] ?? "AT&T Unix")+"</nobr>"
@@ -102,9 +105,9 @@ extension Mandoc {
         let _ = tknz.rest
         
       case "Bd": // begin a display block
-        // FIXME: doesn't handle all types of display blocks
-          thisCommand = blockBlock(tknz)
-
+                 // FIXME: doesn't handle all types of display blocks
+        thisCommand = blockBlock(tknz)
+        
       case "Bf": // begin a font block
         thisCommand = span("unimplemented", "Bf")
         
@@ -114,12 +117,12 @@ extension Mandoc {
         thisCommand = j
         
       case "Bl": // begin list.
-        // FIXME: not all list types are supported yet
+                 // FIXME: not all list types are supported yet
         thisCommand = listBlock(tknz)
         
       case "Bo": // begin square bracket block.
         thisCommand = span(nil, "["+macroBlock(["Bc"])+"]")
-
+        
       case "Bq": // enclose in square brackets.
         if let j = macro(tknz) {
           thisCommand = span(nil, "["+j.value+"]")
@@ -165,13 +168,13 @@ extension Mandoc {
         let j = tknz.rest
         thisCommand = span("kernel", j.value)
         thisDelim = j.closingDelimiter
-
+        
       case "Cm": // command modifiers
         while let j = macro(tknz) {
           thisCommand.append(thisDelim + span("command", j.value) )
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Db": // obsolete and ignored
         let _ = tknz.rest
         
@@ -223,13 +226,13 @@ extension Mandoc {
         
       case "Ed":
         thisCommand = "</blockquote>"
-
+        
       case "Ek":
         let _ = tknz.rest
-
+        
       case "El":
         thisCommand = span("unimplemented", ".El encountered without .Bl")
-
+        
       case "Em":
         if let j = macro(tknz) {
           thisCommand = "<em>\(j.value)</em>"
@@ -244,7 +247,7 @@ extension Mandoc {
         while let j = nextArg(tknz) {
           thisCommand.append(span("environment", j.value) )
           thisCommand.append(j.closingDelimiter.replacing(" ", with: "&ensp;"))
-//          thisDelim = j.closingDelimiter
+          //          thisDelim = j.closingDelimiter
         }
       case "Ex":
         let _ = tknz.next() // should equal "-std"
@@ -253,7 +256,7 @@ extension Mandoc {
         
         // Function argument
       case "Fa":
-//        let sep = parseState.wasFa ? ", " : ""
+        //        let sep = parseState.wasFa ? ", " : ""
         thisCommand.append(thisDelim)
         if let j = nextArg(tknz) {
           thisCommand.append(span("function-arg", j.value))
@@ -272,7 +275,7 @@ extension Mandoc {
               let j = nextArg(tknz) {
           if j.value == "\\" {
             thisCommand.append(" ")
-             thisDelim = ""
+            thisDelim = ""
           } else {
             thisCommand.append("<nobr>" + span("flag", "-"+j.value)+"</nobr>")
           }
@@ -331,13 +334,13 @@ extension Mandoc {
         thisCommand = "<div class=\"include\">#include &lt;\(j.value)&gt;</div>"
         thisDelim = j.closingDelimiter
       case "It":
-        let currentTag = parseLine(tknz)
+        let currentTag = parseLine(tknz, bs)
         let currentDescription = macroBlock(["It", "El"], bs)
         
         switch bs?.bl {
           case .tag:
             thisCommand = taggedParagraph(currentTag, currentDescription) // "</div></div>"
-          case .item, ._enum, .bullet:
+          case .item, ._enum, .bullet, .dash:
             thisCommand = "<li>" + currentDescription + "</li>"
           case .hang:
             thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
@@ -346,7 +349,7 @@ extension Mandoc {
           default:
             thisCommand = span("unimplemented", "BLError")
         }
-
+        
       case "Lb": // library
         let j = tknz.rest
         if let kl = knownLibraries[String(j.value)] {
@@ -378,7 +381,7 @@ extension Mandoc {
         if parseState.inSynopsis { thisCommand.append("<br>") }
         if let j = nextArg(tknz) {
           if name == nil { name = String(j.value) }
-//          if parseState.inSynopsis { thisCommand.append("<br/>") }
+          //          if parseState.inSynopsis { thisCommand.append("<br/>") }
           if j.value.isEmpty {
             thisCommand.append(span("utility", name ?? ""))
           } else {
@@ -390,8 +393,8 @@ extension Mandoc {
         }
         
       case "Ns":
-        return macro(tknz)
-          
+        return macro(tknz, bs)
+        
       case "Nx":
         if let j = macro(tknz) {
           thisCommand = span("os", "NetBSD "+j.value)
@@ -402,7 +405,7 @@ extension Mandoc {
         let _ = tknz.rest
         
       case "Oo":
-        let k = macroBlock(["Oc"])
+        let k = macroBlock(["Oc"], bs)
         thisCommand = "["+k+"]"
         
       case "Op":
@@ -425,7 +428,7 @@ extension Mandoc {
       case "Ox":
         let j = tknz.rest
         thisCommand = span("os", "OpenBSD\(j.value)")
-
+        
       case "Pa":
         while let j = nextArg(tknz) {
           thisCommand.append(thisDelim)
@@ -462,7 +465,7 @@ extension Mandoc {
         parseState.rsState = RsState()
         
       case "Sh", "SH": // can be used to end a tagged paragraph
-        // FIXME: need to handle tagged paragraph
+                       // FIXME: need to handle tagged paragraph
         
         let j = tknz.rest
         thisCommand = "<a id=\"\(j.value)\"><h4>" + span(nil, j.value) + "</h4></a>"
@@ -496,10 +499,10 @@ extension Mandoc {
           }
         }
         thisCommand = span("serious", thisCommand)
-      
+        
       case "Ta":
-//        thisCommand = "\t"
-          thisCommand = "</td><td>"
+        //        thisCommand = "\t"
+        thisCommand = "</td><td>"
         
       case "Tn":
         let j = parseLine(tknz)
@@ -550,9 +553,9 @@ extension Mandoc {
         // this would be the macro name if I were implementing roff macro definitions
         let _ = tknz.rest
         definitionBlock() // wkip over the definition
-  
+        
         // FIXME: handle tagged paragraph
-
+        
       case "TP":
         // FIXME: get the indentation from the argument
         let _ = tknz.next()?.value ?? "10"
@@ -562,7 +565,7 @@ extension Mandoc {
         }
         let line = linesSlice.removeFirst()
         let currentTag = handleLine(line)
-
+        
         let k = macroBlock(["TP", "PP", "SH"])
         thisCommand = taggedParagraph(currentTag, k)
         
@@ -606,7 +609,7 @@ extension Mandoc {
          }
          */
         var toggle = true
-//        let cd = ""
+        //        let cd = ""
         while let j = tknz.next()?.value {
           if toggle {
             thisCommand.append( span("bold", j) )
@@ -616,7 +619,7 @@ extension Mandoc {
           toggle.toggle()
           //         cd = tknz.closingDelimiter
         }
-//        thisCommand.append(cd)
+        //        thisCommand.append(cd)
         
       case "IR":
         var toggle = true
@@ -653,13 +656,13 @@ extension Mandoc {
         
         // FIXME: put me back -- but in an async way
         /*
-      case "so":
-        let link = tknz.next()?.value ?? "??"
-        if let file = manpath.link(String(link) ),
-           let k = try? String(contentsOf: file, encoding: .utf8) {
-          return Token(value: Substring(generateBody(k)), closingDelimiter: "", isMacro: false)
-        }
-        */
+         case "so":
+         let link = tknz.next()?.value ?? "??"
+         if let file = manpath.link(String(link) ),
+         let k = try? String(contentsOf: file, encoding: .utf8) {
+         return Token(value: Substring(generateBody(k)), closingDelimiter: "", isMacro: false)
+         }
+         */
         
       case "ll":
         let _ = tknz.rest
@@ -711,7 +714,7 @@ extension Mandoc {
         if let dd = tknz.next() {
           if let i = Int(dd.value) { ind = i }
         }
-
+        
         let kk = macroBlock(["IP"])
         
         if ind > 0 {
@@ -724,7 +727,7 @@ extension Mandoc {
         var j = textBlock(["fi"], parseState: parseState)
         if j.hasSuffix("\n.") { j.removeLast(2) }
         thisCommand = "<pre>\(j)</pre>"
-
+        
       case "fi":
         let _ = tknz.rest
         
