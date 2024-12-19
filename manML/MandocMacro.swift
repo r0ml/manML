@@ -264,6 +264,9 @@ extension Mandoc {
         }
       case "Fc":
         thisCommand = "<br/>"
+        if parseState.inSynopsis {
+          thisDelim = "<br>"
+        }
       case "Fd":
         let j = tknz.rest
         thisCommand = span("directive", j.value) + "<br/>"
@@ -318,7 +321,11 @@ extension Mandoc {
       case "Ft":
         let j = tknz.rest
         thisCommand = "<br/>" + span("function-type", j.value)
-        thisDelim = j.closingDelimiter
+        if parseState.inSynopsis {
+          thisDelim = "<br>"
+        } else {
+          thisDelim = j.closingDelimiter
+        }
       case "Fx":
         if let j = tknz.next() {
           thisCommand = span("os", "FreeBSD \(j.value)")
@@ -435,11 +442,19 @@ extension Mandoc {
           thisCommand.append( span("path", j.value))
           thisDelim = j.closingDelimiter
         }
+      case "Pc":
+        //        thisCommand = "<br>"
+        // for mbrtowc(3), it seems to do nothing
+        break
       case "Pf":
         if let j = tknz.next() {
           thisCommand.append(contentsOf: j.value)
         }
         
+      case "Po":
+        //        thisCommand = "<p>"
+        // for mbrtowc(3) , it seems to do nothing
+        break
       case "Lp", "Pp":
         thisCommand = "<p>"
       case "Pq":
@@ -522,9 +537,16 @@ extension Mandoc {
         thisCommand = "</code>"
         
       case "Vt": // global variable in the SYNOPSIS section, else variable type
-        let j = parseLine(tknz)
-        thisCommand = "<br>"+span("variable", j)
-        thisDelim = "\n"
+        if let j = tknz.next() {
+          //        parseLine(tknz)
+          if parseState.inSynopsis {
+            thisCommand = "<br>"+span("variable", j.value)
+            thisDelim = "\n"
+          } else {
+            thisCommand = "("+span("variable", j.value)+")"
+            thisDelim = j.closingDelimiter
+          }
+        }
         
       case "Xc":
         let _ = tknz.rest
