@@ -51,6 +51,7 @@
 		E766B3CC2CC30EE50081E3A4 /* Mandoc.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Mandoc.css; sourceTree = "<group>"; };
 		E7AEBD832CF1089D00E468CF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E7AEBD882CF1264200E468CF /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
+		E7B75A012D66E411004B6D22 /* manML.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = manML.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E7E43BD32CECD9A7007F3A48 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E7E43BD52CECD9A7007F3A48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E7E43BD62CECD9A7007F3A48 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -113,7 +114,7 @@
 		F487F49C141EADEF0093D633 = {
 			isa = PBXGroup;
 			children = (
-				E7AEBD882CF1264200E468CF /* TODO.md */,
+				E7B75A012D66E411004B6D22 /* manML.xcodeproj */,
 				E7AEBD832CF1089D00E468CF /* README.md */,
 				F487F4B2141EADEF0093D633 /* Resources */,
 				E7E43BDB2CECD9A7007F3A48 /* manML */,
@@ -144,6 +145,7 @@
 		F487F4B2141EADEF0093D633 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E7AEBD882CF1264200E468CF /* TODO.md */,
 				E766B3AC2CC178310081E3A4 /* Assets.xcassets */,
 				E766B3CC2CC30EE50081E3A4 /* Mandoc.css */,
 				E766B3C72CC30EE50081E3A4 /* default.man */,
