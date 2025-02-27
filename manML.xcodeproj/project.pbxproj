@@ -76,6 +76,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E720D87E2D6F898D008A669C /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 		E7E43BD42CECD9A7007F3A48 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
@@ -201,6 +206,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F487F4A8141EADEF0093D633 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = E720D87E2D6F898D008A669C /* Products */;
+					ProjectRef = E7B75A012D66E411004B6D22 /* manML.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				E711765F2CE0411C00236F4A /* manML */,
