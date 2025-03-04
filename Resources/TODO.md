@@ -15,4 +15,4 @@
 7) mkstemp (Ns)
 8) 7 re_format (\e<)
 9) tr ("-C -ab") (also -->Bf<--) (also LiTr)
-
+10) nl ( in the text, the flags are formatted improperly)
