@@ -17,7 +17,9 @@ struct SourceView : View {
           if var ssx = ss.sourceLine {
             let lines = ss.manSource.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
             if ssx >= lines.count { ss.sourceLine = lines.count - 1; ssx = lines.count - 1 }
-            source = String(lines[ssx])
+            if ssx >= 0 && ssx < lines.count {
+              source = String(lines[ssx])
+            }
           }
         }
       Spacer()

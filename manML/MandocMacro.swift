@@ -122,8 +122,19 @@ extension Mandoc {
         thisCommand = blockBlock(&linesSlice, tknz)
 
       case "Bf": // begin a font block
-        thisCommand = span("unimplemented", "Bf", lineNo(linesSlice))
-
+        if let j = tknz.next() {
+          let k = macroBlock(&linesSlice, ["Ef"])
+          switch j.value {
+            case "Em", "-emphasis":
+              thisCommand = span("", "<em>" + k + "</em>", lineNo(linesSlice))
+            case "Li", "-literal":
+              thisCommand = span("", "<code>" + k + "</code>", lineNo(linesSlice))
+            case "Sy", "-symbolic":
+              thisCommand = span("", "<i>" + k + "</i>", lineNo(linesSlice))
+            default:
+              thisCommand = k
+          }
+        }
       case "Bk": // keep block on single line
         let _ = tknz.rest // it should be `-words`
         let j = macroBlock(&linesSlice, ["Ek"])
@@ -198,8 +209,10 @@ extension Mandoc {
         date = String(tknz.rest.value)
 
       case "D1", "Dl": // single indented line
-        let j = tknz.rest.value
-        thisCommand = "<blockquote>"+span("", j, lineNo(linesSlice) )+"</blockquote>"
+        if let j = macro(&linesSlice, tknz) {
+          thisCommand = "<blockquote>"+span("", j.value, lineNo(linesSlice) )+"</blockquote>"
+          thisDelim = j.closingDelimiter
+        }
 
       case "Do": // enclose block in quotes
         let j = macroBlock(&linesSlice, ["Dc"])
@@ -240,6 +253,9 @@ extension Mandoc {
       case "Ed":
         thisCommand = "</blockquote>"
 
+      case "Ef":
+        let _ = tknz.rest
+        
       case "Ek":
         let _ = tknz.rest
 
@@ -284,8 +300,22 @@ extension Mandoc {
         let j = tknz.rest
         thisCommand = span("directive", j.value, lineNo(linesSlice)) + "<br/>"
         thisDelim = j.closingDelimiter
+
       case "Fl":
         // This was upended by "ctags" and "ssh"
+
+        if let j = tknz.next() {
+          thisCommand.append("<nobr>" + span("flag", "-"+j.value, lineNo(linesSlice)) + "</nobr>")
+          thisDelim = j.closingDelimiter
+        }
+
+        if let j = macro(&linesSlice, tknz) {
+          thisCommand.append(thisDelim)
+          thisCommand.append(contentsOf: j.value)
+          thisDelim = j.closingDelimiter
+        }
+
+/*
         while let jj = tknz.peekToken()?.value,
               !(jj == "Ar" || jj == "Xo" || jj == "Ns") ,
               let j = nextArg(tknz) {
@@ -303,12 +333,14 @@ extension Mandoc {
           if tknz.peekMacro() || tknz.peekToken() == nil { break }
           thisCommand.append(thisDelim)
         }
+*/
 
+
+        // if there is no argument, the result is a single dash
         if thisCommand.isEmpty {
           thisCommand = span("flag", "-", lineNo(linesSlice))
         }
 
-        // if there is no argument, the result is a single dash
       case "Fn":
         // for compat(5)
         if let j = tknz.next()?.value {
