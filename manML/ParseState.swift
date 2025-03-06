@@ -20,50 +20,50 @@ class RsState {
   var uri : String? // %U URI of reference document
   var volume : String? // %Volume number
 
-  func formatted(_ m : Mandoc) -> String {
+  func formatted(_ m : Mandoc, _ lno : Int) -> String {
     var output = ""
     let separator = ",&ensp;"
     for j in author {
       output.append(separator)
-      output.append(m.span("author", j))
+      output.append(m.span("author", j, lno))
     }
     for j in institution {
       output.append(separator)
-      output.append(m.span("author", j))
+      output.append(m.span("author", j, lno))
     }
 
     if let book {
       output.append(separator)
-      output.append(m.span("title", book))
+      output.append(m.span("title", book, lno))
     }
     if let article {
       output.append(separator)
-      output.append(m.span("title", article))
+      output.append(m.span("title", article, lno))
     }
     if let journal {
       output.append(separator)
-      output.append(m.span("journal", journal))
+      output.append(m.span("journal", journal, lno))
     }
     if let report {
       output.append(separator)
-      output.append(m.span("report", report))
+      output.append(m.span("report", report, lno))
     }
     if let issuer {
               output.append(separator)
-      output.append(m.span("issuer", issuer))
+      output.append(m.span("issuer", issuer, lno))
     }
     if let location {
               output.append(separator)
-      output.append(m.span("location", location))
+      output.append(m.span("location", location, lno))
     }
 
     if let volume {
               output.append(separator)
-      output.append(m.span("volume", volume))
+      output.append(m.span("volume", volume, lno))
     }
     if let page {
               output.append(separator)
-      output.append(m.span("page", page))
+      output.append(m.span("page", page, lno))
     }
     if let uri {
               output.append(separator)
@@ -71,7 +71,7 @@ class RsState {
     }
     if let date {
               output.append(separator)
-      output.append(m.span("date", date))
+      output.append(m.span("date", date, lno))
     }
 
     if let optional {
@@ -99,7 +99,8 @@ class ParseState {
   
   // ============================
   var definedString = [String:String]()
-  
+  var definedMacro = [String: [Substring] ]()
+
   // ============================
   var ifNestingDepth = 0
   

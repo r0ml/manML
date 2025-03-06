@@ -151,7 +151,7 @@ document.addEventListener('click', function(event) {
       if let messageBody = message.body as? String {
         if messageBody.hasPrefix("Source line: ") {
           let mm = messageBody.dropFirst("Source line: ".count)
-          let kk = Int(mm)!
+          let kk = Int(mm) ?? 0
           ss.sourceLine = kk
         }
 //        print("Mouse clicked with message: \(messageBody)")

@@ -68,20 +68,19 @@ struct ContentView: View {
           }
         }
         .onChange(of: mandoc) {
-          Task {
             ss.manSource = mandoc
-            let md = await Mandoc(mandoc)
-            let h = await md.toHTML()
+            let md = Mandoc(mandoc)
+            let h = md.toHTML()
             html = h
-          }
         }
+ 
         .onChange(of: modern) {
           Task {
             if modern {
               mandoc = ""
               mandoc = await readManFile(ss.which)
               ss.manSource = mandoc
-              html = await Mandoc(mandoc).toHTML()
+              html = Mandoc(mandoc).toHTML()
             } else {
               html = getTheHTML()
             }
@@ -157,7 +156,9 @@ struct ContentView: View {
     let i = s.map { p in
       let mi = NSMenuItem()
       mi.title = p.path
-      let o = Opener(p, { mandoc = $0 })
+      let o = Opener(p, {
+        mandoc = $0
+      })
       openers.append(o)
       mi.target = o
       mi.action = #selector(Opener.doRead(_:))

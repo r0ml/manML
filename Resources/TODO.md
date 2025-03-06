@@ -6,7 +6,6 @@
 
 # BUGS
 
-1) isalnum
 2) tgetstr
 3) uudecode
 4) cms_add0_cert

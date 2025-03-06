@@ -13,14 +13,14 @@ class Mandoc {
   var name : String?
   var argument : String?
 
-  var linesSlice : ArraySlice<Substring>
-  
+  var lnSlice : ArraySlice<Substring>
+
   var parseState = ParseState()
 
   init(_ s : String) {
     input = s
     origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
-    linesSlice = ArraySlice(origInput)
+    lnSlice = ArraySlice(origInput)
   }
   
   func macroPrefix(_ lin : Substring) -> (String, String)? {
@@ -35,13 +35,13 @@ class Mandoc {
   func generateBody(_ input : String) -> String {
     var output = ""
 
-    while !linesSlice.isEmpty {
-      var line = linesSlice.first!
+    while !lnSlice.isEmpty {
+      var line = lnSlice.first!
       
       if line.hasPrefix(".\\\"") {
-        output.append(commentBlock())
-        if linesSlice.isEmpty { return output }
-        line = linesSlice.first!
+        output.append(commentBlock(&lnSlice))
+        if lnSlice.isEmpty { return output }
+        line = lnSlice.first!
       }
       
       var cc : String? = nil
@@ -50,9 +50,9 @@ class Mandoc {
         line = line.prefix(upTo: k.startIndex)
       }
       
-      linesSlice.removeFirst()
+      lnSlice.removeFirst()
 
-      output.append(handleLine(line))
+      output.append(handleLine(&lnSlice, line))
 
       if let cc {
         output.append( "<!-- \(cc) -->\n")
@@ -122,9 +122,9 @@ class Mandoc {
 """
   }
 
-  func parseLine(_ tknz : Tokenizer, _ bs : BlockState? = nil) -> String {
+  func parseLine(_ linesSlice : inout ArraySlice<Substring>, _ tknz : Tokenizer, _ bs : BlockState? = nil) -> String {
     var output = Substring("")
-    while let thisCommand = macro(tknz, bs) {
+    while let thisCommand = macro(&linesSlice, tknz, bs) {
       output.append(contentsOf: thisCommand.value)
       output.append(contentsOf: thisCommand.closingDelimiter)
     }
@@ -135,26 +135,28 @@ class Mandoc {
     guard let k = tknz.peekToken() else { return nil }
     
     if k.isMacro {
-      return macro(tknz)
+      // FIXME: when I'm here, I don't need to read subsequence lines?
+      var aa = ArraySlice<Substring>()
+      return macro(&aa, tknz)
     }
     
     let _ = tknz.next()
     return k
   }
   
-  func handleLine(_ line : any StringProtocol) -> String {
+  func handleLine(_ linesSlice : inout ArraySlice<Substring>, _ line : any StringProtocol) -> String {
     if line.isEmpty {
       return "<p>\n"
     } else if line.first != "." {
-      return span("body", String(Tokenizer("", lineNo, parseState: parseState).escaped(line)))
+      return span("body", String(Tokenizer("", lineNo(linesSlice), parseState: parseState).escaped(line)), lineNo(linesSlice))
     } else {
-      let tknz = Tokenizer(line.dropFirst(), lineNo, parseState: parseState )
-      return parseLine(tknz)
+      let tknz = Tokenizer(line.dropFirst(), lineNo(linesSlice), parseState: parseState )
+      return parseLine(&linesSlice, tknz)
       //        thisLine.append( parseState.previousClosingDelimiter )
     }
   }
-  
-  var lineNo : Int {
-    linesSlice.startIndex - 1
+
+  func lineNo(_ n : ArraySlice<Substring>) -> Int {
+    n.startIndex - 1
   }
 }

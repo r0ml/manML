@@ -6,8 +6,8 @@
 import Foundation
 
 extension Mandoc {
-  func taggedParagraph(_ tag : String, _ description : any StringProtocol) -> String {
-    var m = #"<div class="list-item">"# + span("tag", tag + "&nbsp;")
+  func taggedParagraph(_ tag : String, _ description : any StringProtocol, _ lno : Int) -> String {
+    var m = #"<div class="list-item">"# + span("tag", tag + "&nbsp;", lno)
     m.append(#"<div class="tag-description">"# + description + "</div>")
     m.append(#"</div><div style="clear: both;"></div>"#)
     return m
@@ -25,11 +25,11 @@ extension Mandoc {
 """
   }
   
-  func span(_ c : String?, _ s : any StringProtocol) -> String {
+  func span(_ c : String?, _ s : any StringProtocol, _ lno : Int) -> String {
     if let c {
-      return "<span class=\"\(c)\" x-source=\(lineNo)>\(s)</span>"
+      return "<span class=\"\(c)\" x-source=\(lno)>\(s)</span>"
     } else {
-      return "<span x-source=\(lineNo)>\(s)</span>"
+      return "<span x-source=\(lno)>\(s)</span>"
     }
   }
 }
