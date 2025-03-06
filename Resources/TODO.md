@@ -6,9 +6,8 @@
 
 # BUGS
 
-2) tgetstr
-3) uudecode
-4) cms_add0_cert
+2) tgetstr - the .TP formatting is wrong
+3) uudecode -   -d, --D, ---Decode (after the first one, one too many dashes)
 5) column ( backslashes in the example )
 6) csplit
 7) mkstemp (Ns)

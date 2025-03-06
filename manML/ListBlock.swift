@@ -141,7 +141,7 @@ extension Mandoc {
       }
       k = tknz.next()
     }
-    var bs = BlockState()
+    let bs = BlockState()
     bs.bl = .none
     var offset = "0em" // indentation of the list
     if k?.value == "-offset" {
@@ -222,14 +222,14 @@ extension Mandoc {
     while(!linesSlice.isEmpty) {
       let line = linesSlice.first!
       if line.hasPrefix(".") {
-        let tknz = Tokenizer(line.dropFirst(), lineNo(linesSlice), parseState: parseState)
+        let tknz = Tokenizer(line.dropFirst(), parseState: parseState)
         if let pt = tknz.peekToken(),
            enders.contains( String(pt.value) ) {
           break
         }
       }
       linesSlice.removeFirst()
-      output.append(contentsOf: Tokenizer("", lineNo(linesSlice), parseState: parseState).escaped(line) )
+      output.append(contentsOf: Tokenizer("", parseState: parseState).escaped(line) )
       output.append("\n")
     }
     return String(output.dropLast())
@@ -241,12 +241,11 @@ extension Mandoc {
       var line = linesSlice.first!
       
       if line.hasPrefix(".") {
-        var tknz = Tokenizer(line.dropFirst(), lineNo(linesSlice), parseState: parseState)
+        var tknz = Tokenizer(line.dropFirst(), parseState: parseState)
         if let pt = tknz.peekToken() {
-          if enders.contains( String(pt.value) ) {
+          if enders.isEmpty || enders.contains( String(pt.value) ) {
             break
           }
-          break // break anyway?
         } else {
           break
         } // if enders.contains("") { break}
@@ -256,7 +255,7 @@ extension Mandoc {
         if let k = line.firstMatch(of: /\\\"/) {
           cc = String(line.suffix(from: k.endIndex))
           line = line.prefix(upTo: k.startIndex)
-          tknz = Tokenizer(line.dropFirst(), lineNo(linesSlice), parseState: parseState)
+          tknz = Tokenizer(line.dropFirst(), parseState: parseState)
         }
         
         let pl = parseLine(&linesSlice, tknz, bs)
@@ -265,7 +264,7 @@ extension Mandoc {
         output.append("\n")
       } else {
         linesSlice.removeFirst()
-        output.append(contentsOf: span("body", Tokenizer(line, lineNo(linesSlice), parseState: parseState).escaped(line), lineNo(linesSlice)))
+        output.append(contentsOf: span("body", Tokenizer(line, parseState: parseState).escaped(line), lineNo(linesSlice)))
         output.append(contentsOf: "\n")
       }
     }

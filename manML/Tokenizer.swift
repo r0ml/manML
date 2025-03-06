@@ -431,9 +431,6 @@ let escapeSequences = [
    "*(Px":  "POSIX", //  POSIX standard name
    "*(Ai":  "ANSI", //  ANSI standard name
 
-   
-   
-   
    "(/"  : "÷",
    
    // greek letters
@@ -476,24 +473,21 @@ class Tokenizer : IteratorProtocol {
   var string : Substring
   var nextWord : Substring?
   var nextToken : Token?
-  var stringPos : Int
-  
+//  var stringPos : Int
+
   let closingDelimiters = ".,:;)]?!"
   let openingDelimiters = "(["
   let middleDelimiters = "|"
   
-//  var previousClosingDelimiter = ""
-//  var definitions : [String : String]
   var parseState : ParseState
   
   var fontStyling = false
   var fontSizing = false
   
-  init(_ s : any StringProtocol, _ pos : Int, parseState : ParseState) { //   definitions: [String : String]) {
+  init(_ s : any StringProtocol, /* _ pos : Int, */ parseState : ParseState) { //   definitions: [String : String]) {
     string = Substring(s)
-//    self.definitions = parseState.definedString
     self.parseState = parseState
-    stringPos = pos
+//    stringPos = pos
   }
   
   func next() -> Token? {
@@ -575,26 +569,29 @@ class Tokenizer : IteratorProtocol {
       if string.first == "\"" { string.removeFirst() }
       // FIXME: need to deal with escaped closing quote
       return escaped(res)
-    }
-    // for that weird construction: "el\\{\\"
-    var k : Substring
-    if string.first == "\\" {
-      k = string.prefix(while: { $0 != " " && $0 != "\t" } )
     } else {
-      k = string.prefix(while: { $0 != " " && $0 != "\t" && $0 != "\\"} )
-    }
-    string = string.dropFirst(k.count)
-    return escaped(k)
+      // for that weird construction: "el\\{\\"
+      var k : Substring
+//      if string.first == "\\" {
+//        k = string.prefix(while: { $0 != " " && $0 != "\t" } )
+//      } else {
+        while !string.isEmpty {
+          if string.first == "\\" {
+            k = popEscapedChar(&string)
+            res.append(contentsOf: k)
+          } else {
+            k = string.prefix(1)
+            if k == " " || k == "\t" { break }
+            string.removeFirst()
+            res.append(contentsOf: k)
+          }
+        }
+        return res
+      }
+//      string = string.dropFirst(k.count)
+//      return escaped(k)
   }
 
-  /*
-  func peekToken() -> Substring? {
-    if nextWord != nil { return nextWord }
-    nextWord = popWord()
-    return nextWord
-  }
-*/
-  
   func peekMacro() -> Bool {
     if let nextWord {
       return macroList.contains(nextWord)
@@ -614,10 +611,6 @@ class Tokenizer : IteratorProtocol {
     return Token(value: Substring(output), closingDelimiter: cd, isMacro: true)
   }
 }
-
-
-
-
 
 extension Tokenizer {
   func escaped<T : StringProtocol>(_ ss : T ) -> Substring {
@@ -722,8 +715,6 @@ extension Tokenizer {
     s.removeFirst(2)
     return res
   }
-    
-  
   
   func popEscapedChar(_ s : inout Substring) -> Substring {
     let ss = s.dropFirst()

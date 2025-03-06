@@ -32,7 +32,8 @@ class Mandoc {
     else { return nil }
   }
   
-  func generateBody(_ input : String) -> String {
+  func generateBody() -> String {
+
     var output = ""
 
     while !lnSlice.isEmpty {
@@ -107,7 +108,7 @@ class Mandoc {
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
     let header = "<html><head><title>Mandoc</title><style>\(kk)</style></head><body>"
-    let output = generateBody(input)
+    let output = generateBody()
     
     return """
 \(header)
@@ -148,9 +149,9 @@ class Mandoc {
     if line.isEmpty {
       return "<p>\n"
     } else if line.first != "." {
-      return span("body", String(Tokenizer("", lineNo(linesSlice), parseState: parseState).escaped(line)), lineNo(linesSlice))
+      return span("body", String(Tokenizer("", parseState: parseState).escaped(line)), lineNo(linesSlice))
     } else {
-      let tknz = Tokenizer(line.dropFirst(), lineNo(linesSlice), parseState: parseState )
+      let tknz = Tokenizer(line.dropFirst(), parseState: parseState )
       return parseLine(&linesSlice, tknz)
       //        thisLine.append( parseState.previousClosingDelimiter )
     }

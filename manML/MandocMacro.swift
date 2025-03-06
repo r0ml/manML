@@ -199,8 +199,8 @@ extension Mandoc {
         
       case "D1", "Dl": // single indented line
         let j = tknz.rest.value
-        thisCommand = "<blockquote>\(j)</blockquote>"
-        
+        thisCommand = "<blockquote>"+span("", j, lineNo(linesSlice) )+"</blockquote>"
+
       case "Do": // enclose block in quotes
         let j = macroBlock(&linesSlice, ["Dc"])
         thisCommand = span(nil, "<q>"+j+"</q>", lineNo(linesSlice))
@@ -603,7 +603,7 @@ extension Mandoc {
         let line = linesSlice.removeFirst()
         let currentTag = handleLine(&linesSlice, line)
 
-        let k = macroBlock(&linesSlice, ["TP", "PP", "SH"])
+        let k = macroBlock(&linesSlice, []) // "TP", "PP", "SH"])
         thisCommand = taggedParagraph(currentTag, k, lineNo(linesSlice))
 
       case "P", "PP":
@@ -614,8 +614,8 @@ extension Mandoc {
         let _ = tknz.rest // eat the rest of the line
         
         let k = macroBlock(&linesSlice, ["RE"], bs)
-        thisCommand = "<div style=\"padding-left: 4em;\">\(k)</div>"
-        
+        thisCommand = "<div style=\"padding-left: 2em;\">\(k)</div>"
+
       case "RE":
         let _ = tknz.rest // already handled in RS
         
@@ -755,7 +755,7 @@ extension Mandoc {
 
         let _ = tknz.rest
         
-        let kk = macroBlock(&linesSlice, ["IP"])
+        let kk = macroBlock(&linesSlice, [])
 
         if ind > 0 {
           thisCommand = "<div style=\"margin-left: \(ind/2)em;text-indent: -0.7em\">" + (k?.value ?? "") + " " + kk + "</div>"

@@ -11,7 +11,7 @@ h4 { margin-left: -2.5em; margin-bottom: 3px; }
 h5 { margin-left: -1.5em; margin-bottom: 3px; }
 td { vertical-align: top; }
 code { white-space: pre; }
-blockquote { white-space: pre; margin-top: 0em; margin-bottom: 0em; font-family: "Courier"}
+blockquote { white-space: pre; margin-top: 0em; margin-bottom: 0em; font-family: "Courier"; margin-left: 2em}
 a.manref { color: darkviolet; text-decoration: none; }
 a.manref:hover { text-decoration: underline; }
 
