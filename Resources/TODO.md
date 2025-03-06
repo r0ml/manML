@@ -6,11 +6,8 @@
 
 # BUGS
 
-2) tgetstr - the .TP formatting is wrong
-3) uudecode -   -d, --D, ---Decode (after the first one, one too many dashes)
-5) column ( backslashes in the example )
-6) csplit
-7) mkstemp (Ns)
-8) 7 re_format (\e<)
-9) tr ("-C -ab") (also -->Bf<--) (also LiTr)
-10) nl ( in the text, the flags are formatted improperly)
+- tgetstr - the .TP formatting is wrong
+- uudecode -   -d, --D, ---Decode (after the first one, one too many dashes)
+- 7 re_format (\e<)
+- tr ("-C -ab") (also -->Bf<--) (also LiTr)
+- nl ( in the text, the flags are formatted improperly)

@@ -68,7 +68,7 @@ extension Mandoc {
       case "%T": parseState.rsState?.article = String(tknz.rest.value)
       case "%U": parseState.rsState?.uri = String(tknz.rest.value)
       case "%V": parseState.rsState?.volume = String(tknz.rest.value)
-        
+
       case "Ac": // end Ao
         thisCommand = ">"
         thisDelim = "&thinsp;"
@@ -85,15 +85,15 @@ extension Mandoc {
       case "Ao": // enclose in angle bracketrs
         thisCommand = "<"
         thisDelim = "&thinsp;"
-        
+
       case "Ap": // apostrophe
         thisCommand = "'"
-        
+
       case "Aq": // enclose rest of line in angle brackets
         let j = tknz.rest
         thisCommand.append(span(nil, "&lt;\(j.value)&gt;", lineNo(linesSlice)))
         thisDelim = j.closingDelimiter
-        
+
       case "Ar": // command arguments
         if let jj = nextArg(tknz) {
           thisCommand.append(span("argument", jj.value, lineNo(linesSlice)))
@@ -107,16 +107,16 @@ extension Mandoc {
         } else {
           thisCommand.append(span("argument", "file", lineNo(linesSlice)) + " " + span("argument", "…", lineNo(linesSlice)))
         }
-        
+
       case "At": // at&t unix version
         if let jt = tknz.next() {
           thisCommand = "<nobr>"+span("os", att[String(jt.value)] ?? "AT&T Unix", lineNo(linesSlice))+"</nobr>"
           thisDelim = jt.closingDelimiter
         }
-        
+
       case "Bc": // cloase a Bo block
         let _ = tknz.rest
-        
+
       case "Bd": // begin a display block
                  // FIXME: doesn't handle all types of display blocks
         thisCommand = blockBlock(&linesSlice, tknz)
@@ -128,7 +128,7 @@ extension Mandoc {
         let _ = tknz.rest // it should be `-words`
         let j = macroBlock(&linesSlice, ["Ek"])
         thisCommand = j
-        
+
       case "Bl": // begin list.
                  // FIXME: not all list types are supported yet
         thisCommand = listBlock(&linesSlice, tknz)
@@ -141,10 +141,10 @@ extension Mandoc {
           thisCommand = span(nil, "["+j.value+"]", lineNo(linesSlice))
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Brc": // end Bro
         let _ = tknz.rest
-        
+
       case "Bro": // curly brace block
         thisCommand = macroBlock(&linesSlice, ["Brc"])
 
@@ -153,7 +153,7 @@ extension Mandoc {
           thisCommand = span(nil, "{"+j.value+"}", lineNo(linesSlice))
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Bsx": // BSD version
         if let j = nextArg(tknz) {
           thisCommand = span("os", "BSD/OSv\(j.value)", lineNo(linesSlice))
@@ -162,7 +162,7 @@ extension Mandoc {
           thisCommand = span("os", "BSD/OS", lineNo(linesSlice))
           thisDelim = "\n"
         }
-        
+
       case "Bt": // deprecated
         thisCommand = span(nil, "is currently in beta test.", lineNo(linesSlice))
 
@@ -174,29 +174,29 @@ extension Mandoc {
           thisCommand = span("os", "BSD", lineNo(linesSlice))
           thisDelim = "\n"
         }
-        
+
         // ==============================================
-        
+
       case "Cd": // kernel configuration
         let j = tknz.rest
         thisCommand = span("kernel", j.value, lineNo(linesSlice))
         thisDelim = j.closingDelimiter
-        
+
       case "Cm": // command modifiers
         while let j = macro(&linesSlice, tknz) {
           thisCommand.append(thisDelim + span("command", j.value, lineNo(linesSlice)) )
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Db": // obsolete and ignored
         let _ = tknz.rest
-        
+
       case "Dc": // close a "Do" block
         let _ = tknz.rest
-        
+
       case "Dd": // document date
         date = String(tknz.rest.value)
-        
+
       case "D1", "Dl": // single indented line
         let j = tknz.rest.value
         thisCommand = "<blockquote>"+span("", j, lineNo(linesSlice) )+"</blockquote>"
@@ -216,33 +216,33 @@ extension Mandoc {
           }
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Dt": // document title
         title = String(tknz.rest.value)
         let tt = title!.split(separator: " ")
-        
+
         let (name, section) = (tt[0], tt[1])
-        
+
         thisCommand = pageHeader(name, section, sections[String(section)] ?? "Unknown")
-        
-        
+
+
       case "Dv": // defined variable
         if let j = nextArg(tknz) {
           thisCommand = span("defined-variable", j.value, lineNo(linesSlice))
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Dx": // dragonfly version
         thisCommand = span("unimplemented", "Dx", lineNo(linesSlice))
 
         // =======================================================
-        
+
       case "Ed":
         thisCommand = "</blockquote>"
-        
+
       case "Ek":
         let _ = tknz.rest
-        
+
       case "El":
         thisCommand = span("unimplemented", ".El encountered without .Bl", lineNo(linesSlice))
 
@@ -303,11 +303,11 @@ extension Mandoc {
           if tknz.peekMacro() || tknz.peekToken() == nil { break }
           thisCommand.append(thisDelim)
         }
-        
+
         if thisCommand.isEmpty {
           thisCommand = span("flag", "-", lineNo(linesSlice))
         }
-        
+
         // if there is no argument, the result is a single dash
       case "Fn":
         // for compat(5)
@@ -330,7 +330,7 @@ extension Mandoc {
         let k = macroBlock(&linesSlice, ["Fc"], bs)
         thisCommand.append(contentsOf: k.dropLast(faDelim.count+1) )
         thisCommand.append(");")
-        
+
       case "Ft":
         let j = tknz.rest
         thisCommand = "<br/>" + span("function-type", j.value, lineNo(linesSlice))
@@ -369,7 +369,7 @@ extension Mandoc {
           default:
             thisCommand = span("unimplemented", "BLError", lineNo(linesSlice))
         }
-        
+
       case "Lb": // library
         let j = tknz.rest
         if let kl = knownLibraries[String(j.value)] {
@@ -383,19 +383,19 @@ extension Mandoc {
           thisCommand.append(span("literal", j.value, lineNo(linesSlice)))
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Mt":
         if let j = tknz.next() {
           thisCommand = "<a href=\"mailto:\(j.value)\">\(j.value)</a>"
           thisDelim = j.closingDelimiter
         }
-        
+
       case "No": // revert to normal text.  Should not need to do anything?
         break
-        
+
       case "Nd":
         thisCommand = " - \(tknz.rest.value)" // removed a <br/> because it mucked up "ctags"
-        
+
       case "Nm":
         // in the case of ".Nm :" , the : winds up as the closing delimiter for the macro name.
         if parseState.inSynopsis { thisCommand.append("<br>") }
@@ -411,7 +411,7 @@ extension Mandoc {
         } else {
           if let name { thisCommand.append( span("utility", name, lineNo(linesSlice))) }
         }
-        
+
       case "Ns":
         return macro(&linesSlice, tknz, bs)
 
@@ -420,14 +420,14 @@ extension Mandoc {
           thisCommand = span("os", "NetBSD "+j.value, lineNo(linesSlice))
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Oc":
         let _ = tknz.rest
-        
+
       case "Oo":
         let k = macroBlock(&linesSlice, ["Oc"], bs)
         thisCommand = "["+k+"]"
-        
+
       case "Op":
         // in "apply", the .Ns macro is applied here, but "cd" is already " "
         // is the fix to have tknz maintain a previousClosingDelimiter?
@@ -437,7 +437,7 @@ extension Mandoc {
           thisDelim = j.closingDelimiter
         }
         thisCommand = "[" + thisCommand + "]"
-        
+
         // this needs to be parsed
       case "Os":
         let j = tknz.rest
@@ -463,7 +463,7 @@ extension Mandoc {
         if let j = tknz.next() {
           thisCommand.append(contentsOf: j.value)
         }
-        
+
       case "Po":
         //        thisCommand = "<p>"
         // for mbrtowc(3) , it seems to do nothing
@@ -475,12 +475,14 @@ extension Mandoc {
           thisCommand = "(\(j.value))"
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Ql":
-        let j = tknz.rest
-        thisCommand = span("literal", j.value, lineNo(linesSlice))
-        thisDelim = j.closingDelimiter
-        
+        if let j = macro(&linesSlice, tknz) {
+          thisCommand.append(thisDelim)
+          thisCommand.append( span("literal", j.value, lineNo(linesSlice)) )
+          thisDelim = j.closingDelimiter
+        }
+
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
         thisCommand = "<q>\(parseLine(&linesSlice, tknz))</q>"
