@@ -6,6 +6,4 @@
 
 # BUGS
 
-- tgetstr - the .TP formatting is wrong
-- uudecode -   -d, --D, ---Decode (after the first one, one too many dashes)
 - ssh   (-D [bind_address:port] -- loses is because macroblock starts mid-line (twice) for Xo and Oo

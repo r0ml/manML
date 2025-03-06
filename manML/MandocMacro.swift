@@ -644,11 +644,11 @@ extension Mandoc {
         thisCommand = "<p>"
         
       case "RS":
-        let _ = tknz.next()?.value ?? "10"
+        let tw = tknz.next()?.value ?? "10"
         let _ = tknz.rest // eat the rest of the line
         
         let k = macroBlock(&linesSlice, ["RE"], bs)
-        thisCommand = "<div style=\"padding-left: 2em;\">\(k)</div>"
+        thisCommand = "<div style=\"padding-left: 2em; --tag-width: \(tw)em\">\(k)</div>"
 
       case "RE":
         let _ = tknz.rest // already handled in RS
