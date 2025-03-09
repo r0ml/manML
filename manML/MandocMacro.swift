@@ -13,7 +13,9 @@ extension Mandoc {
   /** Evaluation of a single Mandoc ( or roff ) macro returning the HTML string  which is the output.
    The tokenizer is advanced by consuming the arguments.  It does not necessarily consume the entire line.
    */
-  func macro( _ linesSlice : inout ArraySlice<Substring>, _ tknz : Tokenizer, _ bs : BlockState? = nil) -> Token? {
+  func macro( _ linesSlice : inout ArraySlice<Substring>, _ tknz : Tokenizer,
+              _ bs : BlockState? = nil,
+              enders: [String]? = nil) -> Token? {
 
     
     guard let thisToken = tknz.next() else { return nil }
@@ -206,13 +208,24 @@ extension Mandoc {
         let _ = tknz.rest
 
       case "Dd": // document date
-        date = String(tknz.rest.value)
+        var d = String(tknz.rest.value)
+        // This weirdness is for ssh(1)
+        let k = "$Mdocdate:"
+        if d.hasPrefix(k) {
+          d = String(d.dropFirst(k.count))
+          if d.last == "$" {
+            d = String(d.dropLast())
+          }
+          d = d.trimmingCharacters(in: .whitespaces)
+        }
+        date = d
 
       case "D1", "Dl": // single indented line
-        if let j = macro(&linesSlice, tknz) {
+//        if let j = macro(&linesSlice, tknz) {
+        let j = tknz.rest
           thisCommand = "<blockquote>"+span("", j.value, lineNo(linesSlice) )+"</blockquote>"
           thisDelim = j.closingDelimiter
-        }
+//        }
 
       case "Do": // enclose block in quotes
         let j = macroBlock(&linesSlice, ["Dc"])
@@ -457,8 +470,19 @@ extension Mandoc {
         let _ = tknz.rest
 
       case "Oo":
-        let k = macroBlock(&linesSlice, ["Oc"], bs)
-        thisCommand = "["+k+"]"
+        // the Oc is often embedded somewhere in the rest of this line.
+        // the difference between this and Op is that Op terminates at line end, but Oo does not
+        while let j = macro(&linesSlice, tknz, enders: ["Oc"]) {
+          thisCommand.append(thisDelim)
+          thisCommand.append(contentsOf: j.value)
+          thisDelim = j.closingDelimiter
+        }
+
+
+ //       let k = macroBlock(&linesSlice, ["Oc"], bs)
+        thisCommand = "["+thisCommand+"]"
+// FIXME: should I do this?
+        thisDelim = ""
 
       case "Op":
         // in "apply", the .Ns macro is applied here, but "cd" is already " "
