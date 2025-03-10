@@ -85,24 +85,28 @@ class RsState {
   }
 }
 
-class ParseState {
-  // ============================
+class BlockState {
+  var bl : blState = .none
+  var functionDef = false
+}
 
-  var rsState : RsState?
-  
-  // ============================
-  var inSynopsis = false
+enum blState {
+  case none
+  case tag
+  case _enum
+  case item
+  case hang
+  case table // -column
+  case bullet
+  case dash
+}
 
-  var authorSplit = false
-  
-  var spacingMode = true
-  
-  // ============================
-  var definedString = [String:String]()
-  var definedMacro = [String: [Substring] ]()
-
-  // ============================
-  var ifNestingDepth = 0
-  
+// State for tagged paragraphs
+enum tpState {
+  case between
+  case started
+  case justTagged
+  case describing
+  case ready
 }
 

@@ -29,6 +29,7 @@
 		E7E43BDF2CECD9A7007F3A48 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E43BD62CECD9A7007F3A48 /* ContentView.swift */; };
 		E7E43BE02CECD9A7007F3A48 /* manMLApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E43BD92CECD9A7007F3A48 /* manMLApp.swift */; };
 		E7E43BE12CECD9A7007F3A48 /* Process.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E43BDA2CECD9A7007F3A48 /* Process.swift */; };
+		E7F889A12D7E84BD004E289B /* Escapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F889A02D7E84B5004E289B /* Escapes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +60,7 @@
 		E7E43BD82CECD9A7007F3A48 /* manML.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = manML.entitlements; sourceTree = "<group>"; };
 		E7E43BD92CECD9A7007F3A48 /* manMLApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = manMLApp.swift; sourceTree = "<group>"; };
 		E7E43BDA2CECD9A7007F3A48 /* Process.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Process.swift; sourceTree = "<group>"; };
+		E7F889A02D7E84B5004E289B /* Escapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Escapes.swift; sourceTree = "<group>"; };
 		F487F4AB141EADEF0093D633 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F487F4AE141EADEF0093D633 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		F487F4B0141EADEF0093D633 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -111,6 +113,7 @@
 				E7E43BD42CECD9A7007F3A48 /* Preview Content */,
 				E7E43BDA2CECD9A7007F3A48 /* Process.swift */,
 				E766B3BF2CC19AB70081E3A4 /* Tokenizer.swift */,
+				E7F889A02D7E84B5004E289B /* Escapes.swift */,
 				E73637EF2CFCC83D00D56A6B /* Settings.swift */,
 			);
 			path = manML;
@@ -251,6 +254,7 @@
 				E71177AC2CE11A2C00236F4A /* HTMLMacros.swift in Sources */,
 				E71177A62CE119B500236F4A /* Mandoc.swift in Sources */,
 				E71177A72CE119B500236F4A /* ParseState.swift in Sources */,
+				E7F889A12D7E84BD004E289B /* Escapes.swift in Sources */,
 				E73637F02CFCC83D00D56A6B /* Settings.swift in Sources */,
 				E711766F2CE0F2E700236F4A /* HTMLView.swift in Sources */,
 				E71177B22CE1218200236F4A /* CommandRunner.swift in Sources */,

@@ -5,6 +5,13 @@ import Foundation
 import AppKit
 
 class Mandoc {
+
+  static let closingDelimiters = ".,:;)]?!"
+  static let openingDelimiters = "(["
+  static let middleDelimiters = "|"
+
+
+
   private var origInput : [Substring]
   private var input : String
   var date : String?
@@ -13,14 +20,46 @@ class Mandoc {
   var name : String?
   var argument : String?
 
-  var lnSlice : ArraySlice<Substring>
+//  var parseState : ParseState
+  // ============================
 
-  var parseState = ParseState()
+  var lines : ArraySlice<Substring>
+
+  var rsState : RsState?
+
+  // ============================
+  var inSynopsis = false
+
+  var authorSplit = false
+
+  var spacingMode = true
+
+  // ============================
+  var definedString = [String:String]()
+  var definedMacro = [String: [Substring] ]()
+
+  // ============================
+  var ifNestingDepth = 0
+
+
+  var string : Substring
+  var nextWord : Substring?
+  var nextToken : Token?
+
+
+  var fontStyling = false
+  var fontSizing = false
+
+
+
+
 
   init(_ s : String) {
     input = s
     origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
-    lnSlice = ArraySlice(origInput)
+    lines = ArraySlice(origInput)
+    string = "" // set it to the first line?
+//    parseState = ParseState(self, lnSlice)
   }
   
   func macroPrefix(_ lin : Substring) -> (String, String)? {
@@ -36,13 +75,13 @@ class Mandoc {
 
     var output = ""
 
-    while !lnSlice.isEmpty {
-      var line = lnSlice.first!
-      
+    while !lines.isEmpty {
+      var line = lines.first!
+
       if line.hasPrefix(".\\\"") {
-        output.append(commentBlock(&lnSlice))
-        if lnSlice.isEmpty { return output }
-        line = lnSlice.first!
+        output.append(commentBlock(&lines))
+        if lines.isEmpty { return output }
+        line = lines.first!
       }
       
       var cc : String? = nil
@@ -51,9 +90,9 @@ class Mandoc {
         line = line.prefix(upTo: k.startIndex)
       }
       
-      lnSlice.removeFirst()
+      lines.removeFirst()
 
-      output.append(handleLine(&lnSlice, line))
+      output.append(handleLine(line))
 
       if let cc {
         output.append( "<!-- \(cc) -->\n")
@@ -62,54 +101,16 @@ class Mandoc {
       }
       
     }
-//      let separator : Character = "\n"
-/*      var thisLine = ""
-      
-      if parseState.ifNestingDepth > 0 {
-        let j = line.matches(of: /\\\}/ )
-        let k = line.matches(of: /\\\{/ )
-        parseState.ifNestingDepth += k.count - j.count
-        if parseState.ifNestingDepth < 0 { parseState.ifNestingDepth = 0 }
-        continue
-      }
-    
-      switch parseState.inItem {
-        case .started:
-          output.append(contentsOf: thisLine)
-          output.append(separator)
-          parseState.inItem = .justTagged
-        case .justTagged:
-          // KLUDGE for zshmodules(1)
-          if thisLine.trimmingCharacters(in: .whitespaces).isEmpty {
-            break
-          }
-          parseState.currentTag = thisLine
-          parseState.currentDescription = ""
-          parseState.inItem = .describing
-        case .describing:
-          parseState.currentDescription.append(contentsOf: thisLine)
-          parseState.currentDescription.append("\n")
-        case .between:
-
-          output.append(contentsOf: thisLine )
-          output.append(separator)
-        case .ready:
-          output.append(contentsOf: thisLine)
-          output.append(separator)
-          parseState.inItem = .describing
-      }
-    }
- */
     return output
   }
   
   func toHTML() -> String {
-    
+
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
     let header = "<html><head><title>Mandoc</title><style>\(kk)</style></head><body>"
     let output = generateBody()
-    
+
     return """
 \(header)
 \(output)
@@ -123,41 +124,16 @@ class Mandoc {
 """
   }
 
-  func parseLine(_ linesSlice : inout ArraySlice<Substring>, _ tknz : Tokenizer, _ bs : BlockState? = nil) -> String {
-    var output = Substring("")
-    while let thisCommand = macro(&linesSlice, tknz, bs) {
-      output.append(contentsOf: thisCommand.value)
-      output.append(contentsOf: thisCommand.closingDelimiter)
-    }
-    return String(output)
-  }
   
-  func nextArg(_ tknz: Tokenizer) -> Token? {
-    guard let k = tknz.peekToken() else { return nil }
-    
-    if k.isMacro {
-      // FIXME: when I'm here, I don't need to read subsequence lines?
-      var aa = ArraySlice<Substring>()
-      return macro(&aa, tknz)
-    }
-    
-    let _ = tknz.next()
-    return k
-  }
-  
-  func handleLine(_ linesSlice : inout ArraySlice<Substring>, _ line : any StringProtocol) -> String {
+  func handleLine( _ line : Substring) -> String {
     if line.isEmpty {
       return "<p>\n"
     } else if line.first != "." {
-      return span("body", String(Tokenizer("", parseState: parseState).escaped(line)), lineNo(linesSlice))
+      return span("body", String(escaped(line)), lineNo)
     } else {
-      let tknz = Tokenizer(line.dropFirst(), parseState: parseState )
-      return parseLine(&linesSlice, tknz)
-      //        thisLine.append( parseState.previousClosingDelimiter )
+      setz(line.dropFirst())
+      return parseLine()
     }
   }
 
-  func lineNo(_ n : ArraySlice<Substring>) -> Int {
-    n.startIndex - 1
-  }
 }

@@ -4,41 +4,16 @@
 import Foundation
 
 extension Mandoc {
-  enum blState {
-    case none
-    case tag
-    case _enum
-    case item
-    case hang
-    case table // -column
-    case bullet
-    case dash
-  }
-  
-  // State for tagged paragraphs
-  enum tpState {
-    case between
-    case started
-    case justTagged
-    case describing
-    case ready
-  }
-
-  class BlockState {
-    var bl : blState = .none
-    var functionDef = false
-  }
-  
-  func blockBlock(_ linesSlice : inout ArraySlice<Substring>, _ tknz : Tokenizer) -> String {
-    let j = tknz.next()?.value
-    var k = tknz.next()?.value
+  func blockBlock() -> String {
+    let j = next()?.value
+    var k = next()?.value
     var width = "3em"
     var thisCommand = ""
     
     if k == "-offset" {
-      let w = tknz.next()?.value
-      k = tknz.next()?.value
-      
+      let w = next()?.value
+      k = next()?.value
+
       switch w {
         case "indent":
           width = "3em"
@@ -52,7 +27,7 @@ extension Mandoc {
         case "center":
           break;
         default:
-          thisCommand.append( span("unimplemented", "-offset \(w ?? "")", lineNo(linesSlice) ) )
+          thisCommand.append( span("unimplemented", "-offset \(w ?? "")", lineNo ) )
       }
       
     }
@@ -71,23 +46,23 @@ extension Mandoc {
       case "-unfilled":
         thisCommand = "<blockquote>"
       default:
-        thisCommand = span("unimplemented", "Bd \(j ?? "")", lineNo(linesSlice))
+        thisCommand = span("unimplemented", "Bd \(j ?? "")", lineNo)
     }
 
     let bs = BlockState()
-    let block = macroBlock(&linesSlice, ["Ed"], bs)
+    let block = macroBlock(["Ed"], bs)
     thisCommand.append(block)
     return thisCommand
   }
   
   
-  func listBlock(_ linesSlice : inout ArraySlice<Substring>, _ tknz : Tokenizer) -> String {
-    let j = tknz.next()
-    var k = tknz.next()
+  func listBlock() -> String {
+    let j = next()
+    var k = next()
     var width = "6em"
     if k?.value == "-width" { // indentation of item bodies
-      let m = tknz.next()?.value ?? "3em"
-      
+      let m = next()?.value ?? "3em"
+
       let mm = m.prefix(while: { $0.isNumber} )
       if mm.count > 0 {
         var mn = Double(mm) ?? 3
@@ -139,18 +114,18 @@ extension Mandoc {
             width = "3em"
         }
       }
-      k = tknz.next()
+      k = next()
     }
     let bs = BlockState()
     bs.bl = .none
     var offset = "0em" // indentation of the list
     if k?.value == "-offset" {
-      let m = tknz.next()?.value ?? "4em"
+      let m = next()?.value ?? "4em"
       switch m {
         case "indent": offset = "2em"
         default: offset = "???"
       }
-      k = tknz.next()
+      k = next()
     }
     
     let isCompact = k?.value == "-compact"
@@ -169,7 +144,7 @@ extension Mandoc {
         thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"
         bs.bl = .dash
       case "-diag":
-        thisCommand = span("unimplemented", "Bl " + jj, lineNo(linesSlice) )
+        thisCommand = span("unimplemented", "Bl " + jj, lineNo )
       case "-enum":
         thisCommand = "<ol style=\"margin-top: 0.5em; \">"
         bs.bl = ._enum
@@ -177,28 +152,28 @@ extension Mandoc {
         thisCommand = "<div class=\"hang\" style=\"text-indent: -\(width); padding-left: \(width); margin-top: 0.5em; \">"
         bs.bl = .hang
       case "-hyphen":
-        thisCommand = span("unimplemented", "Bl " + jj , lineNo(linesSlice))
+        thisCommand = span("unimplemented", "Bl " + jj , lineNo)
       case "-inset":
-        thisCommand = span("unimplemented", "Bl " + jj, lineNo(linesSlice) )
+        thisCommand = span("unimplemented", "Bl " + jj, lineNo )
       case "-item":
         thisCommand = "<ul style=\"margin-left: \(width); margin-top: 0.5em;list-style-type: none; \">"
         bs.bl = .item
       case "-ohang":
-        thisCommand = span("unimplemented", "Bl " + jj, lineNo(linesSlice) )
+        thisCommand = span("unimplemented", "Bl " + jj, lineNo )
       case "-tag":
         thisCommand = "<div class=\"tag-list\" style=\"margin-top: 0.5em; --tag-width: \(width); --compact: \(isCompact ? 0 : 0.5)em \">"
         bs.bl = .tag
 
       default:
-        thisCommand = span("unimplemented", "Bl " + jj, lineNo(linesSlice) )
+        thisCommand = span("unimplemented", "Bl " + jj, lineNo )
     }
     
-    let _ = tknz.rest
-    
-    let blk = macroBlock(&linesSlice, ["El"] , bs)
+    let _ = rest
+
+    let blk = macroBlock(["El"] , bs)
     thisCommand.append(blk)
     
-    if !linesSlice.isEmpty { linesSlice.removeFirst() }
+    nextLine()
     switch bs.bl {
       case .tag:
         thisCommand.append( #"</div><div style="clear: both;"></div>"# )
@@ -211,70 +186,72 @@ extension Mandoc {
       case .table:
         thisCommand.append("</table>")
       default:
-        thisCommand.append(span("unimplemented", "BLError", lineNo(linesSlice)))
+        thisCommand.append(span("unimplemented", "BLError", lineNo))
     }
 
     return thisCommand
   }
   
-  func textBlock(_ linesSlice : inout ArraySlice<Substring>, _ enders : [String], parseState: ParseState) -> String {
+  func textBlock(_ enders : [String]) -> String {
       var output = ""
-    while(!linesSlice.isEmpty) {
-      let line = linesSlice.first!
+    while !atEnd {
+      var line = peekLine
       if line.hasPrefix(".") {
-        let tknz = Tokenizer(line.dropFirst(), parseState: parseState)
-        if let pt = tknz.peekToken(),
+        setz(line.dropFirst())
+        if let pt = peekToken(),
            enders.contains( String(pt.value) ) {
           break
         }
       }
-      linesSlice.removeFirst()
-      output.append(contentsOf: Tokenizer("", parseState: parseState).escaped(line) )
+      nextLine()
+      output.append(contentsOf: escaped(line) )
       output.append("\n")
     }
     return String(output.dropLast())
   }
   
-  func macroBlock(_ linesSlice : inout ArraySlice<Substring>, _ enders : [String], _ bs : BlockState? = nil) -> String {
+  func macroBlock(_ enders : [String], _ bs : BlockState? = nil) -> String {
     var output = ""
-    while !linesSlice.isEmpty {
-      var line = linesSlice.first!
-      
+    while !atEnd {
+      var line = peekLine
+
       if line.hasPrefix(".") {
-        var tknz = Tokenizer(line.dropFirst(), parseState: parseState)
-        if let pt = tknz.peekToken() {
+        setz(line.dropFirst())
+        if let pt = peekToken() {
           if enders.isEmpty || enders.contains( String(pt.value) ) {
+            setz("")
             break
           }
         } else {
+          setz("")
           break
         } // if enders.contains("") { break}
 
-        linesSlice.removeFirst()
+        nextLine()
         var cc : String? = nil
         if let k = line.firstMatch(of: /\\\"/) {
           cc = String(line.suffix(from: k.endIndex))
           line = line.prefix(upTo: k.startIndex)
-          tknz = Tokenizer(line.dropFirst(), parseState: parseState)
+          setz(line.dropFirst())
         }
         
-        let pl = parseLine(&linesSlice, tknz, bs)
+        let pl = parseLine(bs)
         output.append( pl )
         if let cc { output.append(contentsOf: "<!-- \(cc) -->") }
         output.append("\n")
       } else {
-        linesSlice.removeFirst()
-        output.append(contentsOf: span("body", Tokenizer(line, parseState: parseState).escaped(line), lineNo(linesSlice)))
+        nextLine()
+        output.append(contentsOf: span("body", escaped(line), lineNo))
         output.append(contentsOf: "\n")
       }
     }
     return output
   }
     
-  func definitionBlock(_ linesSlice : inout ArraySlice<Substring>) -> [Substring] {
+  func definitionBlock() -> [Substring] {
     var k = [Substring]()
-    while !linesSlice.isEmpty {
-      let line = linesSlice.removeFirst()
+    while !lines.isEmpty {
+      let line = lines.removeFirst()
       if line == ".." { break }
       k.append(line)
     }
