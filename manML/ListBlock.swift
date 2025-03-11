@@ -195,7 +195,7 @@ extension Mandoc {
   func textBlock(_ enders : [String]) -> String {
       var output = ""
     while !atEnd {
-      var line = peekLine
+      let line = peekLine
       if line.hasPrefix(".") {
         setz(line.dropFirst())
         if let pt = peekToken(),

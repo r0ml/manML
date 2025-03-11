@@ -668,7 +668,7 @@ extension Mandoc {
         let currentTag = handleLine(line)
 
         let k = macroBlock([]) // "TP", "PP", "SH"])
-        thisCommand = taggedParagraph(currentTag, k, lineNo)
+        thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
 
       case "P", "PP":
         thisCommand = "<p>"

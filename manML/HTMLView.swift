@@ -125,15 +125,28 @@ final class Handler : NSObject, WKScriptMessageHandler, WKNavigationDelegate {
     webView.evaluateJavaScript("""
 document.addEventListener('click', function(event) {
   // Example of sending a message to Swift with click details
-  console.log(event);
-//  window.webkit.messageHandlers.mouseClickMessage.postMessage('Mouse clicked at X: ' + event.clientX + ' Y: ' + event.clientY);
 
-//  let htmlx = document.documentElement.innerHTML;
-  let efp = document.elementFromPoint(event.clientX, event.clientY);
-  let jj = efp.attributes["x-source"].value
-//  let index = htmlx.indexOf(efp.innerHTML);
+//  console.log(event);
+
+// possibly use event.srcElement and look for a parent with an x-source attribute
+  
+  let efp = document.elementsFromPoint(event.clientX, event.clientY);
+
+//  console.log(efp);
+
+  var jj = -1;
+
+  for (var i = 0; i < efp.length; i++) {
+//    console.log(efp[i])
+    if (efp[i].hasAttribute("x-source")) {
+      jj = efp[i].attributes["x-source"].value
+      break;
+    }
+  } 
+  if (jj == -1) { return; }
   window.webkit.messageHandlers.mouseClickMessage.postMessage('Source line: '+Number(jj) );
 
+/*
   let range;
   let textNode;
   let offset;
@@ -142,7 +155,7 @@ document.addEventListener('click', function(event) {
   offset = sel.focusOffset;
   let xx = htmlx.indexOf(sel.focusNode.parentElement.innerHTML);
   window.webkit.messageHandlers.mouseClickMessage.postMessage('Selection Offset: '+offset+' '+sel.baseOffset+' '+sel.anchorOffset+' '+sel.extentOffset+' '+xx); 
-
+*/
 }, {'passive':true, 'capture':true} );
 """)
 

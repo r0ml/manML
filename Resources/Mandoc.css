@@ -4,7 +4,7 @@
   inherits: true;
 }
 
-body { color: blue; margin-left: 3em; font: serif; }
+body { color: blue; margin-left: 3em; font: serif; --tag-width: 3em;}
 q { quotes: "“" "”" "‘" "’" }
 q.single { quotes: "‘" "’" }
 h4 { margin-left: -2.5em; margin-bottom: 3px; }
@@ -46,7 +46,7 @@ a.manref:hover { text-decoration: underline; }
 .serious { font-weight: bold; }
 .small-caps { font-variant-caps: small-caps; }
 .standard { color: green; }
-.tag {  }
+.tag { }
 .tag-description { width: calc(100% - var(--tag-width) ); float: right; }
 .tag-list { list-style-type: none; list-style-position: inside; }
 .title { font-weight: bold; font-style: italic; }
@@ -55,4 +55,4 @@ a.manref:hover { text-decoration: underline; }
 .unimplemented::after { content: "<--"; }
 .utility { font-style: italic; font-weight: bold; }
 .variable { color: purple; font-weight: bold; }
-.volume::before { content: "vol. " }
+.volume::before { content: "vol. "; }
