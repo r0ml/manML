@@ -414,8 +414,10 @@ let escapeSequences = [
    "*q": "\"", //  double-quote
    "*(Rq": "”", //  right-double-quote
    "*(Lq":  "“", //  left-double-quote
-   "*(lp":  "(", //  right-parenthesis
-   "*(rp":  ")", //  left-parenthesis
+   "*(lp":  "(", //  left-parenthesis
+   "*[lp]": "(", //
+   "*(rp":  ")", //  right-parenthesis
+   "*[rp]": ")", // 
    "*(lq":  "“", //  left double-quote
    "*(rq":  "”", //  right double-quote
    "*(ua":  "↑", //  up arrow

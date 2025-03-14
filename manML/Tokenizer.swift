@@ -94,6 +94,7 @@ extension Mandoc {
       while let s = string.first {
         if s == "\"" { break }
         else if s == "\\" {
+          res.append("\\")
           string.removeFirst()
           if string.isEmpty {
             break
