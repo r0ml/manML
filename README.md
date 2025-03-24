@@ -19,3 +19,7 @@ within the mandoc source code -- showing the previous or following line(s).
 
 I built this to understand mandoc (and roff) better in case I wanted to author or edit man pages.
 Also, to have more elegantly formatted man pages.
+
+- 1 stat
+- 2 stat
+- sort -- the -k documentation: \&1.x displays wrong
