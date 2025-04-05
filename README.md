@@ -22,4 +22,3 @@ Also, to have more elegantly formatted man pages.
 
 - 1 stat
 - 2 stat
-- sort -- the -k documentation: \&1.x displays wrong

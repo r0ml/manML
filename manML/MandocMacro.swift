@@ -14,49 +14,49 @@ extension Mandoc {
    The tokenizer is advanced by consuming the arguments.  It does not necessarily consume the entire line.
    */
   func macro( _ bs : BlockState? = nil,
-              enders: [String]? = nil) -> Token? {
-
+              enders: [String]? = nil, flag: Bool = false) -> Token? {
+    
     
     guard let thisToken = next() else { return nil }
     var thisCommand = ""
     var thisDelim = ""
     
     // FIXME: use these categories?
- /*
-    if blockFullExplicit.keys.contains(String(thisToken.value) ) {
-      
-    } else if blockFullImplicit.keys.contains(String(thisToken.value) ) {
-      
-    } else if blockPartialExplicit.keys.contains(String(thisToken.value) ) {
-      
-    } else if blockPartialImplicit.contains(String(thisToken.value) ) {
-      
-    } else if inLine.contains(String(thisToken.value)) {
-      
-    } else {
-      
-    }
-   */
+    /*
+     if blockFullExplicit.keys.contains(String(thisToken.value) ) {
+     
+     } else if blockFullImplicit.keys.contains(String(thisToken.value) ) {
+     
+     } else if blockPartialExplicit.keys.contains(String(thisToken.value) ) {
+     
+     } else if blockPartialImplicit.contains(String(thisToken.value) ) {
+     
+     } else if inLine.contains(String(thisToken.value)) {
+     
+     } else {
+     
+     }
+     */
     
     //    parseState.isFa = false
     //    parseState.previousClosingDelimiter = ""
-
-    if var m = definedMacro[String(thisToken.value)] {
+    
+    if let m = definedMacro[String(thisToken.value)] {
       // FIXME: because of this catenation, the line numbering must be adjusted.
       // either need to maintain a list of line numbers with the source macro line repeated --
       // or a list of line numbers with the target macro text associated
       // or a first pass of the source substituting the defined macros.
       let pp = getLines()
-      var mm = ArraySlice(m+pp)
+      let mm = ArraySlice(m+pp)
       // FIXME: this modifies the lines being parsed, breaks the line numbering -- and should ideally be done in a way
       // to maintain the hierarchy of substitutions
       lines = mm
       return nil
-//      let output = macroBlock(&mm, [], BlockState() )
-//      return Token(value: Substring(output), closingDelimiter: "\n", isMacro: false)
+      //      let output = macroBlock(&mm, [], BlockState() )
+      //      return Token(value: Substring(output), closingDelimiter: "\n", isMacro: false)
     }
-
-
+    
+    
     switch thisToken.value {
       case "%A": rsState?.author.append( String(rest.value) )
       case "%B": rsState?.book = String(rest.value)
@@ -72,32 +72,32 @@ extension Mandoc {
       case "%T": rsState?.article = String(rest.value)
       case "%U": rsState?.uri = String(rest.value)
       case "%V": rsState?.volume = String(rest.value)
-
+        
       case "Ac": // end Ao
         thisCommand = ">"
         thisDelim = "&thinsp;"
       case "Ad": // memory address
         thisCommand = span("unimplemented", "Ad", lineNo)
-
+        
       case "An": // Author name
         let z = peekToken()
         if z?.value == "-split" { authorSplit = true; let _ = rest; break }
         else if z?.value == "-nosplit" { authorSplit = false; let _ = rest; break }
         let k = parseLine()
         thisCommand = span("author", k , lineNo)
-
+        
       case "Ao": // enclose in angle bracketrs
         thisCommand = "<"
         thisDelim = "&thinsp;"
-
+        
       case "Ap": // apostrophe
         thisCommand = "'"
-
+        
       case "Aq": // enclose rest of line in angle brackets
         let j = rest
         thisCommand.append(span(nil, "&lt;\(j.value)&gt;", lineNo))
         thisDelim = j.closingDelimiter
-
+        
       case "Ar": // command arguments
         if let jj = nextArg() {
           thisCommand.append(span("argument", jj.value, lineNo))
@@ -111,20 +111,20 @@ extension Mandoc {
         } else {
           thisCommand.append(span("argument", "file", lineNo) + " " + span("argument", "…", lineNo))
         }
-
+        
       case "At": // at&t unix version
         if let jt = next() {
           thisCommand = "<nobr>"+span("os", att[String(jt.value)] ?? "AT&T Unix", lineNo)+"</nobr>"
           thisDelim = jt.closingDelimiter
         }
-
+        
       case "Bc": // cloase a Bo block
         let _ = rest
-
+        
       case "Bd": // begin a display block
                  // FIXME: doesn't handle all types of display blocks
         thisCommand = blockBlock()
-
+        
       case "Bf": // begin a font block
         if let j = next() {
           let k = macroBlock(["Ef"])
@@ -143,32 +143,32 @@ extension Mandoc {
         let _ = rest // it should be `-words`
         let j = macroBlock(["Ek"])
         thisCommand = j
-
+        
       case "Bl": // begin list.
                  // FIXME: not all list types are supported yet
         thisCommand = listBlock()
-
+        
       case "Bo": // begin square bracket block.
         thisCommand = span(nil, "[" + macroBlock(["Bc"])+"]", lineNo)
-
+        
       case "Bq": // enclose in square brackets.
         if let j = macro() {
           thisCommand = span(nil, "["+j.value+"]", lineNo)
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Brc": // end Bro
         let _ = rest
-
+        
       case "Bro": // curly brace block
         thisCommand = macroBlock(["Brc"])
-
+        
       case "Brq": // curly brace
         if let j = macro() {
           thisCommand = span(nil, "{"+j.value+"}", lineNo)
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Bsx": // BSD version
         if let j = nextArg() {
           thisCommand = span("os", "BSD/OSv\(j.value)", lineNo)
@@ -177,10 +177,10 @@ extension Mandoc {
           thisCommand = span("os", "BSD/OS", lineNo)
           thisDelim = "\n"
         }
-
+        
       case "Bt": // deprecated
         thisCommand = span(nil, "is currently in beta test.", lineNo)
-
+        
       case "Bx":
         if let j = next() {
           thisCommand = span("os","\(j.value)BSD", lineNo) // + parseState.closingDelimiter
@@ -189,26 +189,26 @@ extension Mandoc {
           thisCommand = span("os", "BSD", lineNo)
           thisDelim = "\n"
         }
-
+        
         // ==============================================
-
+        
       case "Cd": // kernel configuration
         let j = rest
         thisCommand = span("kernel", j.value, lineNo)
         thisDelim = j.closingDelimiter
-
+        
       case "Cm": // command modifiers
-        while let j = macro() {
+        while let j = macro(flag: true) {
           thisCommand.append(thisDelim + span("command", j.value, lineNo) )
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Db": // obsolete and ignored
         let _ = rest
-
+        
       case "Dc": // close a "Do" block
         let _ = rest
-
+        
       case "Dd": // document date
         var d = String(rest.value)
         // This weirdness is for ssh(1)
@@ -221,18 +221,18 @@ extension Mandoc {
           d = d.trimmingCharacters(in: .whitespaces)
         }
         date = d
-
+        
       case "D1", "Dl": // single indented line
-//        if let j = macro(&linesSlice, tknz) {
+                       //        if let j = macro(&linesSlice, tknz) {
         let j = rest
-          thisCommand = "<blockquote>"+span("", j.value, lineNo )+"</blockquote>"
-          thisDelim = j.closingDelimiter
-//        }
-
+        thisCommand = "<blockquote>"+span("", j.value, lineNo )+"</blockquote>"
+        thisDelim = j.closingDelimiter
+        //        }
+        
       case "Do": // enclose block in quotes
         let j = macroBlock(["Dc"])
         thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
-
+        
       case "Dq": // enclosed in quotes
         let q = peekToken()
         if let j = macro() {
@@ -244,39 +244,39 @@ extension Mandoc {
           }
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Dt": // document title
         title = String(rest.value)
         let tt = title!.split(separator: " ")
-
+        
         let (name, section) = (tt[0], tt[1])
-
+        
         thisCommand = pageHeader(name, section, sections[String(section)] ?? "Unknown")
-
-
+        
+        
       case "Dv": // defined variable
         if let j = nextArg() {
           thisCommand = span("defined-variable", j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Dx": // dragonfly version
         thisCommand = span("unimplemented", "Dx", lineNo)
-
+        
         // =======================================================
-
+        
       case "Ed":
         thisCommand = "</blockquote>"
-
+        
       case "Ef":
         let _ = rest
         
       case "Ek":
         let _ = rest
-
+        
       case "El":
         thisCommand = span("unimplemented", ".El encountered without .Bl", lineNo)
-
+        
       case "Em":
         if let j = macro() {
           thisCommand = "<em>\(j.value)</em>"
@@ -297,7 +297,7 @@ extension Mandoc {
         let _ = next() // should equal "-std"
         let j = next()?.value ?? Substring(name ?? "??")
         thisCommand = "The \(span("utility",j, lineNo)) utility exits 0 on success, and >0 if an error occurs."
-
+        
         // Function argument
       case "Fa":
         //        let sep = parseState.wasFa ? ", " : ""
@@ -315,47 +315,25 @@ extension Mandoc {
         let j = rest
         thisCommand = span("directive", j.value, lineNo) + "<br/>"
         thisDelim = j.closingDelimiter
-
+        
       case "Fl":
         // This was upended by "ctags" and "ssh"
-
-        if let j = next() {
-          thisCommand.append("<nobr>" + span("flag", "-"+j.value, lineNo) + "</nobr>")
-          thisDelim = j.closingDelimiter
-        }
-
-        if let j = macro() {
-          thisCommand.append(thisDelim)
-          thisCommand.append(contentsOf: j.value)
-          thisDelim = j.closingDelimiter
-        }
-
-/*
-        while let jj = peekToken()?.value,
-              !(jj == "Ar" || jj == "Xo" || jj == "Ns") ,
-              let j = nextArg(tknz) {
-          if j.value == "\\" {
-            thisCommand.append(" ")
-            thisDelim = ""
-          } else {
-            thisCommand.append("<nobr>" + span("flag", "-"+j.value, lineNo)+"</nobr>")
+        repeat {
+          if let j = macro(flag: true) {
+            thisCommand.append(thisDelim)
+            thisCommand.append(contentsOf: "<nobr>" + span("flag", "-" + j.value, lineNo) + "</nobr>")
+            thisDelim = j.closingDelimiter
+          } else if let j = next() {
+            thisCommand.append("<nobr>" + span("flag", "-"+j.value, lineNo) + "</nobr>")
+            thisDelim = j.closingDelimiter
           }
-          if peekToken()?.value == "|"  {
-            let _ = popToken()
-            thisCommand.append("&ensp;| " /* &ensp;" */)
-          }
-          thisDelim = j.closingDelimiter
-          if peekMacro() || peekToken() == nil { break }
-          thisCommand.append(thisDelim)
-        }
-*/
-
-
+        } while thisDelim == "|"
+        
         // if there is no argument, the result is a single dash
         if thisCommand.isEmpty {
           thisCommand = span("flag", "-", lineNo)
         }
-
+        
       case "Fn":
         // for compat(5)
         if let j = next()?.value {
@@ -377,7 +355,7 @@ extension Mandoc {
         let k = macroBlock(["Fc"], bs)
         thisCommand.append(contentsOf: k.dropLast(faDelim.count+1) )
         thisCommand.append(");")
-
+        
       case "Ft":
         let j = rest
         thisCommand = "<br/>" + span("function-type", j.value, lineNo)
@@ -403,7 +381,7 @@ extension Mandoc {
       case "It":
         let currentTag = parseLine(bs)
         let currentDescription = macroBlock(["It", "El"], bs)
-
+        
         switch bs?.bl {
           case .tag:
             thisCommand = taggedParagraph(currentTag, currentDescription, lineNo) // "</div></div>"
@@ -416,7 +394,7 @@ extension Mandoc {
           default:
             thisCommand = span("unimplemented", "BLError", lineNo)
         }
-
+        
       case "Lb": // library
         let j = rest
         if let kl = knownLibraries[String(j.value)] {
@@ -430,19 +408,19 @@ extension Mandoc {
           thisCommand.append(span("literal", j.value, lineNo))
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Mt":
         if let j = next() {
           thisCommand = "<a href=\"mailto:\(j.value)\">\(j.value)</a>"
           thisDelim = j.closingDelimiter
         }
-
+        
       case "No": // revert to normal text.  Should not need to do anything?
         break
-
+        
       case "Nd":
         thisCommand = " - \(rest.value)" // removed a <br/> because it mucked up "ctags"
-
+        
       case "Nm":
         // in the case of ".Nm :" , the : winds up as the closing delimiter for the macro name.
         if inSynopsis { thisCommand.append("<br>") }
@@ -458,19 +436,19 @@ extension Mandoc {
         } else {
           if let name { thisCommand.append( span("utility", name, lineNo)) }
         }
-
+        
       case "Ns":
         return macro(bs)
-
+        
       case "Nx":
         if let j = macro() {
           thisCommand = span("os", "NetBSD "+j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Oc":
         let _ = rest
-
+        
       case "Oo":
         // the Oc is often embedded somewhere in the rest of this line.
         // the difference between this and Op is that Op terminates at line end, but Oo does not
@@ -479,15 +457,15 @@ extension Mandoc {
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
         }
-
+        
         // FIXME: for an "Oo" whih goes across multiple lines, need to do the "macroBlock" type of solution
         // so I need to be able to determine if I saw the closing macro during the above loop
-
- //       let k = macroBlock(&linesSlice, ["Oc"], bs)
+        
+        //       let k = macroBlock(&linesSlice, ["Oc"], bs)
         thisCommand = "["+thisCommand+"]"
-// FIXME: should I do this?
+        // FIXME: should I do this?
         thisDelim = ""
-
+        
       case "Op":
         // in "apply", the .Ns macro is applied here, but "cd" is already " "
         // is the fix to have tknz maintain a previousClosingDelimiter?
@@ -497,7 +475,7 @@ extension Mandoc {
           thisDelim = j.closingDelimiter
         }
         thisCommand = "[" + thisCommand + "]"
-
+        
         // this needs to be parsed
       case "Os":
         let j = rest
@@ -508,7 +486,7 @@ extension Mandoc {
       case "Ox":
         let j = rest
         thisCommand = span("os", "OpenBSD\(j.value)", lineNo)
-
+        
       case "Pa":
         while let j = nextArg() {
           thisCommand.append(thisDelim)
@@ -523,7 +501,7 @@ extension Mandoc {
         if let j = next() {
           thisCommand.append(contentsOf: j.value)
         }
-
+        
       case "Po":
         //        thisCommand = "<p>"
         // for mbrtowc(3) , it seems to do nothing
@@ -535,18 +513,18 @@ extension Mandoc {
           thisCommand = "(\(j.value))"
           thisDelim = j.closingDelimiter
         }
-
+        
       case "Ql":
         if let j = macro() {
           thisCommand.append(thisDelim)
           thisCommand.append( span("literal", j.value, lineNo) )
           thisDelim = j.closingDelimiter
         }
-
+        
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
         thisCommand = "<q>\(parseLine())</q>"
-
+        
       case "Re":
         if let re = rsState {
           thisCommand = re.formatted(self, lineNo)
@@ -590,7 +568,7 @@ extension Mandoc {
           }
         }
         thisCommand = span("serious", thisCommand, lineNo)
-
+        
       case "Ta":
         //        thisCommand = "\t"
         thisCommand = "</td><td>"
@@ -600,11 +578,11 @@ extension Mandoc {
         thisCommand = span("small-caps", j, lineNo)
       case "Ux":
         thisCommand = span("os", "UNIX", lineNo)
-
+        
       case "Va":
         let j = parseLine() // rest
         thisCommand = span("variable", j, lineNo)
-
+        
       case "Vb":
         let _ = rest
         thisCommand = "<code>"
@@ -629,7 +607,7 @@ extension Mandoc {
         
       case "Xo": // extend item
         thisCommand = macroBlock(["Xc"])
-
+        
       case "Xr":
         if let j = next(),
            let k = next() {
@@ -637,225 +615,239 @@ extension Mandoc {
           thisCommand = "<a class=\"manref\" href=\"mandocx:/\(j.value)/\(k.value)\">\(j.value)(\(k.value))</a>" // + parseState.closingDelimiter
           thisDelim = k.closingDelimiter
         }
-        // =================================================================================
-        // roff stuff
-        // =================================================================================
-      case "br":
-        thisCommand = "<br/>"
         
-      case "sp":
-        thisCommand = "<br/>"
-        
-        // "de" defines a macro -- and the macro definition goes until a line consisting of ".."
-      case "de":
-        // this would be the macro name if I were implementing roff macro definitions
-        if let nam = next() {
-          // FIXME: need to parse arguments
-          let a = rest
-          let val = definitionBlock() // wkip over the definition
-          definedMacro[String(nam.value)] = val
-        }
-
-      case "TP":
-        // FIXME: get the indentation from the argument
-        let ind = next()?.value ?? "10"
-
-        if atEnd {
-          break
-        }
-        let line = peekLine
-        nextLine()
-        let currentTag = handleLine(line)
-
-        let k = macroBlock([]) // "TP", "PP", "SH"])
-        thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
-
-      case "P", "PP":
-        thisCommand = "<p>"
-        
-      case "RS":
-        let tw = next()?.value ?? "10"
-        let _ = rest // eat the rest of the line
-        
-        let k = macroBlock(["RE"], bs)
-        thisCommand = "<div style=\"padding-left: 2em; --tag-width: \(tw)em\">\(k)</div>"
-
-      case "RE":
-        let _ = rest // already handled in RS
-        
-      case "B":
-        thisCommand = span("bold", rest.value, lineNo)
-
-      case "I":
-        thisCommand = span("italic", rest.value, lineNo)
-
-      case "BI":
-        if let j = next()?.value {
-          let k = rest
-          if k.value.isEmpty {
-            thisCommand = span("italic", span("bold", j, lineNo), lineNo)
-          } else {
-            thisCommand = span("italic", span("bold", j, lineNo) + k.value, lineNo)
-          }
-        }
-        
-      case "BR":
-        /*        if let j = next() {
-         let k = rest
-         if k.isEmpty {
-         thisCommand = span("roman", span("bold", j))
-         } else {
-         thisCommand = span("roman", span("bold", j) + k)
-         }
-         }
-         */
-        var toggle = true
-        //        let cd = ""
-        while let j = next()?.value {
-          if toggle {
-            thisCommand.append( span("bold", j, lineNo) )
-          } else {
-            thisCommand.append( span("regular", j, lineNo))
-          }
-          toggle.toggle()
-          //         cd = closingDelimiter
-        }
-        //        thisCommand.append(cd)
-        
-      case "IR":
-        var toggle = true
-        while let j = next()?.value {
-          if toggle {
-            thisCommand.append( span("italic", j, lineNo) )
-          } else {
-            thisCommand.append( span("regular", j, lineNo))
-          }
-          toggle.toggle()
-        }
-        
-      case "TH":
-        let name = next()?.value ?? "??"
-        let section = next()?.value ?? ""
-        title = "\(name)(\(section))"
-        date = String(next()?.value ?? "")
-        os = String(next()?.value ?? "")
-        let h = String(next()?.value ?? "")
-        thisCommand = pageHeader(name, section, h )
-        
-      case "HP": // Hanging paragraph.  Argument specifies amount of hang
-        thisCommand = "<p>" // not implemented properly
-        
-      case "na": // no alignment -- disables justification until .ad
-        break // not implemented
-      case "ad": // left/right justify
-        break // not implemented
-        
-      case "nh": // disable hypenation until .hy
-        break // not implemented
-      case "hy": // re-enable hyphenation
-        let _ = rest
-        break   // not implemented
-        
-        // FIXME: put me back -- but in an async way
-        /*
-         case "so":
-         let link = next()?.value ?? "??"
-         if let file = manpath.link(String(link) ),
-         let k = try? String(contentsOf: file, encoding: .utf8) {
-         return Token(value: Substring(generateBody(k)), closingDelimiter: "", isMacro: false)
-         }
-         */
-        
-      case "ll":
-        let _ = rest
-        // FIXME: this changes the line length (roff)
-        // for now, I will ignore this macro
-        
-      case "PD": // Psragraph distance.  Not implemented
-        let _ = next()
-        
-      case "IX": // ignore -- POD uses it to create an index entry
-        let _ = rest
-        
-      case "ds": // define string
-        let nam = next()?.value ?? "??"
-        let val = String(rest.value)
-        definedString[String(nam)] = val
-        
-      case "rm": // remove macro definition -- ignored for now
-        let _ = rest
-        
-      case "if":
-        if let j = next() {
-          if j.value == "n" {
-            let tr = rest
-            thisCommand = String(tr.value)
-            thisDelim = tr.closingDelimiter
-          } else {
-            let _ = rest
-          }
-        }
-        
-      case "ie", "el":
-        let j = rest.value
-        let k = j.matches(of: /\{/)
-        ifNestingDepth += k.count
-        
-      case "tr": // replace characters -- ignored for now
-        let _ = rest
-        
-      case "nr": // set number register -- ignored for now
-        let _ = rest
-        
-      case "rr": // remove register -- ignored for now because set register is ignored
-        let _ = rest
-        
-      case "IP":
-        let k = next()
-        var ind = 3
-        if let dd = next() {
-          if let i = Int(dd.value) { ind = i }
-        }
-
-        let _ = rest
-        
-        let kk = macroBlock([])
-
-        if ind > 0 {
-          thisCommand = "<div style=\"margin-left: \(ind/2)em;text-indent: -0.7em\">" + (k?.value ?? "") + " " + kk + "</div>"
-        }
-        
-        // thisCommand = "<p style=\"margin-left: \(ind)em;\">\(k?.value ?? "")"
-        
-      case "nf":
-        var j = textBlock(["fi"])
-        if j.hasSuffix("\n.") { j.removeLast(2) }
-        thisCommand = "<pre>\(j)</pre>"
-        
-      case "fi":
-        let _ = rest
-        
-      case "SS":
-        let j = rest.value
-        thisCommand = "<h5>" + span(nil, j, lineNo) + "</h5>"
-
-      case "SM":
-        let _ = rest // eat the line
-        if !atEnd {
-          let k = peekLine
-          nextLine()
-
-          let j = handleLine(k)
-          let ln = lineNo
-          thisCommand = "<span style=\"font-size: 80%;\" x-source=\(ln)>\(j)</span>"
-        }
         
       default:
-        if macroList.contains(thisToken.value) {
-          thisCommand = span("unimplemented", thisToken.value, lineNo)
+        if !flag {
+          // =================================================================================
+          // roff stuff
+          // =================================================================================
+          switch(thisToken.value) {
+            case "br":
+              thisCommand = "<br/>"
+              
+            case "sp":
+              thisCommand = "<br/>"
+              
+              // "de" defines a macro -- and the macro definition goes until a line consisting of ".."
+            case "de":
+              // this would be the macro name if I were implementing roff macro definitions
+              if let nam = next() {
+                // FIXME: need to parse arguments
+                //          let a = rest
+                let val = definitionBlock() // skip over the definition
+                definedMacro[String(nam.value)] = val
+              }
+              
+            case "TP":
+              // FIXME: get the indentation from the argument
+              //        let ind = next()?.value ?? "10"
+              
+              if atEnd {
+                break
+              }
+              let line = peekLine
+              nextLine()
+              let currentTag = handleLine(line)
+              
+              let k = macroBlock([]) // "TP", "PP", "SH"])
+              thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
+              
+            case "P", "PP":
+              thisCommand = "<p>"
+              
+            case "RS":
+              let tw = next()?.value ?? "10"
+              let _ = rest // eat the rest of the line
+              
+              let k = macroBlock(["RE"], bs)
+              thisCommand = "<div style=\"padding-left: 2em; --tag-width: \(tw)em\">\(k)</div>"
+              
+            case "RE":
+              let _ = rest // already handled in RS
+              
+            case "B":
+              thisCommand = span("bold", rest.value, lineNo)
+              
+            case "I":
+              thisCommand = span("italic", rest.value, lineNo)
+              
+            case "BI":
+              if let j = next()?.value {
+                let k = rest
+                if k.value.isEmpty {
+                  thisCommand = span("italic", span("bold", j, lineNo), lineNo)
+                } else {
+                  thisCommand = span("italic", span("bold", j, lineNo) + k.value, lineNo)
+                }
+              }
+              
+            case "BR":
+              /*        if let j = next() {
+               let k = rest
+               if k.isEmpty {
+               thisCommand = span("roman", span("bold", j))
+               } else {
+               thisCommand = span("roman", span("bold", j) + k)
+               }
+               }
+               */
+              var toggle = true
+              //        let cd = ""
+              while let j = next()?.value {
+                if toggle {
+                  thisCommand.append( span("bold", j, lineNo) )
+                } else {
+                  thisCommand.append( span("regular", j, lineNo))
+                }
+                toggle.toggle()
+                //         cd = closingDelimiter
+              }
+              //        thisCommand.append(cd)
+              
+            case "IR":
+              var toggle = true
+              while let j = next()?.value {
+                if toggle {
+                  thisCommand.append( span("italic", j, lineNo) )
+                } else {
+                  thisCommand.append( span("regular", j, lineNo))
+                }
+                toggle.toggle()
+              }
+              
+            case "TH":
+              let name = next()?.value ?? "??"
+              let section = next()?.value ?? ""
+              title = "\(name)(\(section))"
+              date = String(next()?.value ?? "")
+              os = String(next()?.value ?? "")
+              let h = String(next()?.value ?? "")
+              thisCommand = pageHeader(name, section, h )
+              
+            case "HP": // Hanging paragraph.  Argument specifies amount of hang
+              thisCommand = "<p>" // not implemented properly
+              
+            case "na": // no alignment -- disables justification until .ad
+              break // not implemented
+            case "ad": // left/right justify
+              break // not implemented
+              
+            case "nh": // disable hypenation until .hy
+              break // not implemented
+            case "hy": // re-enable hyphenation
+              let _ = rest
+              break   // not implemented
+              
+              // FIXME: put me back -- but in an async way
+              /*
+               case "so":
+               let link = next()?.value ?? "??"
+               if let file = manpath.link(String(link) ),
+               let k = try? String(contentsOf: file, encoding: .utf8) {
+               return Token(value: Substring(generateBody(k)), closingDelimiter: "", isMacro: false)
+               }
+               */
+              
+            case "ll":
+              let _ = rest
+              // FIXME: this changes the line length (roff)
+              // for now, I will ignore this macro
+              
+            case "PD": // Psragraph distance.  Not implemented
+              let _ = next()
+              
+            case "IX": // ignore -- POD uses it to create an index entry
+              let _ = rest
+              
+            case "ds": // define string
+              let nam = next()?.value ?? "??"
+              let val = String(rest.value)
+              definedString[String(nam)] = val
+              
+            case "rm": // remove macro definition -- ignored for now
+              let _ = rest
+              
+            case "if":
+              if let j = next() {
+                if j.value == "n" {
+                  let tr = rest
+                  thisCommand = String(tr.value)
+                  thisDelim = tr.closingDelimiter
+                } else {
+                  let _ = rest
+                }
+              }
+              
+            case "ie", "el":
+              let j = rest.value
+              let k = j.matches(of: /\{/)
+              ifNestingDepth += k.count
+              
+            case "tr": // replace characters -- ignored for now
+              let _ = rest
+              
+            case "nr": // set number register -- ignored for now
+              let _ = rest
+              
+            case "rr": // remove register -- ignored for now because set register is ignored
+              let _ = rest
+              
+            case "IP":
+              let k = next()
+              var ind = 3
+              if let dd = next() {
+                if let i = Int(dd.value) { ind = i }
+              }
+              
+              let _ = rest
+              
+              let kk = macroBlock([])
+              
+              if ind > 0 {
+                thisCommand = "<div style=\"margin-left: \(ind/2)em;text-indent: -0.7em\">" + (k?.value ?? "") + " " + kk + "</div>"
+              }
+              
+              // thisCommand = "<p style=\"margin-left: \(ind)em;\">\(k?.value ?? "")"
+              
+            case "nf":
+              var j = textBlock(["fi"])
+              if j.hasSuffix("\n.") { j.removeLast(2) }
+              thisCommand = "<pre>\(j)</pre>"
+              
+            case "fi":
+              let _ = rest
+              
+            case "SS":
+              let j = rest.value
+              thisCommand = "<h5>" + span(nil, j, lineNo) + "</h5>"
+              
+            case "SM":
+              let _ = rest // eat the line
+              if !atEnd {
+                let k = peekLine
+                nextLine()
+                
+                let j = handleLine(k)
+                let ln = lineNo
+                thisCommand = "<span style=\"font-size: 80%;\" x-source=\(ln)>\(j)</span>"
+              }
+            
+            default:
+              if macroList.contains(thisToken.value) {
+                thisCommand = span("unimplemented", thisToken.value, lineNo)
+              } else {
+                thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
+                thisDelim = thisToken.closingDelimiter
+              }
+          }
         } else {
-          thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
-          thisDelim = thisToken.closingDelimiter
+          if macroList.contains(thisToken.value) {
+            thisCommand = span("unimplemented", thisToken.value, lineNo)
+          } else {
+            thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
+            thisDelim = thisToken.closingDelimiter
+          }
         }
     }
     return Token(value: Substring(thisCommand), closingDelimiter: thisDelim, isMacro: true)

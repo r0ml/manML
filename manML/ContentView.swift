@@ -19,7 +19,9 @@ struct ContentView: View {
           HStack {
             Text(error).foregroundStyle(.red)
             Spacer()
-            Toggle("manML", isOn: $modern).padding()
+            Toggle("manML", isOn: $modern).padding().help(
+              "Use manML formatting instead of legacy mandoc"
+            )
           }
           HStack {
             TextField("Man", text: $mantext, prompt: Text("manual page") )
@@ -109,7 +111,7 @@ struct ContentView: View {
   func getTheHTML() -> String {
     error = ""
     do {
-      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(ss.which)`")
+      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(ss.which)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
       
       error = e!
       return o!
