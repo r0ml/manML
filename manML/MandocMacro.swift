@@ -327,7 +327,7 @@ extension Mandoc {
             thisCommand.append("<nobr>" + span("flag", "-"+j.value, lineNo) + "</nobr>")
             thisDelim = j.closingDelimiter
           }
-        } while thisDelim == "|"
+        } while thisDelim == " | "
         
         // if there is no argument, the result is a single dash
         if thisCommand.isEmpty {
@@ -833,6 +833,13 @@ extension Mandoc {
                 thisCommand = "<span style=\"font-size: 80%;\" x-source=\(ln)>\(j)</span>"
               }
             
+            case "TE":
+              let _ = rest
+              
+            case "TS": // define table start
+              let _ = rest
+              thisCommand = macroBlock(["TE"])
+              print(thisCommand)
             default:
               if macroList.contains(thisToken.value) {
                 thisCommand = span("unimplemented", thisToken.value, lineNo)

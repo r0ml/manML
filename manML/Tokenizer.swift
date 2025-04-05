@@ -48,11 +48,13 @@ extension Mandoc {
     } else {
       k = popWord()
     }
+
+/*
     nextWord = nil
-    
     if let k, Self.closingDelimiters.contains(k) {
       return Token(value: "", closingDelimiter: String(k), isMacro: false)
     }
+ */
     
     nextWord = popWord()
     var cd : String = ""
@@ -64,8 +66,8 @@ extension Mandoc {
       if nextWord != nil,
          nextWord!.count == 1,
          let cdx = nextWord!.first,
-         Self.closingDelimiters.contains(cdx) {
-        cd = String(cdx) + " "
+         Self.closingDelimiters.contains(cdx) || Self.middleDelimiters.contains(cdx) {
+        cd = Self.middleDelimiters.contains(cdx) ? " " + String(cdx) + " " : String(cdx) + " "
         nextWord = popWord()
       } else {
         cd = nextWord == nil ? "\n" : " "
@@ -152,7 +154,7 @@ extension Mandoc {
 
     if k.isMacro {
       // FIXME: when I'm here, I don't need to read subsequence lines?
-      var aa = ArraySlice<Substring>()
+//      var aa = ArraySlice<Substring>()
       return macro()
     }
 

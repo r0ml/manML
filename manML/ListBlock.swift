@@ -96,6 +96,7 @@ extension Mandoc {
             mn *= 100
           default:
             // FIXME: unimplemented
+            mn = Double(m.count)/2
             break
         }
         width = "\(mn)\(u)"
