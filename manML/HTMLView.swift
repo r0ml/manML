@@ -42,16 +42,7 @@ struct SourceView : View {
   var sourceLine : Int? = nil
   var lineSource : String = ""
   var manSource : String = ""
-  var which : String = ""  {
-    willSet {
-      if historyIndex == history.count - 1 {
-        history.append(newValue)
-        historyIndex = history.count - 1
-      } else {
-        history[historyIndex] = newValue
-      }
-    }
-  }
+  var which : String = ""
   
   var history : [String] = []
   var historyIndex : Int = -1
@@ -73,6 +64,14 @@ struct SourceView : View {
     }
   }
 
+  func updateHistory() {
+    if historyIndex == history.count - 1 {
+      history.append(which)
+      historyIndex = history.count - 1
+    } else {
+      history[historyIndex] = which
+    }
+  }
 
 }
 

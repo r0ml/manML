@@ -7,8 +7,9 @@ import UniformTypeIdentifiers
 struct ContentView: View {
   @AppStorage("lastMan") var mantext : String = ""
   @State var html : String = ""
-  @State var error : String = ""
-  @State var modern = true
+  // if this is initialized to "", the toolbar doesn't appear !!!
+  @State var error : String = " "
+  @State var legacy = false
   @State var mandoc : String = ""
   var manpath : Manpath
 
@@ -16,24 +17,19 @@ struct ContentView: View {
   
     var body: some View {
         VStack {
-          HStack {
-            Text(error).foregroundStyle(.red)
-            Spacer()
+//          HStack {
+//            Text(error).foregroundStyle(.red)
+/*            Spacer()
             Toggle("manML", isOn: $modern).padding().help(
               "Use manML formatting instead of legacy mandoc"
             )
-          }
+ */
+//          }
           HStack {
             TextField("Man", text: $mantext, prompt: Text("manual page") )
               .onSubmit {
-                Task {
-                  ss.which = mantext
-                  if modern {
-                    mandoc = await readManFile(ss.which)
-                  } else {
-                    html = getTheHTML()
-                  }
-                }
+                ss.which = mantext
+                self.runFormat()
               }
             Button("<") {
               ss.back()
@@ -47,27 +43,32 @@ struct ContentView: View {
           
           SourceView(ss: ss)
         }
-        .onAppear {
-          Task {
-            ss.which = mantext
-            if modern {
-              mandoc = await readManFile(ss.which)
-            } else {
-              html = getTheHTML()
+        .toolbar {
+          ToolbarItem(id: "error", placement: .status) {
+            HStack {
+              Text(error).foregroundStyle(.red)
             }
           }
+          ToolbarItem(id: "toggle") {
+            HStack {
+              Text("Legacy")
+              Toggle("Legacy", isOn: $legacy).toggleStyle(.switch).help(
+                "Use legacy mandoc formatting")
+            }
+          }
+
+        }
+        .task {
+          ss.which = mantext
+          runFormat()
         }
         .onChange(of: ss.which) {
-          Task {
-            if mantext != ss.which {
-              mantext = ss.which
-              if modern {
-                mandoc = await readManFile(ss.which)
-              } else {
-                html = getTheHTML()
-              }
-            }
+          if ss.which.isEmpty { return }
+          if mantext != ss.which {
+            mantext = ss.which
+            self.runFormat()
           }
+          ss.updateHistory()
         }
         .onChange(of: mandoc) {
             ss.manSource = mandoc
@@ -76,9 +77,14 @@ struct ContentView: View {
             html = h
         }
  
-        .onChange(of: modern) {
+        .onChange(of: legacy) {
+          if !legacy {
+            mandoc = ""
+          }
+          self.runFormat()
+/*
           Task {
-            if modern {
+            if !legacy {
               mandoc = ""
               mandoc = await readManFile(ss.which)
               ss.manSource = mandoc
@@ -87,6 +93,7 @@ struct ContentView: View {
               html = getTheHTML()
             }
           }
+ */
         }
         .padding()
         .onDrop(of: [UTType.content], isTargeted: nil) { providers in
@@ -108,6 +115,16 @@ struct ContentView: View {
         }
     }
 
+  func runFormat() {
+    Task {
+      if legacy {
+        html = getTheHTML()
+      } else {
+        mandoc = await readManFile(ss.which)
+      }
+    }
+  }
+  
   func getTheHTML() -> String {
     error = ""
     do {

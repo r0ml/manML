@@ -22,7 +22,7 @@ struct manMLApp: App {
     }
     Settings {
       SettingsView(manpath: manpath)
-    }
+    }.windowToolbarStyle(.unified(showsTitle: true))
   }
 
   /*
