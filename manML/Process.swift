@@ -26,10 +26,12 @@ public func captureStdoutLaunch(_ command: String, _ input : String? = nil,
   var writeok = true
   
   if let inputs, let input {
-    Task.detached {
-      if writeok {
-        inputs.fileHandleForWriting.write( input.data(using: .utf8) ?? Data() )
-        try? inputs.fileHandleForWriting.close()
+    let ifw = inputs.fileHandleForWriting
+    let dd = input.data(using: .utf8) ?? Data()
+    if writeok {
+      Task.detached {
+        ifw.write( dd )
+        try? ifw.close()
       }
     }
   }

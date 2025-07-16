@@ -55,17 +55,18 @@ struct SettingsView : View {
     //    openPanel.directoryURL = URL(fileURLWithPath: "/usr/share/man")
 
     openPanel.begin(completionHandler: { a in
-      error = ""
-      if a == .OK, let url = openPanel.url {
-        selectedDirectory = url
-        storeSecurityScopedBookmark(for: url, key: "manpath")
+      Task { @MainActor in
+        error = ""
+        if a == .OK, let url = openPanel.url {
+          selectedDirectory = url
+          storeSecurityScopedBookmark(for: url, key: "manpath")
+        }
+        
+        //     NSApplication.shared.activate(ignoringOtherApps: true)
+        (NSApp.windows.first { $0.title.contains(/Settings/) })?.makeKeyAndOrderFront(nil)
+        
+        //      openWindow(id: "settings-window")
       }
-      
- //     NSApplication.shared.activate(ignoringOtherApps: true)
-      (NSApp.windows.first { $0.title.contains(/Settings/) })?.makeKeyAndOrderFront(nil)
-      
-//      openWindow(id: "settings-window")
-
     })
   }
                     

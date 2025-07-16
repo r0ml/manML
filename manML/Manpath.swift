@@ -17,7 +17,9 @@ import Foundation
     "/opt/share/man",
     "/opt/local/share/man",
     "/Library/Developer/CommandLineTools/usr/share/man",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/share/man",
     "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man",
+    "/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man",
     "/Applications/Xcode.app/Contents/Developer/usr/share/man",
     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/man",
     "~/man",
@@ -184,11 +186,11 @@ import Foundation
                   res.append(z)
                 }
               }
-            } catch(let e) {
+            } catch {
               // ignore the error
             }
           }
-        } catch(let e) {
+        } catch {
           // ignore the error
         }
         

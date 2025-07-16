@@ -146,6 +146,7 @@ struct ContentView: View {
     if manx.count == 1 {
       manu = String(manx[0])
     } else if man.count >= 2 {
+      // FIXME: accept the specification in either order (section name)
       manu = "\(manx[1])/\(manx[0])"
     } else {
       manu = ""
