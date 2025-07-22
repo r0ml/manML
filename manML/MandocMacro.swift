@@ -248,9 +248,9 @@ extension Mandoc {
       case "Dt": // document title
         title = String(rest.value)
         let tt = title!.split(separator: " ")
-        
-        let (name, section) = (tt[0], tt[1])
-        
+
+        let (name, section) = (tt[0], tt.count > 1 ? tt[1] : "")
+
         thisCommand = pageHeader(name, section, sections[String(section)] ?? "Unknown")
         
         
@@ -303,7 +303,7 @@ extension Mandoc {
         //        let sep = parseState.wasFa ? ", " : ""
         thisCommand.append(thisDelim)
         if let j = nextArg() {
-          thisCommand.append(span("function-arg", j.value, lineNo))
+          thisCommand.append(span("function-arg", escaped(j.value), lineNo))
           thisDelim = bs?.functionDef == true ? faDelim : j.closingDelimiter
         }
       case "Fc":
@@ -313,7 +313,7 @@ extension Mandoc {
         }
       case "Fd":
         let j = rest
-        thisCommand = span("directive", j.value, lineNo) + "<br/>"
+        thisCommand = span("directive", escaped(j.value), lineNo) + "<br/>"
         thisDelim = j.closingDelimiter
         
       case "Fl":
@@ -358,12 +358,13 @@ extension Mandoc {
         
       case "Ft":
         let j = rest
-        thisCommand = "<br/>" + span("function-type", j.value, lineNo)
-        if inSynopsis {
-          thisDelim = "<br>"
-        } else {
-          thisDelim = j.closingDelimiter
-        }
+          thisCommand = "<br/>" + span("function-type", j.value, lineNo)
+          if inSynopsis {
+            thisDelim = "<br>"
+          } else {
+            thisDelim = j.closingDelimiter
+          }
+
       case "Fx":
         if let j = next() {
           thisCommand = span("os", "FreeBSD \(j.value)", lineNo)

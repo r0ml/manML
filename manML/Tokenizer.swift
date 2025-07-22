@@ -141,8 +141,10 @@ extension Mandoc {
     var output = ""
     var cd = ""
     while let t = next() {
-      output.append(cd)
-      output.append(contentsOf: t.value)
+      if t.value != "Ns" {
+        output.append(cd)
+        output.append(contentsOf: t.value)
+      }
       cd = t.closingDelimiter
     }
     return Token(value: Substring(output), closingDelimiter: cd, isMacro: true)

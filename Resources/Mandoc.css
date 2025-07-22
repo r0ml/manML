@@ -29,7 +29,7 @@ a.manref:hover { text-decoration: underline; }
 .flag { font-weight: bold; color: purple; }
 .function-arg { font-weight: bold; color: darksalmon; }
 .function-name { font-weight: bold; color: black; }
-.function-type { font-weight: bold; color: darkkhaki; }
+.function-type { font-weight: bold; color: green; margin-top: 0.5em; display: inline-block; }
 .hang { text-indentation: -6em; text-padding: 6em; margin-top: 1em; }
 .include { font-weight: bold; color: black; }
 .italic { font-style: italic; }
