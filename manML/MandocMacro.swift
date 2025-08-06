@@ -15,8 +15,7 @@ extension Mandoc {
    */
   func macro( _ bs : BlockState? = nil,
               enders: [String]? = nil, flag: Bool = false) -> Token? {
-    
-    
+
     guard let thisToken = next() else { return nil }
     var thisCommand = ""
     var thisDelim = ""
@@ -199,7 +198,9 @@ extension Mandoc {
         
       case "Cm": // command modifiers
         while let j = macro(flag: true) {
-          thisCommand.append(thisDelim + span("command", j.value, lineNo) )
+          if !j.value.isEmpty {
+            thisCommand.append(thisDelim + span("command", j.value, lineNo) )
+          }
           thisDelim = j.closingDelimiter
         }
         
@@ -224,9 +225,9 @@ extension Mandoc {
         
       case "D1", "Dl": // single indented line
                        //        if let j = macro(&linesSlice, tknz) {
-        let j = rest
-        thisCommand = "<blockquote>"+span("", j.value, lineNo )+"</blockquote>"
-        thisDelim = j.closingDelimiter
+        let j = parseLine()
+        thisCommand = "<blockquote>"+span("", j, lineNo )+"</blockquote>"
+        thisDelim = "\n"
         //        }
         
       case "Do": // enclose block in quotes
@@ -327,7 +328,7 @@ extension Mandoc {
             thisCommand.append("<nobr>" + span("flag", "-"+j.value, lineNo) + "</nobr>")
             thisDelim = j.closingDelimiter
           }
-        } while thisDelim == " | "
+        } while thisDelim == " | " || thisDelim == ", "
         
         // if there is no argument, the result is a single dash
         if thisCommand.isEmpty {
@@ -336,7 +337,8 @@ extension Mandoc {
         
       case "Fn":
         // for compat(5)
-        if let j = next()?.value {
+        let jj = next()
+        if let j = jj?.value {
           thisCommand = span("function-name", j, lineNo)
           thisCommand.append("(")
           var sep = ""
@@ -346,6 +348,7 @@ extension Mandoc {
             sep = ", "
           }
           thisCommand.append(")")
+          thisCommand.append(jj!.closingDelimiter)
         }
       case "Fo":
         let j = rest
@@ -377,8 +380,9 @@ extension Mandoc {
         }
       case "In": // include
         let j = rest
-        thisCommand = "<div class=\"include\">#include &lt;\(j.value)&gt;</div>"
+        thisCommand = "<br><br>"+span("include", "#include &lt;\(j.value)&gt;", lineNo)
         thisDelim = j.closingDelimiter
+
       case "It":
         let currentTag = parseLine(bs)
         let currentDescription = macroBlock(["It", "El"], bs)
@@ -424,20 +428,38 @@ extension Mandoc {
         
       case "Nm":
         // in the case of ".Nm :" , the : winds up as the closing delimiter for the macro name.
-        if inSynopsis { thisCommand.append("<br>") }
-        if let j = nextArg() {
-          if name == nil { name = String(j.value) }
-          //          if parseState.inSynopsis { thisCommand.append("<br/>") }
-          if j.value.isEmpty {
-            thisCommand.append(span("utility", name ?? "", lineNo))
-          } else {
-            thisCommand.append( span("utility", j.value, lineNo) )
-          }
-          thisDelim = j.closingDelimiter
-        } else {
-          if let name { thisCommand.append( span("utility", name, lineNo)) }
+        if inSynopsis {
+          thisCommand.append("<br>")
         }
-        
+
+        var named = false
+        while let j = nextArg() {
+          named = true
+          if j.isMacro || j.value.isEmpty {
+            if let name {
+              thisCommand.append( span("utility", name, lineNo))
+              thisCommand.append(" ")
+            }
+            thisCommand.append(thisToken.closingDelimiter)
+            thisCommand.append(contentsOf: j.value)
+            thisDelim = j.closingDelimiter
+            break
+          } else {
+            //        if let j = nextArg() {
+            if name == nil { name = String(j.value) }
+
+            //          if parseState.inSynopsis { thisCommand.append("<br/>") }
+
+            thisCommand.append(thisDelim)
+            thisCommand.append( span("utility", j.value, lineNo) )
+            thisDelim = j.closingDelimiter
+          }
+        }
+        if !named {
+          if let name { thisCommand.append( span("utility", name, lineNo)) }
+          thisDelim = thisToken.closingDelimiter
+        }
+
       case "Ns":
         return macro(bs)
         
@@ -448,13 +470,15 @@ extension Mandoc {
         }
         
       case "Oc":
-        let _ = rest
-        
+        // let _ = rest
+        thisCommand = "] "
+        thisDelim = ""
+        break
       case "Oo":
         // the Oc is often embedded somewhere in the rest of this line.
         // the difference between this and Op is that Op terminates at line end, but Oo does not
         while let j = macro(enders: ["Oc"]) {
-          thisCommand.append(thisDelim)
+          if j.value != "] " { thisCommand.append(thisDelim) }
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
         }
@@ -463,7 +487,7 @@ extension Mandoc {
         // so I need to be able to determine if I saw the closing macro during the above loop
         
         //       let k = macroBlock(&linesSlice, ["Oc"], bs)
-        thisCommand = "["+thisCommand+"]"
+        thisCommand = "["+thisCommand
         // FIXME: should I do this?
         thisDelim = ""
         
@@ -532,7 +556,16 @@ extension Mandoc {
         }
       case "Rs":
         rsState = RsState()
-        
+
+      case "Rv":
+        let j = rest
+        if j.value == "-std" {
+          thisCommand = span(nil, "The function returns the value 0 if successful; otherwise the value -1 is returned and errno is set to indicate the error.", lineNo)
+        } else {
+          thisCommand = span(nil, "-->Rv<--\(j.value)", lineNo)
+        }
+        thisDelim = j.closingDelimiter
+
       case "Sh", "SH": // can be used to end a tagged paragraph
                        // FIXME: need to handle tagged paragraph
         
@@ -544,10 +577,28 @@ extension Mandoc {
       case "Sm": // spacing mode
         let j = rest.value
         spacingMode = j.lowercased() != "off"
-        
+
+      case "Sc":
+        if enders?.last != "Sc" {
+          pushToken( thisToken )
+        }
+        return nil
+
+      case "So":
+        while let j = macro(enders: ["Sc"]) {
+          thisCommand.append(thisDelim)
+          thisCommand.append(contentsOf: j.value)
+          thisDelim = j.closingDelimiter
+        }
+        thisCommand = "<q class=\"single\">\(thisCommand)</q>"
+
       case "Sq":
-        let sq = parseLine()
-        thisCommand = "<q class=\"single\">\(sq)</q>"
+        while let sq = macro() {
+          thisCommand.append(contentsOf: thisDelim)
+          thisCommand.append(contentsOf: sq.value)
+          thisDelim = sq.closingDelimiter
+        }
+        thisCommand = "<q class=\"single\">\(thisCommand)</q>"
       case "Ss":
         let j = rest.value
         thisCommand = "<h5 id=\"\(j)\">\(j)</h5>"

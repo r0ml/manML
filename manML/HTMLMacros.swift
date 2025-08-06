@@ -26,6 +26,9 @@ extension Mandoc {
   }
   
   func span(_ c : String?, _ s : any StringProtocol, _ lno : Int) -> String {
+    if s.isEmpty {
+      return ""
+    }
     if let c {
       return "<span class=\"\(c)\" x-source=\(lno)>\(s)</span>"
     } else {

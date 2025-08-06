@@ -108,7 +108,7 @@ class Mandoc {
 
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
-    let header = "<html><head><title>Mandoc</title><style>\(kk)</style></head><body>"
+    let header = "<html><head><meta charset=\"UTF-8\"><title>Mandoc</title><style>\(kk)</style></head><body>"
     let output = generateBody()
 
     return """

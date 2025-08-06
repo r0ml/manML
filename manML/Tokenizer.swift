@@ -35,7 +35,15 @@ extension Mandoc {
     nextToken = popToken()
     return nextToken
   }
-  
+
+  func pushToken(_ t : Token) {
+    if nextToken == nil {
+      nextToken = t
+    } else {
+      string = t.value + " " + t.closingDelimiter + " " + string
+    }
+  }
+
   func popToken() -> Token? {
     if nextToken != nil {
       let t = nextToken
