@@ -20,5 +20,6 @@ within the mandoc source code -- showing the previous or following line(s).
 I built this to understand mandoc (and roff) better in case I wanted to author or edit man pages.
 Also, to have more elegantly formatted man pages.
 
+## Known Problems
 - 2 stat -- has embedded .TS -- which uses formatting for the `tbl` command.  Which is not yet implemented
 
