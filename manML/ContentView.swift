@@ -82,18 +82,6 @@ struct ContentView: View {
             mandoc = ""
           }
           self.runFormat()
-/*
-          Task {
-            if !legacy {
-              mandoc = ""
-              mandoc = await readManFile(ss.which)
-              ss.manSource = mandoc
-              html = Mandoc(mandoc).toHTML()
-            } else {
-              html = getTheHTML()
-            }
-          }
- */
         }
         .padding()
         .onDrop(of: [UTType.content], isTargeted: nil) { providers in
@@ -118,18 +106,18 @@ struct ContentView: View {
   func runFormat() {
     Task {
       if legacy {
-        html = getTheHTML()
+        html = getTheHTML(ss.which)
       } else {
         mandoc = await readManFile(ss.which)
       }
     }
   }
   
-  func getTheHTML() -> String {
+  func getTheHTML(_ man : String) -> String {
     error = ""
     do {
-      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(ss.which)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
-      
+      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(man)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
+
       error = e!
       return o!
       
@@ -138,19 +126,29 @@ struct ContentView: View {
     }
     return ""
   }
-  
-  func readManFile(_ man : String) async -> String {
-//    let ad = (NSApp.delegate) as? AppDelegate
+
+  func canonicalize(_ man : String) -> String {
     let manx = man.split(separator: " ", omittingEmptySubsequences: true)
     var manu : String
     if manx.count == 1 {
       manu = String(manx[0])
     } else if man.count >= 2 {
-      // FIXME: accept the specification in either order (section name)
-      manu = "\(manx[1])/\(manx[0])"
+      if let i = Int(manx[0]) {
+        manu = "\(manx[1])/\(manx[0])"
+      } else if let i = Int(manx[1]) {
+        manu = "\(manx[0])/\(manx[1])"
+      } else {
+        manu = ""
+      }
     } else {
       manu = ""
     }
+    return manu
+  }
+
+  func readManFile(_ man : String) async -> String {
+//    let ad = (NSApp.delegate) as? AppDelegate
+    let manu = canonicalize(man)
     let pp = mandocFind( URL(string: "mandoc:///\(manu)")!)
     if pp.count == 0 {
       error = "not found: \(man)"

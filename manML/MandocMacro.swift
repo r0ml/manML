@@ -327,6 +327,8 @@ extension Mandoc {
           } else if let j = next() {
             thisCommand.append("<nobr>" + span("flag", "-"+j.value, lineNo) + "</nobr>")
             thisDelim = j.closingDelimiter
+          } else {
+            thisDelim = "\n"
           }
         } while thisDelim == " | " || thisDelim == ", "
         
