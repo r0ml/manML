@@ -10,8 +10,6 @@ class Mandoc {
   static let openingDelimiters = "(["
   static let middleDelimiters = "|"
 
-
-
   private var origInput : [Substring]
   private var input : String
   var date : String?
@@ -71,7 +69,7 @@ class Mandoc {
     else { return nil }
   }
   
-  func generateBody() -> String {
+  func generateBody() throws(ThrowRedirect) -> String {
 
     var output = ""
 
@@ -92,7 +90,7 @@ class Mandoc {
       
       lines.removeFirst()
 
-      output.append(handleLine(line))
+      try output.append(handleLine(line))
 
       if let cc {
         output.append( "<!-- \(cc) -->\n")
@@ -104,12 +102,13 @@ class Mandoc {
     return output
   }
   
-  func toHTML() -> String {
+  func toHTML() throws(ThrowRedirect) -> String {
 
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
     let header = "<html><head><meta charset=\"UTF-8\"><title>Mandoc</title><style>\(kk)</style></head><body>"
-    let output = generateBody()
+
+    let output = try generateBody()
 
     return """
 \(header)
@@ -125,15 +124,112 @@ class Mandoc {
   }
 
   
-  func handleLine( _ line : Substring) -> String {
+  func handleLine( _ line : Substring) throws(ThrowRedirect) -> String {
     if line.isEmpty {
       return "<p>\n"
     } else if line.first != "." {
       return span("body", String(escaped(line)), lineNo)
     } else {
       setz(line.dropFirst())
-      return parseLine()
+      return try parseLine()
     }
   }
 
+  static func mandocFind( _ k : URL, _ manpath : Manpath) -> [URL] {
+    if k.scheme == "mandoc" {
+      let j = k.pathComponents
+      if j.count < 2 { return [] }
+      let j1 = j[1]
+      var j2 = j.count > 2 ? j[2] : nil
+      if j2?.isEmpty == true { j2 = nil }
+      let pp = manpath.find(j1, j2)
+      return pp
+    } else {
+      return [k]
+    }
+  }
+
+  static func getTheHTML(_ man : String, _ manpath : Manpath) -> (String, String) {
+    var error = ""
+    do {
+      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(man)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
+
+      error = e!
+      return (e!, o!)
+
+    } catch(let e) {
+      error = e.localizedDescription
+    }
+    return (error, "")
+  }
+
+  static func newParse(_ mm : String, _ manpath : Manpath) async -> (String, String, String) {
+    // Now, in theory, for handling a .so, I can throw an error from toHTML(), catch the error, load a new source text, parse it, and return it.
+    var mx = mm
+    while true {
+      let md = Mandoc(mx)
+      do {
+        let h = try md.toHTML()
+        return ("", h, mx)
+      } catch let e {
+        switch e {
+          case .to(let z):
+            let k = z.split(separator: "/").last ?? ""
+            let j = k.split(separator: ".").joined(separator: " ")
+            let (e, m) = await readManFile(j, manpath)
+            if !e.isEmpty { return (e, "", m) }
+            mx = m
+            continue
+        }
+      }
+    }
+  }
+
+  static func canonicalize(_ man : String) -> String {
+    let manx = man.split(separator: " ", omittingEmptySubsequences: true)
+    var manu : String
+    if manx.count == 1 {
+      manu = String(manx[0])
+    } else if man.count >= 2 {
+      if let i = Int(manx[0]) {
+        manu = "\(manx[1])/\(manx[0])"
+      } else if let i = Int(manx[1]) {
+        manu = "\(manx[0])/\(manx[1])"
+      } else {
+        manu = ""
+      }
+    } else {
+      manu = ""
+    }
+    return manu
+  }
+
+  static func readManFile(_ man : String, _ manpath : Manpath) async -> (String, String) {
+//    let ad = (NSApp.delegate) as? AppDelegate
+    let manu = canonicalize(man)
+    let pp = Mandoc.mandocFind( URL(string: "mandoc:///\(manu)")!, manpath)
+    var error = ""
+    if pp.count == 0 {
+      error = "not found: \(man)"
+/*    } else if pp.count > 1 {
+      error = "multiple found"
+      let a = makeMenu(pp)
+      a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+*/    } else if pp.count >= 1 {
+      error = ""
+      do {
+        return try (error, String(contentsOf: pp[0], encoding: .utf8))
+      } catch(let e) {
+        error = e.localizedDescription
+//        return (error, "")
+      }
+    }
+    error = "not found: \(man)"
+    return (error, "")
+  }
+
+}
+
+enum ThrowRedirect : Error {
+  case to(String)
 }

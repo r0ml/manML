@@ -5,8 +5,8 @@ import Foundation
 
 // see command manpath -- might not need the pathhelper stuff
 
-@Observable class Manpath {
-  
+@Observable final class Manpath : @unchecked Sendable {
+
   let key = "manpath"
   let defaultMansect = "1:2:3:4:5:6:7:8:9:n"
 

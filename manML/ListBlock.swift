@@ -50,8 +50,9 @@ extension Mandoc {
     }
 
     let bs = BlockState()
-    let block = macroBlock(["Ed"], bs)
-    thisCommand.append(block)
+    if let block = try? macroBlock(["Ed"], bs) {
+      thisCommand.append(block)
+    }
     return thisCommand
   }
   
@@ -76,9 +77,9 @@ extension Mandoc {
           case "P": // pica (1/6 inch)
             u = "pc"
           case "p": // point (1/72 inch)
-             u = "pt"
+            u = "pt"
           case "f": // scale `u' by 65536
-            // FIXME: unimplemented
+                    // FIXME: unimplemented
             break // unimplemented
           case "v": // default vertical span
             u = "vh"
@@ -107,7 +108,7 @@ extension Mandoc {
             width = "6em"
           case "left":
             width = "0"
-            
+
             // FIXME: what to do here?
           case "right":
             width = "12em"
@@ -128,17 +129,17 @@ extension Mandoc {
       }
       k = next()
     }
-    
+
     let isCompact = k?.value == "-compact"
     var thisCommand = ""
-    
+
     let jj = String(j?.value ?? "")
     switch jj {
       case "-bullet":
         thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"
         bs.bl = .bullet
       case "-column":
-//        thisCommand = span("unimplemented", "Bl " + jj )
+        //        thisCommand = span("unimplemented", "Bl " + jj )
         thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width)\">"
         bs.bl = .table
       case "-dash":
@@ -168,12 +169,13 @@ extension Mandoc {
       default:
         thisCommand = span("unimplemented", "Bl " + jj, lineNo )
     }
-    
+
     let _ = rest
 
-    let blk = macroBlock(["El"] , bs)
-    thisCommand.append(blk)
-    
+    if let blk = try? macroBlock(["El"] , bs) {
+      thisCommand.append(blk)
+    }
+
     nextLine()
     switch bs.bl {
       case .tag:
@@ -236,8 +238,9 @@ extension Mandoc {
           setz(line.dropFirst())
         }
         
-        let pl = parseLine(bs)
-        output.append( pl )
+        if let pl = try? parseLine(bs) {
+          output.append( pl )
+        }
         if let cc { output.append(contentsOf: "<!-- \(cc) -->") }
         output.append("\n")
       } else {

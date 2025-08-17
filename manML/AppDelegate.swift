@@ -58,10 +58,10 @@ class AppDelegate : NSObject, NSApplicationDelegate {
 
 @MainActor var openers : [Opener] = []
 
-class Opener : NSObject {
+class Opener : NSObject, @unchecked Sendable {
   var url : URL
-  var fn : ((String) -> Void)?
-  init(_ u : URL, _ fn : ((String)->Void)? = nil) {
+  var fn : ((String) async -> Void)?
+  init(_ u : URL, _ fn : ((String) async -> Void)? = nil) {
     url = u
     self.fn = fn
     super.init()
@@ -94,7 +94,7 @@ class Opener : NSObject {
     do {
       let res = try String(contentsOf: url, encoding: .utf8)
       if let fn {
-        fn(res)
+        Task { await fn(res) }
       }
     } catch(let e) {
       print(e.localizedDescription)

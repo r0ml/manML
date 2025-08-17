@@ -159,13 +159,13 @@ extension Mandoc {
   }
 
 
-  func nextArg() -> Token? {
+  func nextArg() throws(ThrowRedirect) -> Token? {
     guard let k = peekToken() else { return nil }
 
     if k.isMacro {
       // FIXME: when I'm here, I don't need to read subsequence lines?
 //      var aa = ArraySlice<Substring>()
-      return macro()
+      return try macro()
     }
 
     let _ = next()
@@ -175,9 +175,9 @@ extension Mandoc {
   /// parse the remainder of a line contained by the Tokenizer.  This assumes the line needs to be parsed for macro evaluation.
   /// Returns the HTML output as a result of the parsing.
   /// The blockstate is primarily used for lists (to determine if I'm starting a new list item or not -- for example)
-  func parseLine(_ bs : BlockState? = nil) -> String {
+  func parseLine(_ bs : BlockState? = nil) throws(ThrowRedirect) -> String {
     var output = Substring("")
-    while let thisCommand = macro(bs) {
+    while let thisCommand = try macro(bs) {
       output.append(contentsOf: thisCommand.value)
       output.append(contentsOf: thisCommand.closingDelimiter)
     }

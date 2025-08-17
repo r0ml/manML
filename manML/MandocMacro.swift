@@ -14,7 +14,7 @@ extension Mandoc {
    The tokenizer is advanced by consuming the arguments.  It does not necessarily consume the entire line.
    */
   func macro( _ bs : BlockState? = nil,
-              enders: [String]? = nil, flag: Bool = false) -> Token? {
+              enders: [String]? = nil, flag: Bool = false) throws(ThrowRedirect) -> Token? {
 
     guard let thisToken = next() else { return nil }
     var thisCommand = ""
@@ -82,7 +82,7 @@ extension Mandoc {
         let z = peekToken()
         if z?.value == "-split" { authorSplit = true; let _ = rest; break }
         else if z?.value == "-nosplit" { authorSplit = false; let _ = rest; break }
-        let k = parseLine()
+        let k = try parseLine()
         thisCommand = span("author", k , lineNo)
         
       case "Ao": // enclose in angle bracketrs
@@ -98,11 +98,11 @@ extension Mandoc {
         thisDelim = j.closingDelimiter
         
       case "Ar": // command arguments
-        if let jj = nextArg() {
+        if let jj = try nextArg() {
           thisCommand.append(span("argument", jj.value, lineNo))
           thisDelim = jj.closingDelimiter
           while peekToken()?.value != "|",
-                let kk = nextArg() {
+                let kk = try nextArg() {
             thisCommand.append(thisDelim)
             thisCommand.append(span("argument", kk.value, lineNo))
             thisDelim = kk.closingDelimiter
@@ -151,7 +151,7 @@ extension Mandoc {
         thisCommand = span(nil, "[" + macroBlock(["Bc"])+"]", lineNo)
         
       case "Bq": // enclose in square brackets.
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand = span(nil, "["+j.value+"]", lineNo)
           thisDelim = j.closingDelimiter
         }
@@ -163,13 +163,13 @@ extension Mandoc {
         thisCommand = macroBlock(["Brc"])
         
       case "Brq": // curly brace
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand = span(nil, "{"+j.value+"}", lineNo)
           thisDelim = j.closingDelimiter
         }
         
       case "Bsx": // BSD version
-        if let j = nextArg() {
+        if let j = try nextArg() {
           thisCommand = span("os", "BSD/OSv\(j.value)", lineNo)
           thisDelim = j.closingDelimiter
         } else {
@@ -197,7 +197,7 @@ extension Mandoc {
         thisDelim = j.closingDelimiter
         
       case "Cm": // command modifiers
-        while let j = macro(flag: true) {
+        while let j = try macro(flag: true) {
           if !j.value.isEmpty {
             thisCommand.append(thisDelim + span("command", j.value, lineNo) )
           }
@@ -225,7 +225,7 @@ extension Mandoc {
         
       case "D1", "Dl": // single indented line
                        //        if let j = macro(&linesSlice, tknz) {
-        let j = parseLine()
+        let j = try parseLine()
         thisCommand = "<blockquote>"+span("", j, lineNo )+"</blockquote>"
         thisDelim = "\n"
         //        }
@@ -236,7 +236,7 @@ extension Mandoc {
         
       case "Dq": // enclosed in quotes
         let q = peekToken()
-        if let j = macro() {
+        if let j = try macro() {
           // This is an ugly Kludge for find(1) and others that double quote literals.
           if q?.value == "Li" {
             thisCommand = String(j.value)
@@ -256,7 +256,7 @@ extension Mandoc {
         
         
       case "Dv": // defined variable
-        if let j = nextArg() {
+        if let j = try nextArg() {
           thisCommand = span("defined-variable", j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
@@ -279,17 +279,17 @@ extension Mandoc {
         thisCommand = span("unimplemented", ".El encountered without .Bl", lineNo)
         
       case "Em":
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand = "<em>\(j.value)</em>"
           thisDelim = j.closingDelimiter
         }
       case "Er":
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand = span("error", j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
       case "Ev":
-        while let j = nextArg() {
+        while let j = try nextArg() {
           thisCommand.append(span("environment", j.value, lineNo) )
           thisCommand.append(j.closingDelimiter.replacing(" ", with: "&ensp;"))
           //          thisDelim = j.closingDelimiter
@@ -303,7 +303,7 @@ extension Mandoc {
       case "Fa":
         //        let sep = parseState.wasFa ? ", " : ""
         thisCommand.append(thisDelim)
-        if let j = nextArg() {
+        if let j = try nextArg() {
           thisCommand.append(span("function-arg", escaped(j.value), lineNo))
           thisDelim = bs?.functionDef == true ? faDelim : j.closingDelimiter
         }
@@ -320,7 +320,7 @@ extension Mandoc {
       case "Fl":
         // This was upended by "ctags" and "ssh"
         repeat {
-          if let j = macro(flag: true) {
+          if let j = try macro(flag: true) {
             thisCommand.append(thisDelim)
             thisCommand.append(contentsOf: "<nobr>" + span("flag", "-" + j.value, lineNo) + "</nobr>")
             thisDelim = j.closingDelimiter
@@ -376,7 +376,7 @@ extension Mandoc {
           thisDelim = j.closingDelimiter
         }
       case "Ic":
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand = span("command", j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
@@ -386,7 +386,7 @@ extension Mandoc {
         thisDelim = j.closingDelimiter
 
       case "It":
-        let currentTag = parseLine(bs)
+        let currentTag = try parseLine(bs)
         let currentDescription = macroBlock(["It", "El"], bs)
         
         switch bs?.bl {
@@ -411,7 +411,7 @@ extension Mandoc {
         }
         thisDelim = j.closingDelimiter
       case "Li":
-        if let j = nextArg() {
+        if let j = try nextArg() {
           thisCommand.append(span("literal", j.value, lineNo))
           thisDelim = j.closingDelimiter
         }
@@ -435,7 +435,7 @@ extension Mandoc {
         }
 
         var named = false
-        while let j = nextArg() {
+        while let j = try nextArg() {
           named = true
           if j.isMacro || j.value.isEmpty {
             if let name {
@@ -463,10 +463,10 @@ extension Mandoc {
         }
 
       case "Ns":
-        return macro(bs)
-        
+        return try macro(bs)
+
       case "Nx":
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand = span("os", "NetBSD "+j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
@@ -479,7 +479,7 @@ extension Mandoc {
       case "Oo":
         // the Oc is often embedded somewhere in the rest of this line.
         // the difference between this and Op is that Op terminates at line end, but Oo does not
-        while let j = macro(enders: ["Oc"]) {
+        while let j = try macro(enders: ["Oc"]) {
           if j.value != "] " { thisCommand.append(thisDelim) }
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
@@ -496,7 +496,7 @@ extension Mandoc {
       case "Op":
         // in "apply", the .Ns macro is applied here, but "cd" is already " "
         // is the fix to have tknz maintain a previousClosingDelimiter?
-        while let j = macro() {
+        while let j = try macro() {
           thisCommand.append(thisDelim)
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
@@ -515,7 +515,7 @@ extension Mandoc {
         thisCommand = span("os", "OpenBSD\(j.value)", lineNo)
         
       case "Pa":
-        while let j = nextArg() {
+        while let j = try nextArg() {
           thisCommand.append(thisDelim)
           thisCommand.append( span("path", j.value, lineNo))
           thisDelim = j.closingDelimiter
@@ -536,13 +536,13 @@ extension Mandoc {
       case "Lp", "Pp":
         thisCommand = "<p>"
       case "Pq":
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand = "(\(j.value))"
           thisDelim = j.closingDelimiter
         }
         
       case "Ql":
-        if let j = macro() {
+        if let j = try macro() {
           thisCommand.append(thisDelim)
           thisCommand.append( span("literal", j.value, lineNo) )
           thisDelim = j.closingDelimiter
@@ -550,8 +550,8 @@ extension Mandoc {
         
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
-        thisCommand = "<q>\(parseLine())</q>"
-        
+        thisCommand = try "<q>\(parseLine())</q>"
+
       case "Re":
         if let re = rsState {
           thisCommand = re.formatted(self, lineNo)
@@ -587,7 +587,7 @@ extension Mandoc {
         return nil
 
       case "So":
-        while let j = macro(enders: ["Sc"]) {
+        while let j = try macro(enders: ["Sc"]) {
           thisCommand.append(thisDelim)
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
@@ -595,7 +595,7 @@ extension Mandoc {
         thisCommand = "<q class=\"single\">\(thisCommand)</q>"
 
       case "Sq":
-        while let sq = macro() {
+        while let sq = try macro() {
           thisCommand.append(contentsOf: thisDelim)
           thisCommand.append(contentsOf: sq.value)
           thisDelim = sq.closingDelimiter
@@ -611,7 +611,7 @@ extension Mandoc {
         let j = rest.value
         thisCommand = "<a class=\"manref\" href=\"#\(j)\">\(j)</a>"
       case "Sy":
-        while let j = macro() {
+        while let j = try macro() {
           thisCommand.append(thisDelim)
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
@@ -628,13 +628,13 @@ extension Mandoc {
         thisCommand = "</td><td>"
         
       case "Tn":
-        let j = parseLine()
+        let j = try parseLine()
         thisCommand = span("small-caps", j, lineNo)
       case "Ux":
         thisCommand = span("os", "UNIX", lineNo)
         
       case "Va":
-        let j = parseLine() // rest
+        let j = try parseLine() // rest
         thisCommand = span("variable", j, lineNo)
         
       case "Vb":
@@ -702,8 +702,8 @@ extension Mandoc {
               }
               let line = peekLine
               nextLine()
-              let currentTag = handleLine(line)
-              
+              let currentTag = try handleLine(line)
+
               let k = macroBlock([]) // "TP", "PP", "SH"])
               thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
               
@@ -793,16 +793,15 @@ extension Mandoc {
               let _ = rest
               break   // not implemented
               
-              // FIXME: put me back -- but in an async way
-              /*
                case "so":
+              /*
                let link = next()?.value ?? "??"
                if let file = manpath.link(String(link) ),
                let k = try? String(contentsOf: file, encoding: .utf8) {
                return Token(value: Substring(generateBody(k)), closingDelimiter: "", isMacro: false)
                }
                */
-              
+              throw ThrowRedirect.to( String(next()?.value ?? "??") )
             case "ll":
               let _ = rest
               // FIXME: this changes the line length (roff)
@@ -882,7 +881,7 @@ extension Mandoc {
                 let k = peekLine
                 nextLine()
                 
-                let j = handleLine(k)
+                let j = try handleLine(k)
                 let ln = lineNo
                 thisCommand = "<span style=\"font-size: 80%;\" x-source=\(ln)>\(j)</span>"
               }
