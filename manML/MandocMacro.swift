@@ -666,7 +666,7 @@ extension Mandoc {
         if let j = next(),
            let k = next() {
           
-          thisCommand = "<a class=\"manref\" href=\"mandocx:/\(j.value)/\(k.value)\">\(j.value)(\(k.value))</a>" // + parseState.closingDelimiter
+          thisCommand = "<a class=\"manref\" href=\"manML:/\(j.value)/\(k.value)\">\(j.value)(\(k.value))</a>" // + parseState.closingDelimiter
           thisDelim = k.closingDelimiter
         }
         

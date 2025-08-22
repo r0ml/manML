@@ -38,6 +38,7 @@ struct SourceView : View {
   }
   
 }
+
 @Observable class Sourcerer {
   var sourceLine : Int? = nil
   var lineSource : String = ""
@@ -75,27 +76,38 @@ struct SourceView : View {
 
 }
 
-class SchemeHandler : NSObject, WKURLSchemeHandler {
+class SchemeHandler : URLSchemeHandler {
 
   var ss : Sourcerer
   
   init(_ s : Sourcerer) {
     ss = s
   }
-  
-  func webView(_ : WKWebView, start: any WKURLSchemeTask) {
-    let k = start.request.url!.pathComponents
-    
+
+  func reply(for request: URLRequest) -> some AsyncSequence<URLSchemeTaskResult, any Error> {
+
+    let k = request.url!.pathComponents
+
     ss.which = "\(k[2]) \(k[1])"
-    /*
-    Task { @MainActor in
-      let url = URL(string: "mandoc:///\(k[2])/\(k[1])")!
-      NSWorkspace.shared.open( url )
+
+    return AsyncThrowingStream { c in
+      /*
+       Task { @MainActor in
+       let url = URL(string: "mandoc:///\(k[2])/\(k[1])")!
+       NSWorkspace.shared.open( url )
+       }
+       */
+/*
+      start.didReceive(URLResponse())
+      start.didFinish()
+ */
+
+      // FIXME:  can I reload the data without counting on the Sourcerer?
+      c.yield(.response(URLResponse(url: request.url!, mimeType: "text/html", expectedContentLength: 0, textEncodingName: "utf8")))
+//      c.yield(.data())
+      c.finish()
+
     }
-    */
-    
-    start.didReceive(URLResponse())
-    start.didFinish()
   }
 
   func webView(_ : WKWebView, stop: any WKURLSchemeTask) {
@@ -104,79 +116,107 @@ class SchemeHandler : NSObject, WKURLSchemeHandler {
 }
 
 
-final class Handler : NSObject, WKScriptMessageHandler, WKNavigationDelegate {
-  var wv : HTMLView!
-  var ss : Sourcerer
-  
-  init(_ s : Sourcerer) { // _ wv : HTMLView) {
-    ss = s
-    super.init()
-//    self.wv = wv
+
+final class ClickBridge : NSObject, WKScriptMessageHandler {
+  var fn : ((Int) -> Void)
+  init(_ f : @escaping ((Int) -> Void)) {
+    self.fn = f
   }
-
-
-/*  func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-     decisionHandler(.allow)
-  }
-*/
-
-  func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    webView.evaluateJavaScript("""
-document.addEventListener('click', function(event) {
-  // Example of sending a message to Swift with click details
-
-//  console.log(event);
-
-// possibly use event.srcElement and look for a parent with an x-source attribute
-  
-  let efp = document.elementsFromPoint(event.clientX, event.clientY);
-
-//  console.log(efp);
-
-  var jj = -1;
-
-  for (var i = 0; i < efp.length; i++) {
-//    console.log(efp[i])
-    if (efp[i].hasAttribute("x-source")) {
-      jj = efp[i].attributes["x-source"].value
-      break;
-    }
-  } 
-  if (jj == -1) { return; }
-  window.webkit.messageHandlers.mouseClickMessage.postMessage('Source line: '+Number(jj) );
-
-/*
-  let range;
-  let textNode;
-  let offset;
-
-  let sel = window.getSelection();
-  offset = sel.focusOffset;
-  let xx = htmlx.indexOf(sel.focusNode.parentElement.innerHTML);
-  window.webkit.messageHandlers.mouseClickMessage.postMessage('Selection Offset: '+offset+' '+sel.baseOffset+' '+sel.anchorOffset+' '+sel.extentOffset+' '+xx); 
-*/
-}, {'passive':true, 'capture':true} );
-""")
-
-  }
-
   func userContentController(_ c : WKUserContentController, didReceive message: WKScriptMessage) {
-    if message.name == "mouseClickMessage" {
       if let messageBody = message.body as? String {
         if messageBody.hasPrefix("Source line: ") {
           let mm = messageBody.dropFirst("Source line: ".count)
           let kk = Int(mm) ?? 0
-          ss.sourceLine = kk
+          fn(kk)
+
+//          ss.sourceLine = kk
         }
 //        print("Mouse clicked with message: \(messageBody)")
 //        wv.getPos()
       }
-    }
   }
 
 }
 
-struct HTMLView: NSViewRepresentable {
+let myJavascriptString = """
+    document.addEventListener('click', function(event) {
+      // Example of sending a message to Swift with click details
+
+      console.log(event);
+
+    // possibly use event.srcElement and look for a parent with an x-source attribute
+
+      let efp = document.elementsFromPoint(event.clientX, event.clientY);
+
+      console.log(efp);
+
+      var jj = -1;
+
+      for (var i = 0; i < efp.length; i++) {
+    //    console.log(efp[i])
+        if (efp[i].hasAttribute("x-source")) {
+          jj = efp[i].attributes["x-source"].value
+          break;
+        }
+      }
+      if (jj == -1) { return; }
+      window.webkit.messageHandlers.mouseClickMessage.postMessage('Source line: '+Number(jj) );
+    }, {'passive':true, 'capture':true} );
+    """
+
+struct HTMLView : View {
+  var string : String
+  var ss : Sourcerer
+  var page : WebPage
+  var handler : SchemeHandler
+
+  @State var finding : Bool = false
+
+  init(_ s : String, source : Sourcerer) {
+    string = s
+    ss = source
+    let u = URLScheme("manML")!
+    handler = SchemeHandler(source)
+    var config = WebPage.Configuration()
+    config.urlSchemeHandlers[u] = handler
+    config.defaultNavigationPreferences.allowsContentJavaScript = true
+
+    let ucc = WKUserContentController()
+    ucc.add( ClickBridge(
+      { (kk: Int) in
+      source.sourceLine = kk
+    }), name: "mouseClickMessage")
+    config.userContentController = ucc
+
+    page = WebPage(configuration: config)
+    page.isInspectable = true
+    let id = page.load(html: s)
+    let events = page.navigations
+    let p = page
+    Task {
+      for try await event in events {
+        if event == .finished {
+          try await p.callJavaScript(myJavascriptString)
+        }
+      }
+    }
+  }
+
+  var body : some View {
+    WebView(page)
+      .findNavigator(isPresented: $finding)
+      .toolbar {
+        ToolbarItemGroup {
+          Button("Find", systemImage: "magnifyingglass") {
+            finding.toggle()
+          }
+        }
+      }
+  }
+}
+
+/*
+struct HTMLViewOld: NSViewRepresentable {
   var string: String
   var schemeHandler : SchemeHandler
   var ss : Sourcerer
@@ -240,3 +280,4 @@ struct HTMLView: NSViewRepresentable {
 */
 
 }
+*/
