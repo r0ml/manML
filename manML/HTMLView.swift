@@ -169,6 +169,7 @@ struct HTMLView : View {
   var ss : Sourcerer
   var page : WebPage
   var handler : SchemeHandler
+  @Environment(\.findContext) private var findContext   // gives findNext/Previous
 
   @State var finding : Bool = false
 
@@ -190,7 +191,7 @@ struct HTMLView : View {
 
     page = WebPage(configuration: config)
     page.isInspectable = true
-    let id = page.load(html: s)
+    page.load(html: s)
     let events = page.navigations
     let p = page
     Task {
@@ -203,14 +204,26 @@ struct HTMLView : View {
   }
 
   var body : some View {
+
     WebView(page)
       .findNavigator(isPresented: $finding)
       .toolbar {
-        ToolbarItemGroup {
-          Button("Find", systemImage: "magnifyingglass") {
-            finding.toggle()
+          ToolbarItem {
+            Button("Find", systemImage: "magnifyingglass") {
+              finding.toggle()
+            }
+            .keyboardShortcut(KeyEquivalent("f"), modifiers: [.command])
           }
-        }
+
+          ToolbarItem {
+            Button("Find Next") {
+              let item = NSMenuItem()
+              item.tag = NSTextFinder.Action.nextMatch.rawValue
+              NSApp.sendAction(#selector(NSResponder.performTextFinderAction(_:)),
+                               to: nil, from: item)
+            }.keyboardShortcut(KeyEquivalent("g"), modifiers: [.command])
+              .toolbarItemHidden()
+          }.hidden()
       }
   }
 }

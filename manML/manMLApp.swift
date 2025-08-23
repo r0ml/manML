@@ -8,7 +8,7 @@ import SwiftUI
 @main
 struct manMLApp: App {
   var manpath = Manpath()
-  
+  @State var showFind = false
 
   var body: some Scene {
     WindowGroup {
