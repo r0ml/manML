@@ -7,65 +7,56 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E711766F2CE0F2E700236F4A /* HTMLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3AE2CC178310081E3A4 /* HTMLView.swift */; };
-		E71177A42CE119B500236F4A /* MandocMacro.swift in Sources */ = {isa = PBXBuildFile; fileRef = E73928702CD07D88004809E2 /* MandocMacro.swift */; };
-		E71177A52CE119B500236F4A /* ListBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7447B2A2CD9F16B0051248B /* ListBlock.swift */; };
-		E71177A62CE119B500236F4A /* Mandoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3B02CC178310081E3A4 /* Mandoc.swift */; };
-		E71177A72CE119B500236F4A /* ParseState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7447B282CD87EEF0051248B /* ParseState.swift */; };
-		E71177A82CE119C800236F4A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E766B3AC2CC178310081E3A4 /* Assets.xcassets */; };
-		E71177A92CE119C800236F4A /* Mandoc.css in Resources */ = {isa = PBXBuildFile; fileRef = E766B3CC2CC30EE50081E3A4 /* Mandoc.css */; };
-		E71177AA2CE119D600236F4A /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3BF2CC19AB70081E3A4 /* Tokenizer.swift */; };
-		E71177AC2CE11A2C00236F4A /* HTMLMacros.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3C32CC19E730081E3A4 /* HTMLMacros.swift */; };
-		E71177AD2CE11C4A00236F4A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3AB2CC178310081E3A4 /* AppDelegate.swift */; };
-		E71177AE2CE1213100236F4A /* Definitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3C12CC19C3E0081E3A4 /* Definitions.swift */; };
-		E71177B02CE1215C00236F4A /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71177AF2CE1215C00236F4A /* Extensions.swift */; };
-		E71177B22CE1218200236F4A /* CommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E70560542CC86957001A9FAB /* CommandRunner.swift */; };
-		E73637F02CFCC83D00D56A6B /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E73637EF2CFCC83D00D56A6B /* Settings.swift */; };
-		E73637F12CFCCF8800D56A6B /* Manpath.swift in Sources */ = {isa = PBXBuildFile; fileRef = E766B3B12CC178310081E3A4 /* Manpath.swift */; };
 		E7AEBD842CF108A100E468CF /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD832CF1089D00E468CF /* README.md */; };
 		E7AEBD892CF1264200E468CF /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD882CF1264200E468CF /* TODO.md */; };
-		E7E43BDC2CECD9A7007F3A48 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7E43BD32CECD9A7007F3A48 /* Preview Assets.xcassets */; };
-		E7E43BDD2CECD9A7007F3A48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7E43BD52CECD9A7007F3A48 /* Assets.xcassets */; };
-		E7E43BDF2CECD9A7007F3A48 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E43BD62CECD9A7007F3A48 /* ContentView.swift */; };
-		E7E43BE02CECD9A7007F3A48 /* manMLApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E43BD92CECD9A7007F3A48 /* manMLApp.swift */; };
-		E7E43BE12CECD9A7007F3A48 /* Process.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E43BDA2CECD9A7007F3A48 /* Process.swift */; };
-		E7F889A12D7E84BD004E289B /* Escapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F889A02D7E84B5004E289B /* Escapes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		E70560542CC86957001A9FAB /* CommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRunner.swift; sourceTree = "<group>"; };
 		E71176602CE0411C00236F4A /* manML.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = manML.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E71177AF2CE1215C00236F4A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		E73637EF2CFCC83D00D56A6B /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
-		E73928702CD07D88004809E2 /* MandocMacro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandocMacro.swift; sourceTree = "<group>"; };
-		E7447B282CD87EEF0051248B /* ParseState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParseState.swift; sourceTree = "<group>"; wrapsLines = 0; };
-		E7447B2A2CD9F16B0051248B /* ListBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListBlock.swift; sourceTree = "<group>"; };
-		E766B3AB2CC178310081E3A4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		E766B3AC2CC178310081E3A4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E766B3AE2CC178310081E3A4 /* HTMLView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLView.swift; sourceTree = "<group>"; };
-		E766B3B02CC178310081E3A4 /* Mandoc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mandoc.swift; sourceTree = "<group>"; };
-		E766B3B12CC178310081E3A4 /* Manpath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manpath.swift; sourceTree = "<group>"; };
-		E766B3BF2CC19AB70081E3A4 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
-		E766B3C12CC19C3E0081E3A4 /* Definitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Definitions.swift; sourceTree = "<group>"; };
-		E766B3C32CC19E730081E3A4 /* HTMLMacros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLMacros.swift; sourceTree = "<group>"; };
-		E766B3C72CC30EE50081E3A4 /* default.man */ = {isa = PBXFileReference; lastKnownFileType = text; path = default.man; sourceTree = "<group>"; };
-		E766B3CC2CC30EE50081E3A4 /* Mandoc.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Mandoc.css; sourceTree = "<group>"; };
 		E7AEBD832CF1089D00E468CF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E7AEBD882CF1264200E468CF /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		E7B75A012D66E411004B6D22 /* manML.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = manML.xcodeproj; sourceTree = SOURCE_ROOT; };
-		E7E43BD32CECD9A7007F3A48 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		E7E43BD52CECD9A7007F3A48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E7E43BD62CECD9A7007F3A48 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		E7E43BD72CECD9A7007F3A48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E7E43BD82CECD9A7007F3A48 /* manML.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = manML.entitlements; sourceTree = "<group>"; };
-		E7E43BD92CECD9A7007F3A48 /* manMLApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = manMLApp.swift; sourceTree = "<group>"; };
-		E7E43BDA2CECD9A7007F3A48 /* Process.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Process.swift; sourceTree = "<group>"; };
-		E7F889A02D7E84B5004E289B /* Escapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Escapes.swift; sourceTree = "<group>"; };
 		F487F4AB141EADEF0093D633 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F487F4AE141EADEF0093D633 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		F487F4B0141EADEF0093D633 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F487F505141EAF8A0093D633 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E770A0422E5BA08000181886 /* Exceptions for "Resources" folder in "manML" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				default.man,
+			);
+			target = E711765F2CE0411C00236F4A /* manML */;
+		};
+		E770A06E2E5BA08400181886 /* Exceptions for "manML" folder in "manML" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E711765F2CE0411C00236F4A /* manML */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E770A03E2E5BA08000181886 /* Resources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E770A0422E5BA08000181886 /* Exceptions for "Resources" folder in "manML" target */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E770A0592E5BA08400181886 /* manML */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E770A06E2E5BA08400181886 /* Exceptions for "manML" folder in "manML" target */,
+			);
+			path = manML;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		E711765D2CE0411C00236F4A /* Frameworks */ = {
@@ -83,50 +74,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E7E43BD42CECD9A7007F3A48 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				E7E43BD32CECD9A7007F3A48 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		E7E43BDB2CECD9A7007F3A48 /* manML */ = {
-			isa = PBXGroup;
-			children = (
-				E766B3AB2CC178310081E3A4 /* AppDelegate.swift */,
-				E7E43BD52CECD9A7007F3A48 /* Assets.xcassets */,
-				E70560542CC86957001A9FAB /* CommandRunner.swift */,
-				E7E43BD62CECD9A7007F3A48 /* ContentView.swift */,
-				E766B3C12CC19C3E0081E3A4 /* Definitions.swift */,
-				E71177AF2CE1215C00236F4A /* Extensions.swift */,
-				E766B3C32CC19E730081E3A4 /* HTMLMacros.swift */,
-				E766B3AE2CC178310081E3A4 /* HTMLView.swift */,
-				E7E43BD72CECD9A7007F3A48 /* Info.plist */,
-				E7447B2A2CD9F16B0051248B /* ListBlock.swift */,
-				E766B3B02CC178310081E3A4 /* Mandoc.swift */,
-				E73928702CD07D88004809E2 /* MandocMacro.swift */,
-				E7E43BD82CECD9A7007F3A48 /* manML.entitlements */,
-				E7E43BD92CECD9A7007F3A48 /* manMLApp.swift */,
-				E766B3B12CC178310081E3A4 /* Manpath.swift */,
-				E7447B282CD87EEF0051248B /* ParseState.swift */,
-				E7E43BD42CECD9A7007F3A48 /* Preview Content */,
-				E7E43BDA2CECD9A7007F3A48 /* Process.swift */,
-				E766B3BF2CC19AB70081E3A4 /* Tokenizer.swift */,
-				E7F889A02D7E84B5004E289B /* Escapes.swift */,
-				E73637EF2CFCC83D00D56A6B /* Settings.swift */,
-			);
-			path = manML;
-			sourceTree = "<group>";
-		};
 		F487F49C141EADEF0093D633 = {
 			isa = PBXGroup;
 			children = (
 				E7B75A012D66E411004B6D22 /* manML.xcodeproj */,
 				E7AEBD832CF1089D00E468CF /* README.md */,
 				E7AEBD882CF1264200E468CF /* TODO.md */,
-				F487F4B2141EADEF0093D633 /* Resources */,
-				E7E43BDB2CECD9A7007F3A48 /* manML */,
+				E770A03E2E5BA08000181886 /* Resources */,
+				E770A0592E5BA08400181886 /* manML */,
 				F487F4AA141EADEF0093D633 /* Frameworks */,
 				F487F4A8141EADEF0093D633 /* Products */,
 			);
@@ -151,16 +106,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		F487F4B2141EADEF0093D633 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				E766B3AC2CC178310081E3A4 /* Assets.xcassets */,
-				E766B3CC2CC30EE50081E3A4 /* Mandoc.css */,
-				E766B3C72CC30EE50081E3A4 /* default.man */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -175,6 +120,10 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E770A03E2E5BA08000181886 /* Resources */,
+				E770A0592E5BA08400181886 /* manML */,
 			);
 			name = manML;
 			packageProductDependencies = (
@@ -191,7 +140,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1610;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					E711765F2CE0411C00236F4A = {
 						CreatedOnToolsVersion = 16.1;
@@ -228,11 +177,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E7AEBD892CF1264200E468CF /* TODO.md in Resources */,
-				E71177A82CE119C800236F4A /* Assets.xcassets in Resources */,
-				E7E43BDC2CECD9A7007F3A48 /* Preview Assets.xcassets in Resources */,
-				E7E43BDD2CECD9A7007F3A48 /* Assets.xcassets in Resources */,
 				E7AEBD842CF108A100E468CF /* README.md in Resources */,
-				E71177A92CE119C800236F4A /* Mandoc.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,23 +188,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E71177AE2CE1213100236F4A /* Definitions.swift in Sources */,
-				E73637F12CFCCF8800D56A6B /* Manpath.swift in Sources */,
-				E7E43BDF2CECD9A7007F3A48 /* ContentView.swift in Sources */,
-				E7E43BE02CECD9A7007F3A48 /* manMLApp.swift in Sources */,
-				E7E43BE12CECD9A7007F3A48 /* Process.swift in Sources */,
-				E71177AD2CE11C4A00236F4A /* AppDelegate.swift in Sources */,
-				E71177A42CE119B500236F4A /* MandocMacro.swift in Sources */,
-				E71177A52CE119B500236F4A /* ListBlock.swift in Sources */,
-				E71177AC2CE11A2C00236F4A /* HTMLMacros.swift in Sources */,
-				E71177A62CE119B500236F4A /* Mandoc.swift in Sources */,
-				E71177A72CE119B500236F4A /* ParseState.swift in Sources */,
-				E7F889A12D7E84BD004E289B /* Escapes.swift in Sources */,
-				E73637F02CFCC83D00D56A6B /* Settings.swift in Sources */,
-				E711766F2CE0F2E700236F4A /* HTMLView.swift in Sources */,
-				E71177B22CE1218200236F4A /* CommandRunner.swift in Sources */,
-				E71177AA2CE119D600236F4A /* Tokenizer.swift in Sources */,
-				E71177B02CE1215C00236F4A /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,10 +217,12 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_ASSET_PATHS = "\"manML/Preview Content\"";
-				DEVELOPMENT_TEAM = MHEBPE6SV2;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -346,11 +276,13 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"manML/Preview Content\"";
-				DEVELOPMENT_TEAM = MHEBPE6SV2;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -402,6 +334,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MHEBPE6SV2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -421,6 +354,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				WARNING_CFLAGS = "-Wpartial-availability";
 			};
 			name = Debug;
@@ -451,6 +385,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MHEBPE6SV2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -467,6 +402,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				WARNING_CFLAGS = "-Wpartial-availability";
 			};
 			name = Release;

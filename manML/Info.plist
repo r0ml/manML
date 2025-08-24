@@ -11,7 +11,7 @@
 			<string>software.tinker.manML</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>manML</string>
+				<string>manMLx</string>
 			</array>
 		</dict>
 	</array>

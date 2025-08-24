@@ -6,75 +6,91 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
   @AppStorage("lastMan") var mantext : String = ""
-  @State var html : String = ""
+
+  //  @State var html : String = ""
   // if this is initialized to "", the toolbar doesn't appear !!!
-  @State var error : String = " "
-  @State var legacy = false
-//  @State var mandoc : String = ""
-  var manpath : Manpath
 
-  var ss : Sourcerer = Sourcerer()
-  
-    var body: some View {
-        VStack {
-          HStack {
-            TextField("Man", text: $mantext, prompt: Text("manual page") )
-              .onSubmit {
-                ss.which = mantext
-                self.runFormat()
-              }
-            Button("<") {
-              ss.back()
-            }.disabled(!ss.canBack)
-            
-            Button(">") {
-              ss.next()
-            }.disabled(!ss.canNext)
-          }
-          HTMLView( html, source: ss )
-          
-          SourceView(ss: ss)
-        }
-        .toolbar {
-          ToolbarItem(id: "error", placement: .status) {
-            HStack {
-              Text(error).foregroundStyle(.red)
-            }
-          }
-          ToolbarItem(id: "toggle") {
-            HStack {
-              Text("Legacy")
-              Toggle("Legacy", isOn: $legacy).toggleStyle(.switch).help(
-                "Use legacy mandoc formatting")
-            }
+//  @Binding var currentURL : URL?
+//  @State var manSource = ""
+
+  @Environment(AppState.self) var state
+
+//  var ss : Sourcerer = Sourcerer()
+
+  var body: some View {
+    VStack {
+      HStack {
+        TextField("Man", text: $mantext, prompt: Text("manual page") )
+          .onSubmit {
+            state.doTheLoad( Mandoc.canonicalize(mantext) )
           }
 
-        }
+        // FIXME: put me back
+        /*
+         Button("<") {
+         ss.back()
+         }.disabled(!ss.canBack)
+
+         Button(">") {
+         ss.next()
+         }.disabled(!ss.canNext)
+         */
+      }
+      HTMLView( )
         .task {
-          ss.which = mantext
-          runFormat()
-        }
-        .onChange(of: ss.which) {
-          if ss.which.isEmpty { return }
-          if mantext != ss.which {
-            mantext = ss.which
-            self.runFormat()
-          }
-          ss.updateHistory()
+          state.doTheLoad( Mandoc.canonicalize(mantext) )
         }
 
-        .onChange(of: legacy) {
-          self.runFormat()
+      SourceView( )
+    }
+    .toolbar {
+      ToolbarItem(id: "error", placement: .status) {
+        HStack {
+          Text(state.error).foregroundStyle(.red)
         }
+      }
+      ToolbarItem(id: "toggle") {
+        HStack {
+          @Bindable var state = state
+          Text("Legacy")
+          Toggle("Legacy", isOn: $state.legacy).toggleStyle(.switch).help(
+            "Use legacy mandoc formatting")
+        }
+      }
+
+    }
+//    .task {
+//        state.doTheLoad(u)
+//    }
+    /*        .onChange(of: currentURL) {
+     if ss.which.isEmpty { return }
+     if mantext != ss.which {
+     mantext = ss.which
+     self.runFormat()
+     }
+    // FIXME: put me back
+    // ss.updateHistory()
+  }
+     */
+
+    // FIXME: put me back
+   .onChange(of: state.legacy) {
+     state.page.reload()
+   }
+
+
         .padding()
         .onDrop(of: [UTType.content], isTargeted: nil) { providers in
+
+          // FIXME: put me back
+          /*
           if let p = providers.first {
             p.loadDataRepresentation(forTypeIdentifier: UTType.text.identifier) { (data, err) in
               // log.error("\(err.localizedDescription)")
               if let d = data,
                  let f = String.init(data: d, encoding: .utf8) {
                 Task { @MainActor in
-                  (error, html, ss.manSource) = await Mandoc.newParse(f, manpath)
+                  (state.error, html, state.manSource) = await Mandoc.newParse(f, state.manpath)
                   mantext = ""
                 }
               }
@@ -82,42 +98,45 @@ struct ContentView: View {
             }
             return true
           }
+           */
           return false
         }
     }
 
+
+  /*
   func runFormat() {
+    guard let currentURL else {
+      state.error = " "
+      html = ""
+      state.manSource = ""
+      return
+    }
+
     Task {
-      if legacy {
-        (error, html) = Mandoc.getTheHTML(ss.which, manpath)
+      if state.legacy {
+        (state.error, html) = Mandoc.getTheHTML(currentURL, state.manpath)
       } else {
-        (error, ss.manSource) = await Mandoc.readManFile(ss.which, manpath)
-        (error, html, ss.manSource) = await Mandoc.newParse(ss.manSource, manpath)
+//        (state.error, state.manSource) = await Mandoc.readManFile(currentURL, state.manpath)
+//        (state.error, html, state.manSource) = await Mandoc.newParse(manSource, state.manpath)
+        page.load(currentURL)
       }
     }
   }
-  
-
-  
-  func makeMenu(_ s : [URL] ) -> NSMenu {
-    let a = NSMenu(title: "Manual")
-    openers = []
-    let i = s.map { p in
-      let mi = NSMenuItem()
-      mi.title = p.path
-      let o = Opener(p, {
-        (error, html, ss.manSource) = await Mandoc.newParse($0, manpath)
-      })
-      openers.append(o)
-      mi.target = o
-      mi.action = #selector(Opener.doRead(_:))
-      return mi
-    }
-    a.items = i
-    return a
-  }
-  
-  
+*/
 
 }
 
+
+/*
+extension Observable {
+  @MainActor func binding<Value>(
+        _ keyPath: ReferenceWritableKeyPath<Self, Value>
+    ) -> Binding<Value> {
+      return Binding(
+            get: { self[keyPath: keyPath] },
+            set: { v in self[keyPath: keyPath] = v }
+        )
+    }
+}
+*/

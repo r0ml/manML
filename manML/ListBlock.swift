@@ -33,7 +33,7 @@ extension Mandoc {
     }
     
     let isCompact = k == "-compact"
-    
+
     switch j {
       case "-centered":
         thisCommand = "<blockquote>"
@@ -50,9 +50,8 @@ extension Mandoc {
     }
 
     let bs = BlockState()
-    if let block = try? macroBlock(["Ed"], bs) {
-      thisCommand.append(block)
-    }
+    let block = macroBlock(["Ed"], bs)
+    thisCommand.append(block)
     return thisCommand
   }
   
@@ -172,9 +171,8 @@ extension Mandoc {
 
     let _ = rest
 
-    if let blk = try? macroBlock(["El"] , bs) {
-      thisCommand.append(blk)
-    }
+    let blk = macroBlock(["El"] , bs)
+    thisCommand.append(blk)
 
     nextLine()
     switch bs.bl {

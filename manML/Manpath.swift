@@ -33,7 +33,6 @@ import Foundation
   var mansect : [String]?
 
   public init() {
-//    await initManpath()
     addedManpath = retrieveSecurityScopedBookmarks()
     
   }
@@ -91,30 +90,7 @@ import Foundation
     
     return retrievedURLs
   }
-  
 
-  
-  
-  /*
-  func initManpath() async {
-    if let mp = ProcessInfo.processInfo.environment["MANPATH"] {
-      manpath = mp.components(separatedBy: ":").map { URL(fileURLWithPath: $0) }
-      mansect = defaultMansect.components(separatedBy: ":")
-    } else {
-      manpath = []
-      mansect = []
-      manpath = await parsePathForMan()
-      let (mp2, ms) = manConf()
-
-      if manpath != nil {
-        for i in mp2 { if !manpath!.contains(i) { manpath!.append(i) } }
-      }
-
-      mansect = ms
-    }
-  }
-  */
-  
   func parsePathForMan() async -> [URL] {
     var res = [URL]()
 
@@ -123,10 +99,6 @@ import Foundation
       let u = URL(fileURLWithPath: p)
       if u.lastPathComponent == "bin" {
         var q = u.deletingLastPathComponent().appendingPathComponent("man")
-/*        if let qp = try? FileManager.default.destinationOfSymbolicLink(atPath: q.path) {
-          res.append(qp)
-        }
- */
         if FileManager.default.fileExists(atPath: q.path) {
           if !res.contains(q) { res.append(q) }
           }
@@ -138,7 +110,6 @@ import Foundation
       }
 
     let j = try! await captureStdout( URL(fileURLWithPath: "/usr/bin/xcode-select"), ["--show-manpaths"])
-//    if let j {
       let (_,b,_) = j
       if let b {
         let n = b.split(whereSeparator: (\.isNewline))
@@ -147,9 +118,6 @@ import Foundation
           if !res.contains(q) { res.append(q) }
         }
       }
-//    }
-    
-    
     return res
     }
     

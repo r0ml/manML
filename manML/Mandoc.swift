@@ -106,7 +106,7 @@ class Mandoc {
 
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
-    let header = "<html><head><meta charset=\"UTF-8\"><title>Mandoc</title><style>\(kk)</style></head><body>"
+    let header = "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>Mandoc</title><style>\(kk)</style></head><body>"
 
     let output = try generateBody()
 
@@ -136,7 +136,7 @@ class Mandoc {
   }
 
   static func mandocFind( _ k : URL, _ manpath : Manpath) -> [URL] {
-    if k.scheme == "mandoc" {
+    if k.scheme == scheme {
       let j = k.pathComponents
       if j.count < 2 { return [] }
       let j1 = j[1]
@@ -149,10 +149,12 @@ class Mandoc {
     }
   }
 
-  static func getTheHTML(_ man : String, _ manpath : Manpath) -> (String, String) {
+  static func getTheHTML(_ man : URL, _ manpath : Manpath) -> (String, String) {
     var error = ""
+    let m = man.pathComponents
+    let mm = "\(m[1]) \(m[0])"
     do {
-      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(man)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
+      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(mm)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
 
       error = e!
       return (e!, o!)
@@ -175,8 +177,8 @@ class Mandoc {
         switch e {
           case .to(let z):
             let k = z.split(separator: "/").last ?? ""
-            let j = k.split(separator: ".").joined(separator: " ")
-            let (e, m) = await readManFile(j, manpath)
+            let j = k.split(separator: ".")
+            let (e, m) = await readManFile( URL(string: "\(scheme)://\(j[1])/\(j[0])")!, manpath)
             if !e.isEmpty { return (e, "", m) }
             mx = m
             continue
@@ -185,32 +187,30 @@ class Mandoc {
     }
   }
 
-  static func canonicalize(_ man : String) -> String {
+  static func canonicalize(_ man : String) -> URL? {
     let manx = man.split(separator: " ", omittingEmptySubsequences: true)
-    var manu : String
+    var manu : URL? = nil
     if manx.count == 1 {
-      manu = String(manx[0])
+      manu = URL(string: "\(scheme):///\(String(manx[0]))")!
     } else if man.count >= 2 {
-      if let i = Int(manx[0]) {
-        manu = "\(manx[1])/\(manx[0])"
-      } else if let i = Int(manx[1]) {
-        manu = "\(manx[0])/\(manx[1])"
-      } else {
-        manu = ""
+      if let _ = Int(manx[0]) {
+        manu = URL(string: "\(scheme):///\(manx[1])/\(manx[0])")!
+      } else if let _ = Int(manx[1]) {
+        manu = URL(string: "\(scheme):///\(manx[0])/\(manx[1])")!
       }
-    } else {
-      manu = ""
     }
     return manu
   }
 
-  static func readManFile(_ man : String, _ manpath : Manpath) async -> (String, String) {
+  static func readManFile(_ manu : URL, _ manpath : Manpath) async -> (String, String) {
 //    let ad = (NSApp.delegate) as? AppDelegate
-    let manu = canonicalize(man)
-    let pp = Mandoc.mandocFind( URL(string: "mandoc:///\(manu)")!, manpath)
+//    let manu = canonicalize(man)
+    let j = manu.pathComponents
+    let manx = "\(j[1]) \(j[0])"
+    let pp = Mandoc.mandocFind( manu, manpath)
     var error = ""
     if pp.count == 0 {
-      error = "not found: \(man)"
+      error = "not found: \(manx)"
 /*    } else if pp.count > 1 {
       error = "multiple found"
       let a = makeMenu(pp)
@@ -224,7 +224,7 @@ class Mandoc {
 //        return (error, "")
       }
     }
-    error = "not found: \(man)"
+    error = "not found: \(manx)"
     return (error, "")
   }
 

@@ -2,64 +2,67 @@
 // Modernized by Robert "r0ml" Lefkowitz <code@liberally.net> in 2024
 
 import SwiftUI
+import Observation
 
-// var globalManpath: [URL] = []
+let scheme = "manmlx"
 
 @main
 struct manMLApp: App {
-  var manpath = Manpath()
   @State var showFind = false
+  @State var currentURL: URL?
+  @State var appState = AppState()
 
   var body: some Scene {
     WindowGroup {
-      ContentView(manpath: manpath)
-//        .task {
-//            self.manpath = await Manpath().retrieveSecurityScopedBookmarks(key: "manpath")
-
-          //          globalManpath = self.manpath
-          //          print("manpath = \(globalManpath)")
-//        }
+      ContentView()
+        .environment  (appState)
+        .onOpenURL { u in
+          if u.scheme == scheme {
+            let pp = Mandoc.mandocFind(u, appState.manpath)
+            if let jj = pp.first {
+              doOpen(jj)
+            } else {
+              print("not found")
+  /*          } else if pp.count > 1 {
+              print("multiple found")
+              let a = makeMenu(pp)
+              a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+   */
+            }
+          }
+        }
     }
+    
     Settings {
-      SettingsView(manpath: manpath)
+      SettingsView(manpath: appState.manpath)
     }.windowToolbarStyle(.unified(showsTitle: true))
   }
 
-  /*
-  func retrieveSecurityScopedBookmarks(key: String) -> [URL] {
-      var retrievedURLs: [URL] = []
-      
-      // Retrieve the saved bookmarks dictionary from UserDefaults
-      guard let bookmarks = UserDefaults.standard.dictionary(forKey: key) as? [String: Data] else {
-          return []
+
+  func doOpen(_ urlx : URL) {
+    var url = urlx
+    print(url.path)
+    if FileManager.default.isSymbolicLink(atPath: url.path) {
+      do {
+        let qp = try FileManager.default.destinationOfSymbolicLink(atPath: url.path)
+        print(qp)
+        let base = url
+        let bx = base.deletingLastPathComponent()
+        url = URL(filePath: qp, relativeTo: bx)
+      } catch(let e) {
+        print("resolving symbolic link \(url.path): \(e.localizedDescription)")
       }
-      
-      for (urlString, bookmarkData) in bookmarks {
-          do {
-              var isStale = false
-              
-              // Resolve the bookmark to a URL
-              let resolvedURL = try URL(
-                  resolvingBookmarkData: bookmarkData,
-                  options: .withSecurityScope,
-                  relativeTo: nil,
-                  bookmarkDataIsStale: &isStale
-              )
-              
-              if isStale {
-                  print("Bookmark for URL \(urlString) is stale.")
-              }
-              
-              retrievedURLs.append(resolvedURL)
-          } catch {
-              print("Failed to resolve bookmark for \(urlString): \(error.localizedDescription)")
-          }
+    }
+    let lurl = url
+    Task {
+      do {
+        try await NSDocumentController.shared.openDocument(withContentsOf: lurl, display: true )
+      } catch(let e) {
+        print("attempting to open document \(lurl.path): \(e.localizedDescription)")
       }
-      
-      return retrievedURLs
+    }
   }
-  
-*/
+
   
 
 }
