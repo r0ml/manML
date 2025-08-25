@@ -4,42 +4,86 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+func urlToMantext(_ url: URL) -> String {
+  if url.path.isEmpty {
+    return url.query() ?? ""
+  } else {
+    let upc = url.pathComponents
+    if upc.count > 2 {
+      return "\(upc[2]) \(upc[1])"
+    } else {
+      return "\(upc[1])"
+    }
+  }
+}
+
+
 struct ContentView: View {
   @AppStorage("lastMan") var mantext : String = ""
 
-  //  @State var html : String = ""
-  // if this is initialized to "", the toolbar doesn't appear !!!
-
-//  @Binding var currentURL : URL?
-//  @State var manSource = ""
-
   @Environment(AppState.self) var state
-
-//  var ss : Sourcerer = Sourcerer()
+  @State var goback = false
+  @State var goforward = false
+  @State var isTargeted = false
 
   var body: some View {
     VStack {
       HStack {
         TextField("Man", text: $mantext, prompt: Text("manual page") )
           .onSubmit {
-            state.doTheLoad( Mandoc.canonicalize(mantext) )
+            if mantext.first != "/" { // because I might have a file path here from file drop
+              state.doTheLoad( Mandoc.canonicalize(mantext) )
+            }
           }
 
-        // FIXME: put me back
-        /*
          Button("<") {
-         ss.back()
-         }.disabled(!ss.canBack)
+           if let previous = state.page.backForwardList.backList.last {
+             state.doTheLoad(previous.initialURL)
+             self.mantext = urlToMantext(previous.initialURL)
+           }
+         }.disabled( !state.canBack )
 
          Button(">") {
-         ss.next()
-         }.disabled(!ss.canNext)
-         */
+           if let next = state.page.backForwardList.forwardList.first {
+             state.doTheLoad(next.initialURL)
+             self.mantext = urlToMantext(next.initialURL)
+           }
+         }.disabled( !state.canNext )
+
       }
-      HTMLView( )
-        .task {
-          state.doTheLoad( Mandoc.canonicalize(mantext) )
-        }
+
+      ZStack {
+        HTMLView( )
+          .task {
+            state.doTheLoad( Mandoc.canonicalize(mantext) )
+
+          }
+        Rectangle()
+          .fill(Color.clear)
+          .contentShape(Rectangle()) // ensure it's hit-testable
+          .allowsHitTesting(isTargeted)
+          .dropDestination(for: URL.self) { urls, _ in // second argument is drop coordinates
+
+
+            if let url = urls.first {
+
+              let ok = url.startAccessingSecurityScopedResource()
+                                 defer { if ok { url.stopAccessingSecurityScopedResource() } }
+              let k = try? String(contentsOf: url, encoding: .utf8)
+
+              // FIXME: load the SchemeHandler with the source and use a weird URL: e.g. "manmlx:///"
+              state.handler.cache(url.path, k ?? "")
+
+              let fu = URL(string: scheme+"://?"+url.path)!
+              state.doTheLoad(fu)
+              self.mantext = urlToMantext(fu)
+              return true
+            }
+            return false
+          } isTargeted: {
+            isTargeted = $0
+          }
+      }
 
       SourceView( )
     }
@@ -59,84 +103,32 @@ struct ContentView: View {
       }
 
     }
-//    .task {
-//        state.doTheLoad(u)
-//    }
-    /*        .onChange(of: currentURL) {
-     if ss.which.isEmpty { return }
-     if mantext != ss.which {
-     mantext = ss.which
-     self.runFormat()
-     }
-    // FIXME: put me back
-    // ss.updateHistory()
-  }
-     */
 
-    // FIXME: put me back
-   .onChange(of: state.legacy) {
-     state.page.reload()
-   }
-
-
-        .padding()
-        .onDrop(of: [UTType.content], isTargeted: nil) { providers in
-
-          // FIXME: put me back
-          /*
-          if let p = providers.first {
-            p.loadDataRepresentation(forTypeIdentifier: UTType.text.identifier) { (data, err) in
-              // log.error("\(err.localizedDescription)")
-              if let d = data,
-                 let f = String.init(data: d, encoding: .utf8) {
-                Task { @MainActor in
-                  (state.error, html, state.manSource) = await Mandoc.newParse(f, state.manpath)
-                  mantext = ""
-                }
-              }
-              
-            }
-            return true
-          }
-           */
-          return false
-        }
+    .onChange(of: state.legacy) {
+      state.page.reload()
     }
 
+    .padding()
+    .onDrop(of: [UTType.content], isTargeted: nil) { providers in
 
-  /*
-  func runFormat() {
-    guard let currentURL else {
-      state.error = " "
-      html = ""
-      state.manSource = ""
-      return
-    }
+      // FIXME: put me back
+      /*
+       if let p = providers.first {
+       p.loadDataRepresentation(forTypeIdentifier: UTType.text.identifier) { (data, err) in
+       // log.error("\(err.localizedDescription)")
+       if let d = data,
+       let f = String.init(data: d, encoding: .utf8) {
+       Task { @MainActor in
+       (state.error, html, state.manSource) = await Mandoc.newParse(f, state.manpath)
+       mantext = ""
+       }
+       }
 
-    Task {
-      if state.legacy {
-        (state.error, html) = Mandoc.getTheHTML(currentURL, state.manpath)
-      } else {
-//        (state.error, state.manSource) = await Mandoc.readManFile(currentURL, state.manpath)
-//        (state.error, html, state.manSource) = await Mandoc.newParse(manSource, state.manpath)
-        page.load(currentURL)
-      }
+       }
+       return true
+       }
+       */
+      return false
     }
   }
-*/
-
 }
-
-
-/*
-extension Observable {
-  @MainActor func binding<Value>(
-        _ keyPath: ReferenceWritableKeyPath<Self, Value>
-    ) -> Binding<Value> {
-      return Binding(
-            get: { self[keyPath: keyPath] },
-            set: { v in self[keyPath: keyPath] = v }
-        )
-    }
-}
-*/

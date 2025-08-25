@@ -19,9 +19,9 @@ import WebKit
   var history : [String] = []
   var historyIndex : Int = -1
   
-  var canBack : Bool { historyIndex > 0 }
-  var canNext : Bool { historyIndex < history.count - 1 }
-  
+  var canBack : Bool = false
+  var canNext : Bool = false
+
   func back() {
     if canBack {
       historyIndex -= 1
@@ -50,7 +50,6 @@ import WebKit
   }
 
   @MainActor func doInTask() {
-    //    ss = source
     let u = URLScheme(scheme)!
     handler = SchemeHandler(self)
     var config = WebPage.Configuration()
@@ -77,6 +76,9 @@ import WebKit
           for try await event in events {
             if event == .finished {
               try await p.callJavaScript(myJavascriptString)
+
+              canBack = !p.backForwardList.backList.isEmpty
+              canNext = !p.backForwardList.forwardList.isEmpty
             }
           }
         }

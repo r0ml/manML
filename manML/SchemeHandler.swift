@@ -11,21 +11,17 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
     state = s
   }
 
+  @MainActor static var fileData : [String : String] = [:]
 
-
-
+  @MainActor func cache(_ f : String, _ d : String) {
+    Self.fileData[f] = d
+  }
 
   func reply(for request: URLRequest) -> some AsyncSequence<URLSchemeTaskResult, any Error> {
-
     let k = request.url!
-
-    //    ss.which = "\(k[2]) \(k[1])"
-
     return AsyncThrowingStream { c in
-      // FIXME:  can I reload the data without counting on the Sourcerer?
       Task {
         let d = await htmlForMan(k)
-        print( String(data: d, encoding: .utf8)! )
         c.yield(.response(URLResponse(url: k, mimeType: "text/html", expectedContentLength: d.count, textEncodingName: "utf-8")))
         c.yield(.data(d))
         c.finish()
@@ -34,13 +30,22 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
   }
 
 
+    // FIXME: done this way, the forward/backward stuff doesn't work.
+  // To make it work, I have to construct a global dictionary mapping filename to manual source
+  // Then the url is  manMLx://?filename  -- which can look up the data
   @MainActor func htmlForMan(_ u : URL) async -> Data {
     if state.legacy {
       let (error, html) = Mandoc.getTheHTML(u, state.manpath)
         state.error = error
         return html.data(using: .utf8 ) ?? Data()
+    } else {
+      if u.path.isEmpty {
+        state.manSource = SchemeHandler.fileData[u.query() ?? ""] ?? ""
+        // FIXME: when I read the data, I can store the error as well as the contents
+        state.error = ""
       } else {
         (state.error, state.manSource) = await Mandoc.readManFile(u, state.manpath)
+      }
         var html : String = ""
         (state.error, html, state.manSource) = await Mandoc.newParse(state.manSource, state.manpath)
         return html.data(using: .utf8 ) ?? Data()
