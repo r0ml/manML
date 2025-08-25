@@ -15,6 +15,7 @@ struct manMLApp: App {
 
   @State var textDoc : HTMLExportDocument?
   @State var showExporter = false
+  @State var xnam : String = "export"
 
   var body: some Scene {
     WindowGroup {
@@ -39,7 +40,7 @@ struct manMLApp: App {
             isPresented: $showExporter,
             document: textDoc,
             contentType: .html,
-            defaultFilename: "Export"
+            defaultFilename: xnam
         ) { result in
             // handle success/failure if you want
             if case .failure(let error) = result {
@@ -54,6 +55,14 @@ struct manMLApp: App {
           // Prepare whatever you want to write
           Task {
             textDoc = await HTMLExportDocument(text: getHTMLToExport())
+            let j = urlToMantext(appState.page.backForwardList.currentItem!.initialURL)
+            var k : String
+            if j.first == "/" {
+              k = String(j[j.lastIndex(of: "/")!..<j.endIndex])
+            } else {
+              k = j.components(separatedBy: " ").reversed().joined(separator: ".")
+            }
+            xnam = k
             showExporter = true
           }
         }
