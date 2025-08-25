@@ -15,7 +15,6 @@
 		E71176602CE0411C00236F4A /* manML.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = manML.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E7AEBD832CF1089D00E468CF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E7AEBD882CF1264200E468CF /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
-		E7B75A012D66E411004B6D22 /* manML.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = manML.xcodeproj; sourceTree = SOURCE_ROOT; };
 		F487F4AB141EADEF0093D633 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F487F4AE141EADEF0093D633 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		F487F4B0141EADEF0093D633 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -69,15 +68,9 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		E720D87E2D6F898D008A669C /* Products */ = {
-			isa = PBXGroup;
-			name = Products;
-			sourceTree = "<group>";
-		};
 		F487F49C141EADEF0093D633 = {
 			isa = PBXGroup;
 			children = (
-				E7B75A012D66E411004B6D22 /* manML.xcodeproj */,
 				E7AEBD832CF1089D00E468CF /* README.md */,
 				E7AEBD882CF1264200E468CF /* TODO.md */,
 				E770A03E2E5BA08000181886 /* Resources */,
@@ -158,12 +151,6 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F487F4A8141EADEF0093D633 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = E720D87E2D6F898D008A669C /* Products */;
-					ProjectRef = E7B75A012D66E411004B6D22 /* manML.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				E711765F2CE0411C00236F4A /* manML */,
@@ -219,10 +206,19 @@
 				DEVELOPMENT_ASSET_PATHS = "\"manML/Preview Content\"";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -278,11 +274,20 @@
 				DEVELOPMENT_ASSET_PATHS = "\"manML/Preview Content\"";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;

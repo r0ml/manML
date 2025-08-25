@@ -3,6 +3,7 @@
 
 import SwiftUI
 import Observation
+import UniformTypeIdentifiers
 
 let scheme = "manmlx"
 
@@ -11,6 +12,9 @@ struct manMLApp: App {
   @State var showFind = false
   @State var currentURL: URL?
   @State var appState = AppState()
+
+  @State var textDoc : HTMLExportDocument?
+  @State var showExporter = false
 
   var body: some Scene {
     WindowGroup {
@@ -31,8 +35,32 @@ struct manMLApp: App {
             }
           }
         }
+        .fileExporter(
+            isPresented: $showExporter,
+            document: textDoc,
+            contentType: .html,
+            defaultFilename: "Export"
+        ) { result in
+            // handle success/failure if you want
+            if case .failure(let error) = result {
+                print("Export Text failed:", error.localizedDescription)
+            }
+        }
+
+    }.commands {
+      CommandGroup(after: .newItem) {
+        Divider()
+        Button("Export HTML…") {
+          // Prepare whatever you want to write
+          Task {
+            textDoc = await HTMLExportDocument(text: getHTMLToExport())
+            showExporter = true
+          }
+        }
+        .keyboardShortcut("e", modifiers: [.command])
+      }
     }
-    
+
     Settings {
       SettingsView(manpath: appState.manpath)
     }.windowToolbarStyle(.unified(showsTitle: true))
@@ -63,7 +91,40 @@ struct manMLApp: App {
     }
   }
 
-  
+  /// Put your export content logic here.
+  private func getHTMLToExport() async -> String {
+    if let t = appState.page.backForwardList.currentItem?.initialURL {
+      return await String(data: appState.handler.htmlForMan(t), encoding: .utf8)!
+    } else {
+      return ""
+    }
+  }
 
+}
+
+
+
+
+/// Simple text document you generate on the fly.
+struct HTMLExportDocument: FileDocument {
+
+  static let readableContentTypes: [UTType] = [.html]
+
+  var text: String
+
+    init(text: String) { self.text = text }
+
+    init(configuration: ReadConfiguration) throws {
+        if let data = configuration.file.regularFileContents,
+           let s = String(data: data, encoding: .utf8) {
+            text = s
+        } else {
+            text = ""
+        }
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        .init(regularFileWithContents: Data(text.utf8))
+    }
 }
 

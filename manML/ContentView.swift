@@ -109,26 +109,5 @@ struct ContentView: View {
     }
 
     .padding()
-    .onDrop(of: [UTType.content], isTargeted: nil) { providers in
-
-      // FIXME: put me back
-      /*
-       if let p = providers.first {
-       p.loadDataRepresentation(forTypeIdentifier: UTType.text.identifier) { (data, err) in
-       // log.error("\(err.localizedDescription)")
-       if let d = data,
-       let f = String.init(data: d, encoding: .utf8) {
-       Task { @MainActor in
-       (state.error, html, state.manSource) = await Mandoc.newParse(f, state.manpath)
-       mantext = ""
-       }
-       }
-
-       }
-       return true
-       }
-       */
-      return false
-    }
   }
 }

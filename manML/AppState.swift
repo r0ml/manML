@@ -22,29 +22,6 @@ import WebKit
   var canBack : Bool = false
   var canNext : Bool = false
 
-  func back() {
-    if canBack {
-      historyIndex -= 1
-      which = history[historyIndex]
-    }
-  }
-  
-  func next() {
-    if canNext {
-      historyIndex += 1
-      which = history[historyIndex]
-    }
-  }
-
-  func updateHistory() {
-    if historyIndex == history.count - 1 {
-      history.append(which)
-      historyIndex = history.count - 1
-    } else {
-      history[historyIndex] = which
-    }
-  }
-
   @MainActor init() {
     doInTask()
   }
@@ -87,5 +64,31 @@ import WebKit
       }
     }
   }
+
+  let myJavascriptString = """
+      document.addEventListener('click', function(event) {
+        // Example of sending a message to Swift with click details
+
+        console.log(event);
+
+      // possibly use event.srcElement and look for a parent with an x-source attribute
+
+        let efp = document.elementsFromPoint(event.clientX, event.clientY);
+
+        console.log(efp);
+
+        var jj = -1;
+
+        for (var i = 0; i < efp.length; i++) {
+      //    console.log(efp[i])
+          if (efp[i].hasAttribute("x-source")) {
+            jj = efp[i].attributes["x-source"].value
+            break;
+          }
+        }
+        if (jj == -1) { return; }
+        window.webkit.messageHandlers.mouseClickMessage.postMessage('Source line: '+Number(jj) );
+      }, {'passive':true, 'capture':true} );
+      """
 
 }
