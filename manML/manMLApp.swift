@@ -5,10 +5,12 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
-let scheme = "manmlx"
+let scheme = "mymanml"
+let externalScheme = "manml"
 
 @main
 struct manMLApp: App {
+
   @State var showFind = false
   @State var currentURL: URL?
   @State var appState = AppState()
@@ -22,18 +24,12 @@ struct manMLApp: App {
       ContentView()
         .environment  (appState)
         .onOpenURL { u in
-          if u.scheme == scheme {
-            let pp = Mandoc.mandocFind(u, appState.manpath)
-            if let jj = pp.first {
-              doOpen(jj)
-            } else {
-              print("not found")
-  /*          } else if pp.count > 1 {
-              print("multiple found")
-              let a = makeMenu(pp)
-              a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
-   */
-            }
+          print("on open url \(u)")
+          if u.scheme == externalScheme {
+            let uu = URL(string: scheme+"://"+u.path)!
+//            let pp = Mandoc.mandocFind(uu, appState.manpath)
+//            if let jj = pp.first {
+              doOpen(uu)
           }
         }
         .fileExporter(
@@ -44,7 +40,7 @@ struct manMLApp: App {
         ) { result in
             // handle success/failure if you want
             if case .failure(let error) = result {
-                print("Export Text failed:", error.localizedDescription)
+              appState.error = "Export failed: \(error.localizedDescription)"
             }
         }
 
@@ -64,7 +60,7 @@ struct manMLApp: App {
             }
             xnam = k
             showExporter = true
-          }
+            }
         }
         .keyboardShortcut("e", modifiers: [.command])
       }
@@ -75,29 +71,9 @@ struct manMLApp: App {
     }.windowToolbarStyle(.unified(showsTitle: true))
   }
 
-
-  func doOpen(_ urlx : URL) {
-    var url = urlx
+  func doOpen(_ url : URL) {
     print(url.path)
-    if FileManager.default.isSymbolicLink(atPath: url.path) {
-      do {
-        let qp = try FileManager.default.destinationOfSymbolicLink(atPath: url.path)
-        print(qp)
-        let base = url
-        let bx = base.deletingLastPathComponent()
-        url = URL(filePath: qp, relativeTo: bx)
-      } catch(let e) {
-        print("resolving symbolic link \(url.path): \(e.localizedDescription)")
-      }
-    }
-    let lurl = url
-    Task {
-      do {
-        try await NSDocumentController.shared.openDocument(withContentsOf: lurl, display: true )
-      } catch(let e) {
-        print("attempting to open document \(lurl.path): \(e.localizedDescription)")
-      }
-    }
+    appState.doTheLoad(url)
   }
 
   /// Put your export content logic here.

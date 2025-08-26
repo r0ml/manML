@@ -138,24 +138,36 @@ import Foundation
         
         //        for s in sect {
         let pp = p.appendingPathComponent("man\(s.first!)").appendingPathComponent(name).appendingPathExtension(s)
+        let ppx = p.appendingPathComponent(name).appendingPathExtension(s)
+
         if FileManager.default.fileExists(atPath: pp.path) {
           res.append( pp )
+        } else if FileManager.default.fileExists(atPath: ppx.path) {
+          res.append( ppx)
         }
       } else {
         do {
           let ll = try FileManager.default.contentsOfDirectory(at: p, includingPropertiesForKeys: nil)
           for j in ll {
             //          let rr = j.appendingPathComponent(j)
-            do {
-              let kk = try FileManager.default.contentsOfDirectory( at: j, includingPropertiesForKeys: nil )
-              for z in kk {
-                
-                if z.deletingPathExtension().lastPathComponent == name {
-                  res.append(z)
+            if j.hasDirectoryPath {
+              do {
+                let kk = try FileManager.default.contentsOfDirectory( at: j, includingPropertiesForKeys: nil )
+                for z in kk {
+
+                  if z.deletingPathExtension().lastPathComponent == name {
+                    res.append(z)
+                  }
+                }
+              } catch {
+                // ignore the error
+              }
+            } else {
+              if sections.keys.contains(j.pathExtension) {
+                if j.deletingPathExtension().lastPathComponent == name {
+                  res.append(j)
                 }
               }
-            } catch {
-              // ignore the error
             }
           }
         } catch {

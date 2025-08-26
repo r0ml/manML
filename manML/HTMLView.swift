@@ -28,6 +28,7 @@ struct HTMLView : View {
   @State var finding : Bool = false
 
   var body : some View {
+
     if let page = state.page {
       WebView(page)
         .findNavigator(isPresented: $finding)

@@ -11,13 +11,15 @@ import WebKit
   var sourceLine : Int? = nil
   var lineSource : String = ""
   var manSource : String = ""
-  var which : String = ""
+//  var which : String = ""
+
+  var mantext : String = ""
 
   var handler : SchemeHandler!
   var page : WebPage!
 
-  var history : [String] = []
-  var historyIndex : Int = -1
+//  var history : [String] = []
+//  var historyIndex : Int = -1
   
   var canBack : Bool = false
   var canNext : Bool = false
@@ -48,6 +50,8 @@ import WebKit
     if let url {
     page?.load(url)
       if let p = page {
+        self.mantext = urlToMantext(url)
+
         let events = p.navigations
         Task {
           for try await event in events {

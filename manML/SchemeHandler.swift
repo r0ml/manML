@@ -18,21 +18,19 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
   }
 
   func reply(for request: URLRequest) -> some AsyncSequence<URLSchemeTaskResult, any Error> {
-    let k = request.url!
-    return AsyncThrowingStream { c in
-      Task {
-        let d = await htmlForMan(k)
-        c.yield(.response(URLResponse(url: k, mimeType: "text/html", expectedContentLength: d.count, textEncodingName: "utf-8")))
-        c.yield(.data(d))
-        c.finish()
+    let k = request.url
+      return AsyncThrowingStream { c in
+        Task {
+          if let k {
+            let d = await htmlForMan(k)
+            c.yield(.response(URLResponse(url: k, mimeType: "text/html", expectedContentLength: d.count, textEncodingName: "utf-8")))
+            c.yield(.data(d))
+          }
+          c.finish()
+        }
       }
-    }
   }
 
-
-    // FIXME: done this way, the forward/backward stuff doesn't work.
-  // To make it work, I have to construct a global dictionary mapping filename to manual source
-  // Then the url is  manMLx://?filename  -- which can look up the data
   @MainActor func htmlForMan(_ u : URL) async -> Data {
     if state.legacy {
       let (error, html) = Mandoc.getTheHTML(u, state.manpath)

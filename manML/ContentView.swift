@@ -39,14 +39,12 @@ struct ContentView: View {
          Button("<") {
            if let previous = state.page.backForwardList.backList.last {
              state.doTheLoad(previous.initialURL)
-             self.mantext = urlToMantext(previous.initialURL)
            }
          }.disabled( !state.canBack )
 
          Button(">") {
            if let next = state.page.backForwardList.forwardList.first {
              state.doTheLoad(next.initialURL)
-             self.mantext = urlToMantext(next.initialURL)
            }
          }.disabled( !state.canNext )
 
@@ -56,7 +54,6 @@ struct ContentView: View {
         HTMLView( )
           .task {
             state.doTheLoad( Mandoc.canonicalize(mantext) )
-
           }
         Rectangle()
           .fill(Color.clear)
@@ -71,12 +68,11 @@ struct ContentView: View {
                                  defer { if ok { url.stopAccessingSecurityScopedResource() } }
               let k = try? String(contentsOf: url, encoding: .utf8)
 
-              // FIXME: load the SchemeHandler with the source and use a weird URL: e.g. "manmlx:///"
+              // FIXME: load the SchemeHandler with the source and use a weird URL: e.g. "manml:///"
               state.handler.cache(url.path, k ?? "")
 
               let fu = URL(string: scheme+"://?"+url.path)!
               state.doTheLoad(fu)
-              self.mantext = urlToMantext(fu)
               return true
             }
             return false
@@ -86,6 +82,8 @@ struct ContentView: View {
       }
 
       SourceView( )
+    }.onChange(of: state.mantext) {
+      self.mantext = state.mantext
     }
     .toolbar {
       ToolbarItem(id: "error", placement: .status) {

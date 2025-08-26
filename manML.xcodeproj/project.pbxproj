@@ -21,38 +21,20 @@
 		F487F505141EAF8A0093D633 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E770A0422E5BA08000181886 /* Exceptions for "Resources" folder in "manML" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				default.man,
-			);
-			target = E711765F2CE0411C00236F4A /* manML */;
-		};
-		E770A06E2E5BA08400181886 /* Exceptions for "manML" folder in "manML" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E711765F2CE0411C00236F4A /* manML */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E770A03E2E5BA08000181886 /* Resources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E770A0422E5BA08000181886 /* Exceptions for "Resources" folder in "manML" target */,
-			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
 		E770A0592E5BA08400181886 /* manML */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E770A06E2E5BA08400181886 /* Exceptions for "manML" folder in "manML" target */,
-			);
 			path = manML;
+			sourceTree = "<group>";
+		};
+		E770A09E2E5CB3FB00181886 /* mandoc */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = mandoc;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -74,6 +56,7 @@
 				E7AEBD832CF1089D00E468CF /* README.md */,
 				E7AEBD882CF1264200E468CF /* TODO.md */,
 				E770A03E2E5BA08000181886 /* Resources */,
+				E770A09E2E5CB3FB00181886 /* mandoc */,
 				E770A0592E5BA08400181886 /* manML */,
 				F487F4AA141EADEF0093D633 /* Frameworks */,
 				F487F4A8141EADEF0093D633 /* Products */,
@@ -117,6 +100,7 @@
 			fileSystemSynchronizedGroups = (
 				E770A03E2E5BA08000181886 /* Resources */,
 				E770A0592E5BA08400181886 /* manML */,
+				E770A09E2E5CB3FB00181886 /* mandoc */,
 			);
 			name = manML;
 			packageProductDependencies = (
