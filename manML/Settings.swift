@@ -15,30 +15,35 @@ struct SettingsView : View {
 
   var body : some View {
     VStack {
-      Text("Settings")
-
       Text(error).foregroundStyle(Color.red)
-      
-      HStack {Button(action: {
-        openDirectoryPanel()
-      }) {
-        Text("+")
-/*        Text("Select Directory")
-          .padding()
-          .background(Color.blue)
-          .foregroundColor(.white)
-          .cornerRadius(8)
- */
-      }
-        Button(action: {
-          manpath.remove(path: whichMan)
-        }) {
-          Text("-")
+      GroupBox {
+        VStack {
+          List(manpath.addedManpath, id: \.relativePath, selection: $whichMan) { k in
+            Text(k.relativePath)
+          }
+          
+          HStack {
+            Button(action: {
+              openDirectoryPanel()
+            }) {
+              Text("+")
+              /*        Text("Select Directory")
+               .padding()
+               .background(Color.blue)
+               .foregroundColor(.white)
+               .cornerRadius(8)
+               */
+            }
+            Button(action: {
+              manpath.remove(path: whichMan)
+            }) {
+              Text("-")
+            }
+          }
         }
-      }
-      List(manpath.addedManpath, id: \.relativePath, selection: $whichMan) { k in
-          Text(k.relativePath)
-      }
+        } label: {
+          Text("Additional manual directories")
+        }
 //    }.onChange(of: manpath.addedManpath) {
 //      print("manpath changed")
     }

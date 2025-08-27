@@ -11,15 +11,13 @@ import WebKit
   var sourceLine : Int? = nil
   var lineSource : String = ""
   var manSource : String = ""
-//  var which : String = ""
 
   var mantext : String = ""
 
-  var handler : SchemeHandler!
-  var page : WebPage!
+  var handler : SchemeHandler?
+  var page : WebPage?
 
-//  var history : [String] = []
-//  var historyIndex : Int = -1
+//  var externalURL : URL?
   
   var canBack : Bool = false
   var canNext : Bool = false
@@ -29,7 +27,13 @@ import WebKit
   }
 
   @MainActor func doInTask() {
-    let u = URLScheme(scheme)!
+
+    guard let u = URLScheme(scheme) else {
+        assertionFailure("Couldn't create URLScheme for mymanml")
+        return
+    }
+
+    if let _ = handler { print("already registered"); return }
     handler = SchemeHandler(self)
     var config = WebPage.Configuration()
     config.urlSchemeHandlers[u] = handler
@@ -43,7 +47,9 @@ import WebKit
     config.userContentController = ucc
 
     page = WebPage(configuration: config)
-    page.isInspectable = true
+    page?.isInspectable = true
+
+//    print("====> \(scheme) registered")
   }
 
   @MainActor func doTheLoad(_ url : URL?) {

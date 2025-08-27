@@ -121,9 +121,11 @@ import Foundation
     return res
     }
     
-  
-  func find(_ name : String, _ section : String?) -> [URL] {
+
+  // returning the URLs found which are the man contents, and the URLs of the manpaths using security scope which need to be stopped
+  func find(_ name : String, _ section : String?) -> ([URL],[URL]) {
     var res = [URL]()
+    var defered = manpath
     var sect : [String]
     if let section {
       sect = [section]
@@ -132,8 +134,10 @@ import Foundation
     }
     
     for p in manpath {
-      let _ = p.startAccessingSecurityScopedResource()
-          defer { p.stopAccessingSecurityScopedResource() }
+      let z = p.startAccessingSecurityScopedResource()
+
+      // FIXME: I start but dont stop security scope
+  //        defer { p.stopAccessingSecurityScopedResource() }
       if let s = section {
         
         //        for s in sect {
@@ -157,6 +161,7 @@ import Foundation
 
                   if z.deletingPathExtension().lastPathComponent == name {
                     res.append(z)
+
                   }
                 }
               } catch {
@@ -176,7 +181,7 @@ import Foundation
         
       }
   }
-    return res
+    return (res, defered)
   }
   
   

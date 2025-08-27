@@ -37,13 +37,13 @@ struct ContentView: View {
           }
 
          Button("<") {
-           if let previous = state.page.backForwardList.backList.last {
+           if let previous = state.page?.backForwardList.backList.last {
              state.doTheLoad(previous.initialURL)
            }
          }.disabled( !state.canBack )
 
          Button(">") {
-           if let next = state.page.backForwardList.forwardList.first {
+           if let next = state.page?.backForwardList.forwardList.first {
              state.doTheLoad(next.initialURL)
            }
          }.disabled( !state.canNext )
@@ -51,10 +51,10 @@ struct ContentView: View {
       }
 
       ZStack {
-        HTMLView( )
-          .task {
-            state.doTheLoad( Mandoc.canonicalize(mantext) )
-          }
+          HTMLView( )
+            .task {
+              state.doTheLoad( Mandoc.canonicalize(mantext) )
+            }
         Rectangle()
           .fill(Color.clear)
           .contentShape(Rectangle()) // ensure it's hit-testable
@@ -68,9 +68,7 @@ struct ContentView: View {
                                  defer { if ok { url.stopAccessingSecurityScopedResource() } }
               let k = try? String(contentsOf: url, encoding: .utf8)
 
-              // FIXME: load the SchemeHandler with the source and use a weird URL: e.g. "manml:///"
-              state.handler.cache(url.path, k ?? "")
-
+              state.handler?.cache(url.path, k ?? "")
               let fu = URL(string: scheme+"://?"+url.path)!
               state.doTheLoad(fu)
               return true
@@ -103,7 +101,7 @@ struct ContentView: View {
     }
 
     .onChange(of: state.legacy) {
-      state.page.reload()
+      state.page?.reload()
     }
 
     .padding()

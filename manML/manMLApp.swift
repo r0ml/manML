@@ -5,8 +5,7 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
-let scheme = "mymanml"
-let externalScheme = "manml"
+let scheme = "manml"
 
 @main
 struct manMLApp: App {
@@ -20,28 +19,22 @@ struct manMLApp: App {
   @State var xnam : String = "export"
 
   var body: some Scene {
-    WindowGroup {
+    Window("ManML", id: "main") {
       ContentView()
         .environment  (appState)
         .onOpenURL { u in
-          print("on open url \(u)")
-          if u.scheme == externalScheme {
-            let uu = URL(string: scheme+"://"+u.path)!
-//            let pp = Mandoc.mandocFind(uu, appState.manpath)
-//            if let jj = pp.first {
-              doOpen(uu)
-          }
+          appState.doTheLoad(u)
         }
         .fileExporter(
-            isPresented: $showExporter,
-            document: textDoc,
-            contentType: .html,
-            defaultFilename: xnam
+          isPresented: $showExporter,
+          document: textDoc,
+          contentType: .html,
+          defaultFilename: xnam
         ) { result in
-            // handle success/failure if you want
-            if case .failure(let error) = result {
-              appState.error = "Export failed: \(error.localizedDescription)"
-            }
+          // handle success/failure if you want
+          if case .failure(let error) = result {
+            appState.error = "Export failed: \(error.localizedDescription)"
+          }
         }
 
     }.commands {
@@ -51,16 +44,20 @@ struct manMLApp: App {
           // Prepare whatever you want to write
           Task {
             textDoc = await HTMLExportDocument(text: getHTMLToExport())
-            let j = urlToMantext(appState.page.backForwardList.currentItem!.initialURL)
-            var k : String
-            if j.first == "/" {
-              k = String(j[j.lastIndex(of: "/")!..<j.endIndex])
+            if let jj = appState.page?.backForwardList.currentItem?.initialURL {
+              let j = urlToMantext(jj)
+              var k : String
+              if j.first == "/" {
+                k = String(j[j.lastIndex(of: "/")!..<j.endIndex])
+              } else {
+                k = j.components(separatedBy: " ").reversed().joined(separator: ".")
+              }
+              xnam = k
+              showExporter = true
             } else {
-              k = j.components(separatedBy: " ").reversed().joined(separator: ".")
+              appState.error = "No URL to export"
             }
-            xnam = k
-            showExporter = true
-            }
+          }
         }
         .keyboardShortcut("e", modifiers: [.command])
       }
@@ -71,23 +68,17 @@ struct manMLApp: App {
     }.windowToolbarStyle(.unified(showsTitle: true))
   }
 
-  func doOpen(_ url : URL) {
-    print(url.path)
-    appState.doTheLoad(url)
-  }
-
   /// Put your export content logic here.
   private func getHTMLToExport() async -> String {
-    if let t = appState.page.backForwardList.currentItem?.initialURL {
-      return await String(data: appState.handler.htmlForMan(t), encoding: .utf8)!
+    if let t = appState.page?.backForwardList.currentItem?.initialURL,
+       let d = await appState.handler?.htmlForMan(t) {
+      return String(data: d, encoding: .utf8) ?? ""
     } else {
       return ""
     }
   }
 
 }
-
-
 
 
 /// Simple text document you generate on the fly.
@@ -97,19 +88,19 @@ struct HTMLExportDocument: FileDocument {
 
   var text: String
 
-    init(text: String) { self.text = text }
+  init(text: String) { self.text = text }
 
-    init(configuration: ReadConfiguration) throws {
-        if let data = configuration.file.regularFileContents,
-           let s = String(data: data, encoding: .utf8) {
-            text = s
-        } else {
-            text = ""
-        }
+  init(configuration: ReadConfiguration) throws {
+    if let data = configuration.file.regularFileContents,
+       let s = String(data: data, encoding: .utf8) {
+      text = s
+    } else {
+      text = ""
     }
+  }
 
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        .init(regularFileWithContents: Data(text.utf8))
-    }
+  func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    .init(regularFileWithContents: Data(text.utf8))
+  }
 }
 

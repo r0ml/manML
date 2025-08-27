@@ -14,16 +14,6 @@
 				<string>manml</string>
 			</array>
 		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLName</key>
-			<string>software.tinker._manML</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>mymanml</string>
-			</array>
-		</dict>
 	</array>
 </dict>
 </plist>

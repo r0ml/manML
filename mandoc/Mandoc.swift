@@ -135,17 +135,17 @@ class Mandoc {
     }
   }
 
-  static func mandocFind( _ k : URL, _ manpath : Manpath) -> [URL] {
+  static func mandocFind( _ k : URL, _ manpath : Manpath) -> ([URL], [URL]) {
     if k.scheme == scheme {
       let j = k.pathComponents
-      if j.count < 2 { return [] }
+      if j.count < 2 { return ([], []) }
       let j1 = j[1]
       var j2 = j.count > 2 ? j[2] : nil
       if j2?.isEmpty == true { j2 = nil }
       let pp = manpath.find(j1, j2)
       return pp
     } else {
-      return [k]
+      return ([k],[])
     }
   }
 
@@ -207,7 +207,10 @@ class Mandoc {
 //    let manu = canonicalize(man)
     let j = manu.pathComponents
     let manx = "\(j[1]) \(j[0])"
-    let pp = Mandoc.mandocFind( manu, manpath)
+    let (pp, defered) = Mandoc.mandocFind( manu, manpath)
+    defer {
+      for i in defered { i.stopAccessingSecurityScopedResource() }
+    }
     var error = ""
     if pp.count == 0 {
       error = "not found: \(manx)"
@@ -221,7 +224,6 @@ class Mandoc {
         return try (error, String(contentsOf: pp[0], encoding: .utf8))
       } catch(let e) {
         error = e.localizedDescription
-//        return (error, "")
       }
     }
     error = "not found: \(manx)"
