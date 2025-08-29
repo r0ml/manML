@@ -21,6 +21,16 @@
 		F487F505141EAF8A0093D633 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E763A6F32E620BB5002069B5 /* Exceptions for "manML" folder in "manML" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E711765F2CE0411C00236F4A /* manML */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E770A03E2E5BA08000181886 /* Resources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -29,6 +39,9 @@
 		};
 		E770A0592E5BA08400181886 /* manML */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E763A6F32E620BB5002069B5 /* Exceptions for "manML" folder in "manML" target */,
+			);
 			path = manML;
 			sourceTree = "<group>";
 		};
