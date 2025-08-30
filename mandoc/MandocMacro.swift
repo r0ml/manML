@@ -892,7 +892,7 @@ extension Mandoc {
             case "TS": // define table start
               let _ = rest
               thisCommand = macroBlock(["TE"])
-              print(thisCommand)
+//              print(thisCommand)
             default:
               if macroList.contains(thisToken.value) {
                 thisCommand = span("unimplemented", thisToken.value, lineNo)

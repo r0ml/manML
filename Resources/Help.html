@@ -1,13 +1,45 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>Help for ManML</title>
 </head>
 
 <body>
-<h1 style="color: red;">Help for ManML</h1>
-<h2>The help goes here</h2>
-Help is on the way
+<h1>Help for ManML</h1>
+<h2>Showing man pages</h2>
+Enter the manual specification you wish to see, as you would the arguments to the <code>man</code> command -- either just the name of the page or the
+section number and page separated by a blank.  The man page will be searched for in the default manpath and rendered using the new Swift-only renderer.
+The <b>Settings</b> can be used to add additional search directories for manml.
+<p>
+Should a man page not render properly, you may toggle the <b>Legacy</b> switch and the rendering will use the legacy BSD mandoc implementation.
+<p>
+The magnifying glass icon in the upper right corner (or the key combination &#x2318;-F ) will let you search within the man page.
+
+<p>
+<code>manML</code> registers the <code>manml</code> scheme, so that one can also display a man page by opening a URL of the form: <code>manml:/page</code>
+or <code>manml:/page/section</code>.  This can be done from the command line in <code>Terminal</code> with (e.g.) <code>open manml:/ls</code>.
+
+<p>
+If you are using <code>zsh</code> as your shell, you can evaluate
+<blockquote>
+<code> mmm() { open manml:/$1 } </code>
+</blockquote>
+(which can be placed in your <code>.zshrc</code>)
+after which
+<blockquote><code>mmm cat</code></blockquote>
+will open the man page for <code>cat</code>, and
+<blockquote><code>mmm stat/2</code></blockquote>
+will open the man page for <code>2 stat</code>.
+
+
+<h2>Inspecting man pages</h2>
+One can open any mandoc document by using the Finder and dragging the man page onto the <b>manml</b> main window.  This is useful when authoring or editing mandoc pages.
+
+<p>
+Additionally, if one clicks on the rendered man page, the bottom line of the window will show the mandoc source line which was used to generate that output.
+The two buttons in the bottom right corner will scroll to the previous or following mandoc source lines in order to see additional context for the mandoc source.
+
+The rendered HTML for the mandoc source can be exported by selecting the <b>Export HTML</b> action from the <b>File</b> menu.
+
 </body>
 </html>
 

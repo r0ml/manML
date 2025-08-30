@@ -68,28 +68,18 @@ struct manMLApp: App {
     }
 
     // A dedicated Help window that can receive an optional anchor
-//    Window("Help", id: "help") {
-//        HelpView().frame(minWidth: 700, minHeight: 520)
-//    }
+    Window("Help", id: "help") {
+        HelpView().frame(minWidth: 700, minHeight: 520)
+    }
 
-    /*
     // Global Help menu
     .commands {
       CommandGroup(replacing: .help) {
-        Button("MyApp Help") {
-          openWindow(id: "help")
-        }
-        // Example deep link to a section like `## Exporting`
-        Button("Exporting… Help") {
+        Button("manML Help") {
           openWindow(id: "help")
         }
       }
     }
-     */
-
-
-
-
 
     Settings {
       SettingsView(manpath: appState.manpath)
@@ -133,7 +123,6 @@ struct HTMLExportDocument: FileDocument {
 }
 
 
-/*
 struct HelpView: View {
   var body: some View {
     if let url = Bundle.main.url(forResource: "Help", withExtension: "html") {
@@ -145,4 +134,3 @@ struct HelpView: View {
     }
   }
 }
-*/
