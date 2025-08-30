@@ -5,6 +5,8 @@ import SwiftUI
 import Observation
 import UniformTypeIdentifiers
 
+import WebKit
+
 let scheme = "manml"
 
 @main
@@ -17,6 +19,8 @@ struct manMLApp: App {
   @State var textDoc : HTMLExportDocument?
   @State var showExporter = false
   @State var xnam : String = "export"
+
+  @Environment(\.openWindow) private var openWindow
 
   var body: some Scene {
     Window("ManML", id: "main") {
@@ -63,6 +67,30 @@ struct manMLApp: App {
       }
     }
 
+    // A dedicated Help window that can receive an optional anchor
+//    Window("Help", id: "help") {
+//        HelpView().frame(minWidth: 700, minHeight: 520)
+//    }
+
+    /*
+    // Global Help menu
+    .commands {
+      CommandGroup(replacing: .help) {
+        Button("MyApp Help") {
+          openWindow(id: "help")
+        }
+        // Example deep link to a section like `## Exporting`
+        Button("Exporting… Help") {
+          openWindow(id: "help")
+        }
+      }
+    }
+     */
+
+
+
+
+
     Settings {
       SettingsView(manpath: appState.manpath)
     }.windowToolbarStyle(.unified(showsTitle: true))
@@ -104,3 +132,17 @@ struct HTMLExportDocument: FileDocument {
   }
 }
 
+
+/*
+struct HelpView: View {
+  var body: some View {
+    if let url = Bundle.main.url(forResource: "Help", withExtension: "html") {
+      WebView(url: url)                    // ← the new SwiftUI WebView (macOS 15+ / Sequoia)
+        .navigationTitle("Help")
+        .frame(minWidth: 700, minHeight: 520)
+    } else {
+      Text("Help.html not found in bundle.").padding()
+    }
+  }
+}
+*/
