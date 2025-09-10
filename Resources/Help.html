@@ -4,7 +4,7 @@
 </head>
 
 <body>
-<h1>Help for ManML</h1>
+<h1>Help for manML</h1>
 <h2>Showing man pages</h2>
 Enter the manual specification you wish to see, as you would the arguments to the <code>man</code> command -- either just the name of the page or the
 section number and page separated by a blank.  The man page will be searched for in the default manpath and rendered using the new Swift-only renderer.
@@ -21,13 +21,14 @@ or <code>manml:/page/section</code>.  This can be done from the command line in 
 <p>
 If you are using <code>zsh</code> as your shell, you can evaluate
 <blockquote>
-<code> mmm() { open manml:/$1 } </code>
+<code> mm() { open manml:/$1 } </code>
 </blockquote>
 (which can be placed in your <code>.zshrc</code>)
 after which
-<blockquote><code>mmm cat</code></blockquote>
+
+<blockquote><code>mm cat</code></blockquote>
 will open the man page for <code>cat</code>, and
-<blockquote><code>mmm stat/2</code></blockquote>
+<blockquote><code>mm stat/2</code></blockquote>
 will open the man page for <code>2 stat</code>.
 
 

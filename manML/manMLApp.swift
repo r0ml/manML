@@ -23,7 +23,7 @@ struct manMLApp: App {
   @Environment(\.openWindow) private var openWindow
 
   var body: some Scene {
-    Window("ManML", id: "main") {
+    Window("manML", id: "main") {
       ContentView()
         .environment  (appState)
         .onOpenURL { u in
