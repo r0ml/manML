@@ -104,7 +104,8 @@ extension Mandoc {
           while peekToken()?.value != "|",
                 let kk = try nextArg() {
             thisCommand.append(thisDelim)
-            thisCommand.append(span("argument", safify(kk.value), lineNo))
+            //             thisCommand.append(span("argument", safify(kk.value), lineNo))
+            thisCommand.append(span("argument", kk.value, lineNo))
             thisDelim = kk.closingDelimiter
           }
         } else {
@@ -398,6 +399,8 @@ extension Mandoc {
             thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
           case .table:
             thisCommand = "<tr><td>\(currentTag) \(currentDescription)</td></tr>"
+          case .inset:
+            thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
           default:
             thisCommand = span("unimplemented", "BLError", lineNo)
         }

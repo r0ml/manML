@@ -99,6 +99,7 @@ enum blState {
   case table // -column
   case bullet
   case dash
+  case inset
 }
 
 // State for tagged paragraphs

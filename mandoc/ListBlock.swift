@@ -54,82 +54,99 @@ extension Mandoc {
     thisCommand.append(block)
     return thisCommand
   }
-  
-  
+
+  func calcWidth() -> String {
+    let m = next()?.value ?? "3em"
+
+    let mm = m.prefix(while: { $0.isNumber} )
+    if mm.count > 0 {
+      var mn = Double(mm) ?? 3
+      let un = m.dropFirst(mm.count).first
+      var u = "em";
+      switch un {
+        case "c": // centimeter
+          u = "cm"
+        case "i": // inch
+          u = "in"
+        case "P": // pica (1/6 inch)
+          u = "pc"
+        case "p": // point (1/72 inch)
+          u = "pt"
+        case "f": // scale `u' by 65536
+                  // FIXME: unimplemented
+          break // unimplemented
+        case "v": // default vertical span
+          u = "vh"
+          mn *= 100
+        case "m": // width of rendered `m' (em)  character
+          u = "em"
+        case "n": // width of rendered `n' (en)  character
+          u = "em"
+          mn *= 0.5
+        case "u": // default horizontal  span for the terminal
+          u = "vx"
+          mn *= 100
+        case "M": // mini-em (1/100 em)
+          u = "em"
+          mn *= 100
+        default:
+          // FIXME: unimplemented
+          mn = Double(m.count)/2
+          break
+      }
+      return "\(mn)\(u)"
+    } else {
+      switch m {
+        case "indent":
+          return "3em"
+        case "indent-two":
+          return "6em"
+        case "left":
+          return "0"
+
+          // FIXME: what to do here?
+        case "right":
+          return "12em"
+        default:
+          return "3em"
+      }
+    }
+  }
+
   func listBlock() -> String {
     let j = next()
-    var k = next()
     var width = "6em"
-    if k?.value == "-width" { // indentation of item bodies
-      let m = next()?.value ?? "3em"
-
-      let mm = m.prefix(while: { $0.isNumber} )
-      if mm.count > 0 {
-        var mn = Double(mm) ?? 3
-        let un = m.dropFirst(mm.count).first
-        var u = "em";
-        switch un {
-          case "c": // centimeter
-            u = "cm"
-          case "i": // inch
-            u = "in"
-          case "P": // pica (1/6 inch)
-            u = "pc"
-          case "p": // point (1/72 inch)
-            u = "pt"
-          case "f": // scale `u' by 65536
-                    // FIXME: unimplemented
-            break // unimplemented
-          case "v": // default vertical span
-            u = "vh"
-            mn *= 100
-          case "m": // width of rendered `m' (em)  character
-            u = "em"
-          case "n": // width of rendered `n' (en)  character
-            u = "em"
-            mn *= 0.5
-          case "u": // default horizontal  span for the terminal
-            u = "vx"
-            mn *= 100
-          case "M": // mini-em (1/100 em)
-            u = "em"
-            mn *= 100
-          default:
-            // FIXME: unimplemented
-            mn = Double(m.count)/2
-            break
-        }
-        width = "\(mn)\(u)"
-      } else {
-        switch m {
-          case "indent": width = "3em"
-          case "indent-two":
-            width = "6em"
-          case "left":
-            width = "0"
-
-            // FIXME: what to do here?
-          case "right":
-            width = "12em"
-          default:
-            width = "3em"
-        }
-      }
-      k = next()
-    }
+    var k = next()
+    var offset = "0em" // indentation of the list
+    var isCompact = false
     let bs = BlockState()
     bs.bl = .none
-    var offset = "0em" // indentation of the list
-    if k?.value == "-offset" {
-      let m = next()?.value ?? "4em"
-      switch m {
-        case "indent": offset = "2em"
-        default: offset = "???"
+
+    while k != nil { // indentation of item bodies
+      loop: switch k?.value {
+        case "-width":
+          width = calcWidth()
+          k = next()
+/*        case "-inset":
+          let m = next()?.value ?? "4em"
+          switch m {
+ */
+        case "-offset":
+          offset = calcWidth()
+
+ /*        case "indent":
+          offset = "2em"
+  */
+          k = next()
+        case "-compact":
+          isCompact = true
+          k = next()
+        default:
+          k = nil
+          break loop
       }
-      k = next()
     }
 
-    let isCompact = k?.value == "-compact"
     var thisCommand = ""
 
     let jj = String(j?.value ?? "")
@@ -155,7 +172,8 @@ extension Mandoc {
       case "-hyphen":
         thisCommand = span("unimplemented", "Bl " + jj , lineNo)
       case "-inset":
-        thisCommand = span("unimplemented", "Bl " + jj, lineNo )
+        thisCommand = "<div class=\"inset\" style=\"margin-left: \(offset); margin-top: 0.5em; \">"
+        bs.bl = .inset
       case "-item":
         thisCommand = "<ul style=\"margin-left: \(width); margin-top: 0.5em;list-style-type: none; \">"
         bs.bl = .item
@@ -186,6 +204,9 @@ extension Mandoc {
         thisCommand.append("</div>")
       case .table:
         thisCommand.append("</table>")
+      case.inset:
+        thisCommand.append("</div>")
+
       default:
         thisCommand.append(span("unimplemented", "BLError", lineNo))
     }

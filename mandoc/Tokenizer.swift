@@ -54,7 +54,7 @@ extension Mandoc {
       k = popWord()
     }
 
-    var cd : String = ""
+    var cd : String = " "
 
  /*   if let openingDelimiter {
       var cc = k == nil ? [] : [String(k!)]
