@@ -99,12 +99,12 @@ extension Mandoc {
         
       case "Ar": // command arguments
         if let jj = try nextArg() {
-          thisCommand.append(span("argument", safify(jj.value), lineNo))
+          thisCommand.append(span("argument", jj.value, lineNo))
           thisDelim = jj.closingDelimiter
           while peekToken()?.value != "|",
                 let kk = try nextArg() {
             thisCommand.append(thisDelim)
-            //             thisCommand.append(span("argument", safify(kk.value), lineNo))
+            //             thisCommand.append(span("argument", kk.value, lineNo))
             thisCommand.append(span("argument", kk.value, lineNo))
             thisDelim = kk.closingDelimiter
           }
@@ -916,7 +916,8 @@ extension Mandoc {
           if macroList.contains(thisToken.value) {
             thisCommand = span("unimplemented", thisToken.value, lineNo)
           } else {
-            thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
+                        thisCommand = span(nil, String(thisToken.value), lineNo)
+//            thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
             thisDelim = thisToken.closingDelimiter
           }
         }

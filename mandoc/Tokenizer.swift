@@ -145,7 +145,7 @@ extension Mandoc {
             k = string.prefix(1)
             if k == " " || k == "\t" { break }
             string.removeFirst()
-            res.append(contentsOf: k)
+            res.append(contentsOf: safify(k) )
           }
         }
         return res
@@ -380,3 +380,4 @@ extension Mandoc {
     }
   }
 }
+
