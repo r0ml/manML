@@ -99,12 +99,12 @@ extension Mandoc {
         
       case "Ar": // command arguments
         if let jj = try nextArg() {
-          thisCommand.append(span("argument", jj.value, lineNo))
+          thisCommand.append(span("argument", safify(jj.value), lineNo))
           thisDelim = jj.closingDelimiter
           while peekToken()?.value != "|",
                 let kk = try nextArg() {
             thisCommand.append(thisDelim)
-            thisCommand.append(span("argument", kk.value, lineNo))
+            thisCommand.append(span("argument", safify(kk.value), lineNo))
             thisDelim = kk.closingDelimiter
           }
         } else {
@@ -912,5 +912,11 @@ extension Mandoc {
     }
     return Token(value: Substring(thisCommand), closingDelimiter: thisDelim, isMacro: true)
   }
-  
+
+  func safify(_ s : any StringProtocol) -> String {
+    return CFXMLCreateStringByEscapingEntities(nil, String(s) as CFString, nil) as String
+  }
+
 }
+
+
