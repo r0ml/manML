@@ -244,7 +244,15 @@ extension Mandoc {
         line = peekLine
       }
 
+      var cc : String? = nil
+      if let k = line.firstMatch(of: /\\\"/) {
+        cc = String(line.suffix(from: k.endIndex))
+        line = line.prefix(upTo: k.startIndex)
+        await setz(String(line.dropFirst()))
+      }
+      if let cc { output.append(contentsOf: "<!-- \(cc) -->") }
 
+      
       if line.hasPrefix(".") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken() {

@@ -1,6 +1,7 @@
 #  TODO
 
 - maybe use "apply" as a screenshot
+- clear the last man search, and restore it after it has finished rendering successfully
 
 # BUGS
 
@@ -12,3 +13,5 @@
 - in man audiosyncd -- there is a closing .El without an opening .Bl
 
 - man auditreduce crashes on a Bad Access exception trying to access the source string midway through the line ???
+- a man page not found does not display an error
+
