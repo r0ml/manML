@@ -18,7 +18,6 @@ class Mandoc {
   var name : String?
   var argument : String?
 
-//  var parseState : ParseState
   // ============================
 
   var lines : ArraySlice<Substring>
@@ -43,7 +42,7 @@ class Mandoc {
   var string : Substring
   var nextWord : Substring?
   var nextToken : Token?
-
+  var openingDelimiter : String?
 
   var fontStyling = false
   var fontSizing = false

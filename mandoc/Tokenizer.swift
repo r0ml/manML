@@ -12,12 +12,6 @@ struct Token {
 }
 
 extension Mandoc {
-
-/*  init(_ s : any StringProtocol, parseState : Mandoc) {
-    string = Substring(s)
-    self.parseState = parseState
-  }
-  */
   
   func next() -> Token? {
     if nextToken != nil {
@@ -45,11 +39,14 @@ extension Mandoc {
   }
 
   func popToken() -> Token? {
+
     if nextToken != nil {
       let t = nextToken
       nextToken = nil
       return t
     }
+
+
     var k : Substring?
     if nextWord != nil {
       k = nextWord
@@ -57,31 +54,49 @@ extension Mandoc {
       k = popWord()
     }
 
-/*
-    nextWord = nil
-    if let k, Self.closingDelimiters.contains(k) {
-      return Token(value: "", closingDelimiter: String(k), isMacro: false)
-    }
- */
-    
-    nextWord = popWord()
     var cd : String = ""
-    
+
+ /*   if let openingDelimiter {
+      var cc = k == nil ? [] : [String(k!)]
+      while let nw = popWord() {
+        if (openingDelimiter == "(" && nw == ")" ) ||
+            (openingDelimiter == "[" && nw == "]") {
+          cd = " "
+//          nextWord = popWord()
+          k = Substring(openingDelimiter + cc.joined(separator: " ") + nw)
+          self.openingDelimiter = nil
+          break
+        } else {
+          cc.append(String(nw))
+        }
+      }
+    }
+  */
+    nextWord = popWord()
+
     // If this token is a macro token, do NOT consume a closing delimiter
     if let k, macroList.contains(k) {
     } else {
       // here is where I set the closing delimiter
       if nextWord != nil,
          nextWord!.count == 1,
-         let cdx = nextWord!.first,
-         Self.closingDelimiters.contains(cdx) || Self.middleDelimiters.contains(cdx) {
-        cd = Self.middleDelimiters.contains(cdx) ? " " + String(cdx) + " " : String(cdx) + " "
-        nextWord = popWord()
-      } else {
-        cd = nextWord == nil ? "\n" : " "
+         let cdx = nextWord!.first {
+/*        if Self.openingDelimiters.contains(cdx) {
+          openingDelimiter = String(cdx)
+          nextWord = popWord()
+        } else
+*/   if Self.closingDelimiters.contains(cdx) {
+          cd = String(cdx) + " "
+          nextWord = popWord()
+        } else if Self.middleDelimiters.contains(cdx) {
+          cd = " " + String(cdx) + " "
+          nextWord = popWord()
+        } else {
+          cd = nextWord == nil ? "\n" : " "
+        }
       }
     }
-    
+
     if nextWord == "Ns" || nextWord == "Ap" || !spacingMode { cd = String(cd.dropLast()) }
     
     if var k {
@@ -354,5 +369,14 @@ extension Mandoc {
     nextWord = nil
     fontStyling = false
     fontSizing = false
+  }
+
+  func xNextWord() -> Substring? {
+    if let t = nextWord {
+      nextWord = nil
+      return t
+    } else {
+      return popWord()
+    }
   }
 }

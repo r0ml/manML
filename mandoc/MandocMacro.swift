@@ -719,7 +719,15 @@ extension Mandoc {
               
             case "RE":
               let _ = rest // already handled in RS
-              
+
+            case "RI": // alternating roman / italic -- seems to handle white spaces and ignore delimiters
+              while let j = xNextWord() {
+                thisCommand.append(span("", j, lineNo))
+                if let k = popWord() {
+                  thisCommand.append(span("italic", k, lineNo))
+                }
+              }
+
             case "B":
               thisCommand = span("bold", rest.value, lineNo)
               
@@ -897,7 +905,7 @@ extension Mandoc {
               if macroList.contains(thisToken.value) {
                 thisCommand = span("unimplemented", thisToken.value, lineNo)
               } else {
-                thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
+                thisCommand = span(nil, String(thisToken.value), lineNo)
                 thisDelim = thisToken.closingDelimiter
               }
           }
