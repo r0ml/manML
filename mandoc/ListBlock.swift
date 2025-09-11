@@ -235,7 +235,15 @@ extension Mandoc {
   func macroBlock(_ enders : [String], _ bs : BlockState? = nil) async -> String {
     var output = ""
     while !atEnd {
+
       var line = peekLine
+
+      if line.hasPrefix(".\\\"") {
+        output.append(commentBlock())
+        if lines.isEmpty { return output }
+        line = peekLine
+      }
+
 
       if line.hasPrefix(".") {
         await setz(String(line.dropFirst()))
