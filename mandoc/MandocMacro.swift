@@ -331,7 +331,7 @@ extension Mandoc {
           } else {
             thisDelim = "\n"
           }
-        } while thisDelim == " | " || thisDelim == ", "
+        } while /* thisDelim == " | " || */ thisDelim == ", "
         
         // if there is no argument, the result is a single dash
         if thisCommand.isEmpty {
