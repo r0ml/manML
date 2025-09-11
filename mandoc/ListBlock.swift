@@ -4,15 +4,15 @@
 import Foundation
 
 extension Mandoc {
-  func blockBlock() -> String {
-    let j = next()?.value
-    var k = next()?.value
+  func blockBlock() async -> String {
+    let j = await next()?.value
+    var k = await next()?.value
     var width = "3em"
     var thisCommand = ""
     
     if k == "-offset" {
-      let w = next()?.value
-      k = next()?.value
+      let w = await next()?.value
+      k = await next()?.value
 
       switch w {
         case "indent":
@@ -50,13 +50,13 @@ extension Mandoc {
     }
 
     let bs = BlockState()
-    let block = macroBlock(["Ed"], bs)
+    let block = await macroBlock(["Ed"], bs)
     thisCommand.append(block)
     return thisCommand
   }
 
-  func calcWidth() -> String {
-    let m = next()?.value ?? "3em"
+  func calcWidth() async -> String {
+    let m = await next()?.value ?? "3em"
 
     let mm = m.prefix(while: { $0.isNumber} )
     if mm.count > 0 {
@@ -113,10 +113,10 @@ extension Mandoc {
     }
   }
 
-  func listBlock() -> String {
-    let j = next()
+  func listBlock() async -> String {
+    let j = await next()
     var width = "6em"
-    var k = next()
+    var k = await next()
     var offset = "0em" // indentation of the list
     var isCompact = false
     let bs = BlockState()
@@ -125,22 +125,22 @@ extension Mandoc {
     while k != nil { // indentation of item bodies
       loop: switch k?.value {
         case "-width":
-          width = calcWidth()
-          k = next()
+          width = await calcWidth()
+          k = await next()
 /*        case "-inset":
           let m = next()?.value ?? "4em"
           switch m {
  */
         case "-offset":
-          offset = calcWidth()
+          offset = await calcWidth()
 
  /*        case "indent":
           offset = "2em"
   */
-          k = next()
+          k = await next()
         case "-compact":
           isCompact = true
-          k = next()
+          k = await next()
         default:
           k = nil
           break loop
@@ -189,7 +189,7 @@ extension Mandoc {
 
     let _ = rest
 
-    let blk = macroBlock(["El"] , bs)
+    let blk = await macroBlock(["El"] , bs)
     thisCommand.append(blk)
 
     nextLine()
@@ -214,38 +214,38 @@ extension Mandoc {
     return thisCommand
   }
   
-  func textBlock(_ enders : [String]) -> String {
+  func textBlock(_ enders : [String]) async -> String {
       var output = ""
     while !atEnd {
       let line = peekLine
       if line.hasPrefix(".") {
-        setz(line.dropFirst())
-        if let pt = peekToken(),
+        await setz(String(line.dropFirst()))
+        if let pt = await peekToken(),
            enders.contains( String(pt.value) ) {
           break
         }
       }
       nextLine()
-      output.append(contentsOf: escaped(line) )
+      await output.append(contentsOf: Tokenizer.shared.escaped(line) )
       output.append("\n")
     }
     return String(output.dropLast())
   }
   
-  func macroBlock(_ enders : [String], _ bs : BlockState? = nil) -> String {
+  func macroBlock(_ enders : [String], _ bs : BlockState? = nil) async -> String {
     var output = ""
     while !atEnd {
       var line = peekLine
 
       if line.hasPrefix(".") {
-        setz(line.dropFirst())
-        if let pt = peekToken() {
+        await setz(String(line.dropFirst()))
+        if let pt = await peekToken() {
           if enders.isEmpty || enders.contains( String(pt.value) ) {
-            setz("")
+            await setz("")
             break
           }
         } else {
-          setz("")
+          await setz("")
           break
         } // if enders.contains("") { break}
 
@@ -254,17 +254,17 @@ extension Mandoc {
         if let k = line.firstMatch(of: /\\\"/) {
           cc = String(line.suffix(from: k.endIndex))
           line = line.prefix(upTo: k.startIndex)
-          setz(line.dropFirst())
+          await setz(String(line.dropFirst()))
         }
         
-        if let pl = try? parseLine(bs) {
+        if let pl = try? await parseLine(bs) {
           output.append( pl )
         }
         if let cc { output.append(contentsOf: "<!-- \(cc) -->") }
         output.append("\n")
       } else {
         nextLine()
-        output.append(contentsOf: span("body", escaped(line), lineNo))
+        await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))
         output.append(contentsOf: "\n")
       }
     }
@@ -282,13 +282,13 @@ extension Mandoc {
   }
   
   
-  func commentBlock(_ linesSlice : inout ArraySlice<Substring>) -> String {
+  func commentBlock() -> String {
     var output = ""
     
-    while !linesSlice.isEmpty {
-      let line = linesSlice.first!
+    while !lines.isEmpty {
+      let line = lines.first!
       if line.hasPrefix(".\\\"") {
-        linesSlice.removeFirst()
+        lines.removeFirst()
         output.append( contentsOf: line.dropFirst(3) )
         output.append("\n")
       } else {

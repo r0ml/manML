@@ -4,14 +4,11 @@
 import Foundation
 import AppKit
 
-class Mandoc {
+// FIXME: I'm not really Sendable
+class Mandoc : @unchecked Sendable {
 
-  static let closingDelimiters = ".,:;)]?!"
-  static let openingDelimiters = "(["
-  static let middleDelimiters = "|"
-
-  private var origInput : [Substring]
-  private var input : String
+  private var origInput : [Substring] = []
+  private var input : String = ""
   var date : String?
   var title : String?
   var os : String = ""
@@ -20,7 +17,7 @@ class Mandoc {
 
   // ============================
 
-  var lines : ArraySlice<Substring>
+  var lines : ArraySlice<Substring> = []
 
   var rsState : RsState?
 
@@ -29,34 +26,19 @@ class Mandoc {
 
   var authorSplit = false
 
-  var spacingMode = true
-
   // ============================
-  var definedString = [String:String]()
-  var definedMacro = [String: [Substring] ]()
 
   // ============================
   var ifNestingDepth = 0
 
 
-  var string : Substring
-  var nextWord : Substring?
-  var nextToken : Token?
-  var openingDelimiter : String?
-
-  var fontStyling = false
-  var fontSizing = false
 
 
 
-
-
-  init(_ s : String) {
+  func setString(_ s : String) {
     input = s
     origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
     lines = ArraySlice(origInput)
-    string = "" // set it to the first line?
-//    parseState = ParseState(self, lnSlice)
   }
   
   func macroPrefix(_ lin : Substring) -> (String, String)? {
@@ -68,28 +50,28 @@ class Mandoc {
     else { return nil }
   }
   
-  func generateBody() throws(ThrowRedirect) -> String {
+  func generateBody() async throws(ThrowRedirect) -> String {
 
     var output = ""
 
     while !lines.isEmpty {
-      var line = lines.first!
+      var line = String(lines.first!)
 
       if line.hasPrefix(".\\\"") {
-        output.append(commentBlock(&lines))
+        output.append(commentBlock())
         if lines.isEmpty { return output }
-        line = lines.first!
+        line = String(lines.first!)
       }
       
       var cc : String? = nil
       if let k = line.firstMatch(of: /\\\"/) {
         cc = String(line.suffix(from: k.endIndex))
-        line = line.prefix(upTo: k.startIndex)
+        line = String(line.prefix(upTo: k.startIndex))
       }
       
       lines.removeFirst()
 
-      try output.append(handleLine(line))
+      try await output.append(handleLine(Substring(line)))
 
       if let cc {
         output.append( "<!-- \(cc) -->\n")
@@ -101,13 +83,13 @@ class Mandoc {
     return output
   }
   
-  func toHTML() throws(ThrowRedirect) -> String {
+  func toHTML() async throws(ThrowRedirect) -> String {
 
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
     let header = "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>Mandoc</title><style>\(kk)</style></head><body>"
 
-    let output = try generateBody()
+    let output = try await generateBody()
 
     return """
 \(header)
@@ -123,14 +105,14 @@ class Mandoc {
   }
 
   
-  func handleLine( _ line : Substring) throws(ThrowRedirect) -> String {
+  func handleLine( _ line : Substring) async throws(ThrowRedirect) -> String {
     if line.isEmpty {
       return "<p>\n"
     } else if line.first != "." {
-      return span("body", String(escaped(line)), lineNo)
+      return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)
     } else {
-      setz(line.dropFirst())
-      return try parseLine()
+      await setz(String(line.dropFirst()))
+      return try await parseLine()
     }
   }
 
@@ -168,9 +150,9 @@ class Mandoc {
     // Now, in theory, for handling a .so, I can throw an error from toHTML(), catch the error, load a new source text, parse it, and return it.
     var mx = mm
     while true {
-      let md = Mandoc(mx)
+      await Tokenizer.shared.setMandoc(mx)
       do {
-        let h = try md.toHTML()
+        let h = try await Tokenizer.shared.toHTML()
         return ("", h, mx)
       } catch let e {
         switch e {
