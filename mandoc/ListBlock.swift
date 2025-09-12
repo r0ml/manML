@@ -256,7 +256,7 @@ extension Mandoc {
       if line.hasPrefix(".") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken() {
-          if enders.isEmpty || enders.contains( String(pt.value) ) {
+          if (enders.isEmpty && pt.isMacro) || enders.contains( String(pt.value) ) {
             await setz("")
             break
           }

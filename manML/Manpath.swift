@@ -144,13 +144,30 @@ import Foundation
       if let s = section {
         
         //        for s in sect {
-        let pp = p.appendingPathComponent("man\(s.first!)").appendingPathComponent(name).appendingPathExtension(s)
+        let p2 = p.appendingPathComponent("man\(s.first!)")
+        let pp = p2.appendingPathComponent(name).appendingPathExtension(s)
         let ppx = p.appendingPathComponent(name).appendingPathExtension(s)
 
         if FileManager.default.fileExists(atPath: pp.path) {
           res.append( pp )
         } else if FileManager.default.fileExists(atPath: ppx.path) {
           res.append( ppx)
+        } else {
+          do {
+            let ll = try FileManager.default.contentsOfDirectory(at: p2, includingPropertiesForKeys: nil)
+            let jj = ll.filter { $0.deletingPathExtension().lastPathComponent == name && $0.pathExtension.starts(with: s) }
+            if !jj.isEmpty {
+              res.append(jj.first!)
+            } else {
+              let ll = try FileManager.default.contentsOfDirectory(at: p, includingPropertiesForKeys: nil)
+              let jj = ll.filter { $0.deletingPathExtension().lastPathComponent == name && $0.pathExtension.starts(with: s) }
+              if !jj.isEmpty {
+                res.append(jj.first!)
+              }
+            }
+          } catch {
+            // ignore the error
+          }
         }
       } else {
         do {

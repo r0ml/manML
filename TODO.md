@@ -24,6 +24,6 @@
   but it also does no manual entry for /  -- only the first line should be the error.   However, the command line man also fails to find it -- so a
   "not found" error is ok.  However, non-legacy does not display an error message
   
-- man captoinfo fails because the file is  captoinfo.1m   It does not provide an error message
+- man captoinfo fails because it uses .TS -- the tbl processor
 
 - man config_data, corelist, cpan ... fail because they are perl docs
