@@ -187,14 +187,14 @@ class Mandoc : @unchecked Sendable {
 //    let ad = (NSApp.delegate) as? AppDelegate
 //    let manu = canonicalize(man)
     let j = manu.pathComponents + ["",""]
-    let manx = "\(j[1]) \(j[0])"
+    let manx = "\(j[2]) \(j[1])"
     let (pp, defered) = Mandoc.mandocFind( manu, manpath)
     defer {
       for i in defered { i.stopAccessingSecurityScopedResource() }
     }
     var error = ""
     if pp.count == 0 {
-      error = "not found: \(manx)"
+      return ("not found: \(manx)", "")
 /*    } else if pp.count > 1 {
       error = "multiple found"
       let a = makeMenu(pp)
@@ -204,11 +204,10 @@ class Mandoc : @unchecked Sendable {
       do {
         return try (error, String(contentsOf: pp[0], encoding: .utf8))
       } catch(let e) {
-        error = e.localizedDescription
+        return (e.localizedDescription, "")
       }
     }
-    error = "not found: \(manx)"
-    return (error, "")
+    return ("not found: \(manx)", "")
   }
 
 }

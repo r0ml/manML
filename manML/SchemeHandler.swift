@@ -44,6 +44,7 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
       } else {
         (state.error, state.manSource) = await Mandoc.readManFile(u, state.manpath)
       }
+      if state.manSource.isEmpty { return Data() }
         var html : String = ""
         (state.error, html, state.manSource) = await Mandoc.newParse(state.manSource, state.manpath)
         return html.data(using: .utf8 ) ?? Data()
