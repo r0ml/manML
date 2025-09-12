@@ -14,4 +14,16 @@
 - man avmediainfo has a .Bl error
 - a man page not found does not display an error
 
+- man binhex.pl fails because it misparses: ds C' ""  -- which has a carriage return and continues onto the next line.  This is a standard
+   prefix for perl documentaion -- and so I expect it will cause all Perl docs to fail.
+   Also, the definition for Vb seems to have worked -- but the substitution does not process the .tm and the .ft as macros.
+   
+- man bitesize.d  fails to render at all -- I believe because the file is bitesize.d.1m  -- and that final m causes confusion.
 
+- man 1 bluetoothuserd   fails to render at all, because the filename is  bluetoothuserd.8  .  The error in legacy mode is: no manual entry for bluetoothused
+  but it also does no manual entry for /  -- only the first line should be the error.   However, the command line man also fails to find it -- so a
+  "not found" error is ok.  However, non-legacy does not display an error message
+  
+- man captoinfo fails because the file is  captoinfo.1m   It does not provide an error message
+
+- chmod fails to render properly.  This is related to the change I made to middle delimiters -- where the handing of   Fl H | L | P  does not resolve properly.

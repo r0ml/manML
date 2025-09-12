@@ -26,6 +26,17 @@ extension Mandoc {
   func rest() async -> Token {
     return await Tokenizer.shared.rest()
   }
+
+  func shouldIContinue(_ thisDelim : String) async -> Bool {
+    let res = thisDelim == " | " || thisDelim == ", "
+    if !res { return false }
+    if let b = await peekToken() {
+      if b.isMacro { return false }
+    } else {
+      return false
+    }
+    return true
+  }
   /** Evaluation of a single Mandoc ( or roff ) macro returning the HTML string  which is the output.
    The tokenizer is advanced by consuming the arguments.  It does not necessarily consume the entire line.
    */
@@ -374,8 +385,10 @@ extension Mandoc {
           } else {
             thisDelim = "\n"
           }
-        } while /* thisDelim == " | " || */ thisDelim == ", "
-        
+          // applesingle has Fl h | Fl V -- and doesn't want to double dash the V
+          // chmod has Fl H | L | P  -- and wants to dash the L and P
+        } while await shouldIContinue(thisDelim)
+
         // if there is no argument, the result is a single dash
         if thisCommand.isEmpty {
           thisCommand = span("flag", "-", lineNo)
