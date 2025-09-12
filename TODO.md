@@ -26,4 +26,4 @@
   
 - man captoinfo fails because the file is  captoinfo.1m   It does not provide an error message
 
-- chmod fails to render properly.  This is related to the change I made to middle delimiters -- where the handing of   Fl H | L | P  does not resolve properly.
+- man config_data, corelist, cpan ... fail because they are perl docs

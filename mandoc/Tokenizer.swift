@@ -126,6 +126,7 @@ actor Tokenizer {
       // So we keep trying adding one character at a time until we give up
       let mx = definedString.keys.max(by: { $0.count < $1.count } )?.count ?? 1
       for n in (1...mx).reversed() {
+        if n > s.count { continue }
         let pp = s.prefix(n)
         if definedString.keys.contains(String(pp)) {
           let res = definedString[String(pp)]!
