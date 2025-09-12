@@ -48,12 +48,28 @@ actor Tokenizer {
   static let openingDelimiters = "(["
   static let middleDelimiters = "|"
 
-  let mandoc = Mandoc()
+  var mandoc = Mandoc()
 
   static let shared : Tokenizer = Tokenizer()
-  private init() {  }
+  private init() { }
 
-  func setMandoc(_ s : String) { mandoc.setString(s) }
+  private func reinit() {
+    mandoc = Mandoc()
+    fontStyling = false
+    fontSizing = false
+    definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
+    definedMacro = [:]
+    string = ""
+    nextWord = nil
+    nextToken = nil
+    openingDelimiter = nil
+    spacingMode = true
+  }
+
+  func setMandoc(_ s : String) {
+    reinit()
+    mandoc.setString(s)
+  }
 
   func toHTML() async throws(ThrowRedirect) -> String {
     return try await mandoc.toHTML()
@@ -154,6 +170,23 @@ actor Tokenizer {
                     // but we will pretend they cannot
             s.removeFirst(1) // the \f triggered the </span> -- so nothing else needs to be done
             fontStyling = false
+          case "[":
+            let j = s.prefix { $0 != "]" }
+            s.removeFirst(j.count - 1)
+            switch j.dropFirst(3) {
+              case "B":
+                fontStyling = true
+                res = #"<span class="bold">"#
+              case "R":
+                fontStyling = false
+              case "I":
+                res = #"<span class="italic">"#
+                fontStyling = true
+              case "P":
+                fontStyling = false
+              default:
+                res = "<span class=\"unimplemented\">unknown font: \(j.dropFirst(3))</span>"
+            }
           default:
             break
         }

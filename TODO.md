@@ -12,7 +12,6 @@
 - in man arch, some of the closing parens are in italic
 - in man audiosyncd -- there is a closing .El without an opening .Bl
 - man avmediainfo has a .Bl error
-
 - a man page not found does not display an error
 
 
