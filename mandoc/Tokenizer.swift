@@ -35,7 +35,7 @@ extension Mandoc {
 actor Tokenizer {
   var fontStyling = false
   var fontSizing = false
-  var definedString = [String:String]()
+  var definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
   var definedMacro = [String: [Substring] ]()
   var string : String = ""
   var nextWord : Substring?
@@ -109,19 +109,20 @@ actor Tokenizer {
       // at this point, I'm looking for a defined string -- but there is no marker for where the string ends.
       // So we keep trying adding one character at a time until we give up
       let mx = definedString.keys.max(by: { $0.count < $1.count } )?.count ?? 1
-      for n in 1...mx {
+      for n in (1...mx).reversed() {
         let pp = s.prefix(n)
         if definedString.keys.contains(String(pp)) {
           let res = definedString[String(pp)]!
           s.removeFirst(n)
-          return (res, sx)
+          return (res, s)
         }
       }
-      return ("<span class=\"unimplemented\">\("defined string: s.prefix(5)")...</span>", sx)
+      return ("", s)
+//      return ("<span class=\"unimplemented\">defined string: \(s.prefix(5))...</span>", sx)
     }
     let res = s.prefix(2)
     s.removeFirst(2)
-    return (String(res), sx)
+    return (String(res), s)
   }
 
   func parseFontControl(_ sx : String, _ k : Character ) -> (String, String) {
@@ -202,7 +203,7 @@ actor Tokenizer {
 
     // if it is a font control sequence, parse that
     if let k = s.dropFirst().first {
-      let (res, _) = parseFontControl(s, k)
+      let (res, s) = parseFontControl(s, k)
       return (Substring(res), s)
     } else {
       // keep the trailing backslash?

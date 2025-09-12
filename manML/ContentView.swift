@@ -11,8 +11,10 @@ func urlToMantext(_ url: URL) -> String {
     let upc = url.pathComponents
     if upc.count > 2 {
       return "\(upc[2]) \(upc[1])"
-    } else {
+    } else if upc.count > 1 {
       return "\(upc[1])"
+    } else {
+      return ""
     }
   }
 }

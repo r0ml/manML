@@ -186,7 +186,7 @@ class Mandoc : @unchecked Sendable {
   static func readManFile(_ manu : URL, _ manpath : Manpath) async -> (String, String) {
 //    let ad = (NSApp.delegate) as? AppDelegate
 //    let manu = canonicalize(man)
-    let j = manu.pathComponents
+    let j = manu.pathComponents + ["",""]
     let manx = "\(j[1]) \(j[0])"
     let (pp, defered) = Mandoc.mandocFind( manu, manpath)
     defer {
