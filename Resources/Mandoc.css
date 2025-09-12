@@ -5,6 +5,10 @@
 }
 
 body { color: blue; margin-left: 3em; font: serif; --tag-width: 3em;}
+
+br { display: block; margin-top: 0.3em; margin-bottom: 0.3em;}
+pre { margin-top: 0.2em; margin-bottom: 0.2em; }
+
 q { quotes: "“" "”" "‘" "’" }
 q.single { quotes: "‘" "’" }
 
@@ -32,6 +36,27 @@ a.manref:hover { text-decoration: underline; }
 .function-name { font-weight: bold; color: black; }
 .function-type { font-weight: bold; color: green; margin-top: 0.5em; display: inline-block; }
 .hang { text-indentation: -6em; text-padding: 6em; margin-top: 1em; }
+
+:root {
+  --hang-step: 2em;  /* base hanging indent */
+}
+.hanging {
+  --hang: var(--hang, var(--hang-step));
+  padding-inline-start: var(--hang);
+  text-indent: calc(-1 * var(--hang));
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.hanging .hanging {
+  --hang: calc(var(--hang) + var(--hang-step));
+}
+.hanging pre {
+  margin-inline-start: calc(1em + var(--hang-step)); /* double the indent */
+}
+.hanging p {
+  padding-inline-start: var(--hang-step);
+}
+
 .include { font-weight: bold; color: black; }
 .italic { font-style: italic; }
 .library { font-style: bold; color: darkolivegreen; }
@@ -47,7 +72,7 @@ a.manref:hover { text-decoration: underline; }
 .serious { font-weight: bold; }
 .small-caps { font-variant-caps: small-caps; }
 .standard { color: green; }
-.tag { }
+.tag { color: purple; font-weight: bold; }
 .tag-description { width: calc(100% - var(--tag-width) ); float: right; }
 .tag-list { list-style-type: none; list-style-position: inside; }
 .title { font-weight: bold; font-style: italic; }

@@ -914,7 +914,8 @@ extension Mandoc {
               let _ = await rest()
 
             case "IP":
-              let k = await next()
+              let kkk = await next()
+              let k = span("tag", kkk?.value ?? "", lineNo)
               var ind = 3
               if let dd = await next() {
                 if let i = Int(dd.value) { ind = i }
@@ -925,16 +926,21 @@ extension Mandoc {
               let kk = await macroBlock([])
 
               if ind > 0 {
-                thisCommand = "<div style=\"margin-left: \(ind/2)em;text-indent: -0.7em\">" + (k?.value ?? "") + " " + kk + "</div>"
+//                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
+                thisCommand = "<div class=hanging  style=\"--hang: \(Double(ind)/2.0)em\">" + 
+                k + " " +
+                span("hanging", kk, lineNo) +
+                "</div>"
               }
               
               // thisCommand = "<p style=\"margin-left: \(ind)em;\">\(k?.value ?? "")"
               
             case "nf":
               var j = await textBlock(["fi"])
-              if j.hasSuffix("\n.") { j.removeLast(2) }
-              thisCommand = "<pre>\(j)</pre>"
-              
+              // FIXME: did I need this?
+//              if j.hasSuffix("\n.") { j.removeLast(2) }
+              thisCommand = "<div style=\"margin-top: 0.5em\";>\(j)</div>"
+
             case "fi":
               let _ = await rest()
 

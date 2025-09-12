@@ -57,6 +57,13 @@ class Mandoc : @unchecked Sendable {
     while !lines.isEmpty {
       var line = String(lines.first!)
 
+/*      if line.isEmpty {
+        output.append("<br>")
+        lines.removeFirst()
+        continue
+      }
+*/
+      
       if line.hasPrefix(".\\\"") {
         output.append(commentBlock())
         if lines.isEmpty { return output }

@@ -225,8 +225,9 @@ extension Mandoc {
           break
         }
       }
+      let thes = await span("", "<pre>"+Tokenizer.shared.escaped(line)+"</pre>", lineNo)
       nextLine()
-      await output.append(contentsOf: Tokenizer.shared.escaped(line) )
+      output.append(contentsOf: thes)
       output.append("\n")
     }
     return String(output.dropLast())
@@ -237,6 +238,11 @@ extension Mandoc {
     while !atEnd {
 
       var line = peekLine
+      if line.isEmpty {
+        nextLine();
+        output.append("<br class=br/>")
+        continue
+      }
 
       if line.hasPrefix(".\\\"") {
         output.append(commentBlock())
