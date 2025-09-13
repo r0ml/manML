@@ -304,11 +304,11 @@ extension Mandoc {
       case "Dt": // document title
         title = String(await rest().value)
         let tt = title!.split(separator: " ")
-
-        let (name, section) = (tt[0], tt.count > 1 ? tt[1] : "")
+        let ttt = tt + ["", ""]
+        let (name, section) = (ttt[0], ttt.count > 1 ? ttt[1] : "")
 
         thisCommand = pageHeader(name, section, sections[String(section)] ?? "Unknown")
-        
+
         
       case "Dv": // defined variable
         if let j = try await nextArg() {

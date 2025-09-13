@@ -27,7 +27,7 @@
 
 - man dyld-usage defines macros INDENT and UNIDENT -- then processes them wrong in the OPTIONS section
 
-- man enc2xs, encguess, eyapp, findrule, h2ph, h2xs, htmltree fail to render properly (they are perldoc))
+- man enc2xs, encguess, eyapp, findrule, h2ph, h2xs, htmltree, instmodsh, ip2cc, jsonpp, json_xs fail to render properly (they are perldoc))
 
 - man expr -- the final paragraph seems to render wrong and reports a .Bl error
 
@@ -35,3 +35,50 @@
 
 - man infocmp renders improperly:  The FILES section shows  \*d   and it should be   /usr/share/terminfo
 
+- the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
+
+- LEGACY mode fails on man jq -- it terminates reading the stdout too soon -- borrow the code from ShellTesting .  Noticed because the BUGS section has an extra final dot in the render.
+
+- man ksh doen't handle the roff prelude definitions properly -- looks like a mess.
+
+- man ktrace has many .Bl errors.  Also,  .It Nm Cm info  does not display the Nm.  It defines (.de) trace-opts, then doesn't evaluate it properly.
+
+- man leave -- there is an extra space following the + option.
+
+- man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
+
+- man libnetcfg, lsm, lwp-download, lwp-dump, lwp-mirror, lwp-request, macerror, net-server fail to render properly (they are perldoc))
+
+- man mailq (and sendmail) is a mess.
+
+- man mdimport has Bl errors for  .Bd -literal
+
+- man netusage-client (and netusage)  -- .It Xo Cm --all-traffic  doesn't render in NETWORK STATISTICS COMMANDS
+
+- man nslookup    ARGUMENTS render incorrectly
+
+- man ocspd    the first file in FILES  does not render properly
+
+- man package-stack-conflicts, par.pl, parl, perl fail to render properly (they are perldoc))
+
+- man patch  fails to render  .Qo and .Qc
+
+- all the perl\* (and there are many) fail to render properly (they are perldoc))
+
+- man piconv, pl2pm fail to render properly (they are perldoc))
+
+- man plockstat renders improperly
+
+- man pmset loses it on the last SYNOPSIS line.
+
+- all the pod\* ( and there are many) fail to render properly (they are perldoc)
+
+- man postcat fails to notice the DESCRIPTION section 
+
+- man postconf fails to parse  .ti   macros
+
+- man postdrop (and postfix-tls) fails to notice the DESCRIPTION section
+
+- man postkick fails to handle .ad and recognize the LICENSE section
+
+- man postmap crashes 
