@@ -32,3 +32,6 @@
 - man expr -- the final paragraph seems to render wrong and reports a .Bl error
 
 - man funzip renders the Example section improperly -- it defines macros  EE  and    EX -- performs the substitution when invoked -- but fails to evaluate the substituted macros.
+
+- man infocmp renders improperly:  The FILES section shows  \*d   and it should be   /usr/share/terminfo
+

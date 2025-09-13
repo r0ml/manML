@@ -118,28 +118,29 @@ actor Tokenizer {
   }
 
   func popDefinedString(_ sx : String) -> (String, String) {
-    var s = sx
-    let m = s.dropFirst(2).first
-    if m == "(" {
-      s.removeFirst(3)
+    var s = sx.dropFirst(2)
+    guard !s.isEmpty else { return ("", String(s) ) }
+
+    var lookup = String(s.removeFirst())
+
+//  \*x  single char name
+//  \*(xx  double char name
+//  \*[xyz]  multichar name
+
+    if lookup == "(" {
+      lookup = String(s.prefix(2))
+      s = s.dropFirst(2)
+    } else if lookup == "[" {
       // at this point, I'm looking for a defined string -- but there is no marker for where the string ends.
       // So we keep trying adding one character at a time until we give up
-      let mx = definedString.keys.max(by: { $0.count < $1.count } )?.count ?? 1
-      for n in (1...mx).reversed() {
-        if n > s.count { continue }
-        let pp = s.prefix(n)
-        if definedString.keys.contains(String(pp)) {
-          let res = definedString[String(pp)]!
-          s.removeFirst(n)
-          return (res, s)
-        }
-      }
-      return ("", s)
-//      return ("<span class=\"unimplemented\">defined string: \(s.prefix(5))...</span>", sx)
+      lookup = String(s.prefix { $0 != "]" } )
+      s = s.dropFirst(lookup.count + 1)
     }
-    let res = s.prefix(2)
-    s.removeFirst(2)
-    return (String(res), s)
+    if let mx = definedString[lookup] {
+      return (mx, String(s) )
+    } else {
+      return ( "undefined:\(lookup)", String(s) )
+    }
   }
 
   func parseFontControl(_ sx : String, _ k : Character ) -> (String, String) {

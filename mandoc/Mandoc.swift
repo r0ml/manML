@@ -57,6 +57,7 @@ class Mandoc : @unchecked Sendable {
     while !lines.isEmpty {
       var line = String(lines.first!)
 
+
 /*      if line.isEmpty {
         output.append("<br>")
         lines.removeFirst()
@@ -77,6 +78,16 @@ class Mandoc : @unchecked Sendable {
       }
       
       lines.removeFirst()
+
+      // FIXME: possibly this loop goes before the comment handling?
+      while line.last == "\\" {
+        if lines.isEmpty {
+          line.removeLast()
+        } else {
+          let nl = String(lines.removeFirst())
+          line = line.dropLast()+nl
+        }
+      }
 
       try await output.append(handleLine(Substring(line)))
 
