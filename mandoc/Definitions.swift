@@ -5,7 +5,7 @@
 
 import Foundation
 
-let macroList = "%A %B %C %D %I %J %N %O %P %Q %R %T %U %V Ac Ad An Ao Ap Aq Ar At Bc Bd Bf Bk Bl Bo Bq Brc Bro Brq Bsx Bt Cd Cm D1 Db Dc Dd Dl Do Dq Dt Dv Dx Ec Ed Ef Ek El Em En Eo Er Es Ev Ex Fa Fc Fd Fl Fn Fo Fr Ft Fx Hf Ic In It Lb Li Lk Lp Ms Mt Nd Nm No Ns Nx Oc Oo Op Os Ot Ox Pa Pc Pf Po Pp Pq Qc Ql Qo Qq Re Rs Rv Sc Sh Sm So Sq Ss St Sx Sy Ta Tn Ud Ux Va Vt Xc Xo Xr TP PP SH IP RE".split(separator: " ")
+let macroList = "%A %B %C %D %I %J %N %O %P %Q %R %T %U %V Ac Ad An Ao Ap Aq Ar At Bc Bd Bf Bk Bl Bo Bq Brc Bro Brq Bsx Bt Cd Cm D1 Db Dc Dd Dl Do Dq Dt Dv Dx Ec Ed Ef Ek El Em En Eo Er Es Ev Ex Fa Fc Fd Fl Fn Fo Fr Ft Fx Hf Ic In It Lb Li Lk Lp Ms Mt Nd Nm No Ns Nx Oc Oo Op Os Ot Ox Pa Pc Pf Po Pp Pq Qc Ql Qo Qq Re Rs Rv Sc Sh Sm So Sq Ss St Sx Sy Ta Tn Ud Ux Va Vt Xc Xo Xr TP PP LP SH IP RE".split(separator: " ")
 
 let standards = [
   "-ansiC": "ANSI X3.159-1989 (“ANSI~C89”)",

@@ -774,7 +774,7 @@ extension Mandoc {
               let k = await macroBlock([]) // "TP", "PP", "SH"])
               thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
               
-            case "P", "PP":
+            case "P", "PP", "LP":
               thisCommand = "<p>"
               
             case "RS":
@@ -847,20 +847,19 @@ extension Mandoc {
               
             case "TH":
               let name = await next()?.value ?? "??"
-              let section = await next()?.value ?? ""
+              let section = await next()?.value ?? " "
               title = "\(name)(\(section))"
-              date = String(await next()?.value ?? "")
-              os = String(await next()?.value ?? "")
-              let h = String(await next()?.value ?? "")
-              thisCommand = pageHeader(name, section, h )
-              
+              date = String(await next()?.value ?? " ")
+              os = String(await next()?.value ?? " ")
+              let h = String(await next()?.value ?? "Unknown" )
+              thisCommand = pageHeader(name, section, h ) // + "<br>"
+
             case "HP": // Hanging paragraph.  Argument specifies amount of hang
               // FIXME: I see things like \w'abcdef'u -- which computes the length of 'abcdef' for the size of the hanging indent
               let _ = await rest()  // just not implemented
 
-              let kk = await macroBlock(["PP", "IP", "TP", "HP"])
+              let kk = await macroBlock(["PP", "IP", "TP", "HP", "LP"])
 
-              // Need to do a macroBlock  where the ending is ["PP", "IP", "TP", "HP"]
               let width = "3em"
               thisCommand = "<div class=hang style=\"text-indent: -\(width); padding-left: \(width);>"+span("", kk, lineNo)+"</div>"
 
