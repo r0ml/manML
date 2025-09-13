@@ -19,4 +19,4 @@
    
 - man captoinfo fails because it uses .TS -- the tbl processor
 
-- man config_data, corelist, cpan ... fail because they are perl docs
+- man config_data, corelist, cpan, dbicadmin, dbilogstrip, dbiprof, dbiproxy, debinhex.pl ... fail because they are perl docs

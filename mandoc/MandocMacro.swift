@@ -334,10 +334,35 @@ extension Mandoc {
         thisCommand = span("unimplemented", ".El encountered without .Bl", lineNo)
         
       case "Em":
-        if let j = try await macro() {
+        var ended = true
+        while let j = try await macro(flag: true) {
+          if !j.isMacro {
+            thisCommand.append(thisDelim)
+            thisCommand.append(contentsOf: j.value)
+            thisDelim = j.closingDelimiter
+            continue
+          } else {
+            thisCommand = span("bold italic", thisCommand, lineNo)
+            thisCommand.append(thisDelim)
+            thisCommand.append(contentsOf: j.value)
+            thisCommand.append(j.closingDelimiter)
+            ended = false
+            break
+          }
+        }
+
+        if ended {
+          thisCommand = span("bold italic", thisCommand, lineNo)
+          thisCommand.append(thisDelim)
+        }
+
+          /*
+        if let j = try await macro(flag: true) {
+ //       let j = await rest()
           thisCommand = "<em>\(j.value)</em>"
           thisDelim = j.closingDelimiter
-        }
+       }
+        */
       case "Er":
         if let j = try await macro() {
           thisCommand = span("error", j.value, lineNo)
@@ -984,7 +1009,7 @@ extension Mandoc {
           }
         }
     }
-    return Token(value: Substring(thisCommand), closingDelimiter: thisDelim, isMacro: true)
+    return Token(value: Substring(thisCommand), closingDelimiter: thisDelim, isMacro: false)
   }
 
  }

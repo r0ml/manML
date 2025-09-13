@@ -425,7 +425,7 @@ actor Tokenizer {
       }
       cd = t.closingDelimiter
     }
-    return Token(value: Substring(output), closingDelimiter: cd, isMacro: true)
+    return Token(value: Substring(output), closingDelimiter: cd, isMacro: false)
   }
 
 

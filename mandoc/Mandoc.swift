@@ -156,23 +156,33 @@ class Mandoc : @unchecked Sendable {
   static func newParse(_ mm : String, _ manpath : Manpath) async -> (String, String, String) {
     // Now, in theory, for handling a .so, I can throw an error from toHTML(), catch the error, load a new source text, parse it, and return it.
     var mx = mm
-    while true {
+    var n = 0
+    while n < 2 {
       await Tokenizer.shared.setMandoc(mx)
       do {
         let h = try await Tokenizer.shared.toHTML()
         return ("", h, mx)
       } catch let e {
+        n += 1
         switch e {
           case .to(let z):
             let k = z.split(separator: "/").last ?? ""
-            let j = k.split(separator: ".")
-            let (e, m) = await readManFile( URL(string: "\(scheme)://\(j[1])/\(j[0])")!, manpath)
-            if !e.isEmpty { return (e, "", m) }
-            mx = m
-            continue
+            let j = k.split(separator: ".").map { String($0) }
+            if let u = URL(string: "\(scheme)://\(j[1])/\(j[0])") {
+              let (e, m) = await readManFile( u, manpath)
+              if !e.isEmpty { return (e, "", m) }
+              // FIXME: infinite loops can happen here.
+              // if mx == m it is a tight loop.  In theory, it can alternate.  Needs to be fixed.
+              if mx == m { return ("indirection loop detected", "", "") }
+              mx = m
+              continue
+            } else {
+              return ("invalid redirection: \(z)", "", "")
+            }
         }
       }
     }
+    return ("repeated redirects", "", "")
   }
 
   static func canonicalize(_ man : String) -> URL? {
