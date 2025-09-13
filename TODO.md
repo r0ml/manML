@@ -27,10 +27,10 @@
 
 - man dyld-usage defines macros INDENT and UNIDENT -- then processes them wrong in the OPTIONS section
 
-- man enc2xs, encguess, eyapp, findrule fail to render properly (they are perldoc))
+- man enc2xs, encguess, eyapp, findrule, h2ph, h2xs, htmltree fail to render properly (they are perldoc))
 
 - man expr -- the final paragraph seems to render wrong and reports a .Bl error
 
 - man funzip renders the Example section improperly -- it defines macros  EE  and    EX -- performs the substitution when invoked -- but fails to evaluate the substituted macros.
 
-
+- man htpasswd renders the last three options incorrectly, -- the tag does not end before the tag-description begins.

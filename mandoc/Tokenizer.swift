@@ -33,7 +33,7 @@ extension Mandoc {
 
 // Designed to be a singleton reused tokenizer
 actor Tokenizer {
-  var fontStyling = false
+  var fontStyling : Int = 0
   var fontSizing = false
   var definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
   var definedMacro = [String: [Substring] ]()
@@ -55,7 +55,7 @@ actor Tokenizer {
 
   private func reinit() {
     mandoc = Mandoc()
-    fontStyling = false
+    fontStyling = 0
     fontSizing = false
     definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
     definedMacro = [:]
@@ -113,7 +113,7 @@ actor Tokenizer {
     }
 
     if fontSizing { res.append(contentsOf: "</span>") }
-    if fontStyling { res.append(contentsOf: "</span>") }
+    while fontStyling > 0 { res.append(contentsOf: "</span>"); fontStyling -= 1 }
     return res
   }
 
@@ -148,43 +148,47 @@ actor Tokenizer {
     switch k {
       case "f":   // font style
         let m = s.dropFirst(2).first
-
-        // FIXME: with   a boolean, it does not support nesting font directives
-        if fontStyling {
-          res.append(contentsOf: "</span>")
-          fontStyling = false
-        }
         switch m {
           case "B":
             res = #"<span class="bold">"#
             s.removeFirst(1)
-            fontStyling = true
+            fontStyling += 1
           case "I":
             res = #"<span class="italic">"#
             s.removeFirst(1)
-            fontStyling = true
+            fontStyling += 1
           case "R": // regular font
             s.removeFirst(1)
-            fontStyling = false
-          case "P": // revert to previous font
-                    // technically, this implies that the font stylings can be nested,
-                    // but we will pretend they cannot
-            s.removeFirst(1) // the \f triggered the </span> -- so nothing else needs to be done
-            fontStyling = false
+            if fontStyling > 0 {
+              res = "</span>"
+            fontStyling -= 1
+            }
+          case "P":
+            s.removeFirst(1)
+            if fontStyling > 0 {
+              res = "</span>"
+              fontStyling -= 1
+            }
           case "[":
             let j = s.prefix { $0 != "]" }
             s.removeFirst(j.count - 1)
             switch j.dropFirst(3) {
               case "B":
-                fontStyling = true
+                fontStyling += 1
                 res = #"<span class="bold">"#
               case "R":
-                fontStyling = false
+                if fontStyling > 0 {
+                  fontStyling -= 1
+                  res = "</span>"
+                }
               case "I":
                 res = #"<span class="italic">"#
-                fontStyling = true
+                fontStyling += 1
               case "P":
-                fontStyling = false
+                if fontStyling > 0 {
+                  fontStyling -= 1
+                  res = "</span>"
+                }
               default:
                 res = "<span class=\"unimplemented\">unknown font: \(j.dropFirst(3))</span>"
             }
@@ -247,7 +251,7 @@ actor Tokenizer {
   }
 
   func reset() {
-    fontStyling = false
+    fontStyling = 0
     fontSizing = false
   }
 
