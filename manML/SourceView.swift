@@ -19,6 +19,8 @@ struct SourceView : View {
             if ssx >= 0 && ssx < lines.count {
               source = String(lines[ssx])
             }
+          } else {
+            source = ""
           }
         }
       Spacer()

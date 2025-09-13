@@ -334,27 +334,7 @@ extension Mandoc {
         thisCommand = span("unimplemented", ".El encountered without .Bl", lineNo)
         
       case "Em":
-        var ended = true
-        while let j = try await macro(flag: true) {
-          if !j.isMacro {
-            thisCommand.append(thisDelim)
-            thisCommand.append(contentsOf: j.value)
-            thisDelim = j.closingDelimiter
-            continue
-          } else {
-            thisCommand = span("bold italic", thisCommand, lineNo)
-            thisCommand.append(thisDelim)
-            thisCommand.append(contentsOf: j.value)
-            thisCommand.append(j.closingDelimiter)
-            ended = false
-            break
-          }
-        }
-
-        if ended {
-          thisCommand = span("bold italic", thisCommand, lineNo)
-          thisCommand.append(thisDelim)
-        }
+        thisCommand = try await restMacro { self.span("bold italic", $0, self.lineNo) }
 
           /*
         if let j = try await macro(flag: true) {
@@ -620,11 +600,14 @@ extension Mandoc {
       case "Lp", "Pp":
         thisCommand = "<p>"
       case "Pq":
-        if let j = try await macro() {
+        thisCommand = try await restMacro { self.span("pq", $0, self.lineNo) } // wrap in parens
+/*
+ //        if let j = try await macro() {
+        let j = await rest()
           thisCommand = "(\(j.value))"
           thisDelim = j.closingDelimiter
-        }
-        
+//        }
+*/
       case "Ql":
         if let j = try await macro() {
           thisCommand.append(thisDelim)
@@ -1020,6 +1003,35 @@ extension Mandoc {
         }
     }
     return Token(value: Substring(thisCommand), closingDelimiter: thisDelim, isMacro: false)
+  }
+
+
+// in fact, I should never throw the redirect
+  func restMacro(_ f : @escaping (String) -> String) async throws(ThrowRedirect) -> String {
+    var ended = true
+    var thisCommand = ""
+    var thisDelim = ""
+    while let j = try await macro(flag: true) {
+      if !j.isMacro {
+        thisCommand.append(thisDelim)
+        thisCommand.append(contentsOf: j.value)
+        thisDelim = j.closingDelimiter
+        continue
+      } else {
+        thisCommand = f(thisCommand)
+        thisCommand.append(thisDelim)
+        thisCommand.append(contentsOf: j.value)
+        thisCommand.append(j.closingDelimiter)
+        ended = false
+        break
+      }
+    }
+
+    if ended {
+      thisCommand = f(thisCommand)
+      thisCommand.append(thisDelim)
+    }
+    return thisCommand
   }
 
  }

@@ -167,7 +167,8 @@ class Mandoc : @unchecked Sendable {
         switch e {
           case .to(let z):
             let k = z.split(separator: "/").last ?? ""
-            let j = k.split(separator: ".").map { String($0) }
+            let j = (k.split(separator: ".").map { String($0) })+["", ""]
+
             if let u = URL(string: "\(scheme)://\(j[1])/\(j[0])") {
               let (e, m) = await readManFile( u, manpath)
               if !e.isEmpty { return (e, "", m) }

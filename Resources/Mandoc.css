@@ -67,6 +67,10 @@ a.manref:hover { text-decoration: underline; }
 /* .literal::after { content: "'"; } */
 .os { color: navy; }
 .path { color: violet; }
+
+.pq::before { content: "("; }
+.pq::after { content: ")"; }
+
 .roman { }
 .regular { }
 .serious { font-weight: bold; }

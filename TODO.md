@@ -22,3 +22,5 @@
 - man config_data, corelist, cpan, dbicadmin, dbilogstrip, dbiprof, dbiproxy, debinhex.pl ... fail because they are perl docs
 
 - man dig has a problem with  .if  macro.
+
+- man dns-sd misparses  IP  as a macro and renders the line for -P wrong.
