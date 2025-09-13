@@ -730,13 +730,20 @@ extension Mandoc {
         thisCommand = await macroBlock(["Xc"])
 
       case "Xr":
-        if let j = await next(),
-           let k = await next() {
+        if let j = await next() {
+          var sch = "\(scheme):/\(j.value)"
+          var dsp = "\(j.value)"
+          thisDelim = j.closingDelimiter
+          if let k = await next() {
+            sch.append("/\(k.value)")
+            dsp.append("(\(k.value))")
+            thisDelim = k.closingDelimiter
+          }
           
-          thisCommand = "<a class=\"manref\" href=\"\(scheme):/\(j.value)/\(k.value)\">\(j.value)(\(k.value))</a>" // + parseState.closingDelimiter
-          thisDelim = k.closingDelimiter
+          thisCommand = "<a class=\"manref\" href=\"\(sch)\">\(dsp)</a>" // + parseState.closingDelimiter
         }
-        
+
+
         
       default:
         if !flag {

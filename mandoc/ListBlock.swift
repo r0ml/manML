@@ -318,6 +318,6 @@ extension Mandoc {
         return output
       }
     }
-    return output
+    return "<!--" + output + "-->"
   }
 }

@@ -32,5 +32,3 @@
 - man expr -- the final paragraph seems to render wrong and reports a .Bl error
 
 - man funzip renders the Example section improperly -- it defines macros  EE  and    EX -- performs the substitution when invoked -- but fails to evaluate the substituted macros.
-
-- man htpasswd renders the last three options incorrectly, -- the tag does not end before the tag-description begins.
