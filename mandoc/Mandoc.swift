@@ -42,7 +42,7 @@ class Mandoc : @unchecked Sendable {
   }
   
   func macroPrefix(_ lin : Substring) -> (String, String)? {
-    if lin.first != "." { return nil }
+    if lin.first != "." && lin.first != "'" { return nil }
     let k = lin.dropFirst().drop(while: { $0.isWhitespace })
     let j = k.prefix(2)
     let h = k.dropFirst(2).first?.isWhitespace ?? (j.count == 2)
@@ -115,7 +115,7 @@ class Mandoc : @unchecked Sendable {
   func handleLine( _ line : Substring) async throws(ThrowRedirect) -> String {
     if line.isEmpty {
       return "<p>\n"
-    } else if line.first != "." {
+    } else if line.first != "." && line.first != "'" {
       return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)
     } else {
       await setz(String(line.dropFirst()))

@@ -464,7 +464,7 @@ extension Mandoc {
         }
       case "In": // include
         let j = await rest()
-        thisCommand = "<br><br>"+span("include", "#include &lt;\(j.value)&gt;", lineNo)
+        thisCommand = "<br>"+span("include", "#include &lt;\(j.value)&gt;", lineNo)
         thisDelim = j.closingDelimiter
 
       case "It":
@@ -872,15 +872,25 @@ extension Mandoc {
               thisCommand = pageHeader(name, section, h )
               
             case "HP": // Hanging paragraph.  Argument specifies amount of hang
-              thisCommand = "<p>" // not implemented properly
-              
+              // FIXME: I see things like \w'abcdef'u -- which computes the length of 'abcdef' for the size of the hanging indent
+              let _ = await rest()  // just not implemented
+
+              let kk = await macroBlock(["PP", "IP", "TP", "HP"])
+
+              // Need to do a macroBlock  where the ending is ["PP", "IP", "TP", "HP"]
+              let width = "3em"
+              thisCommand = "<div class=hang style=\"text-indent: -\(width); padding-left: \(width);>"+span("", kk, lineNo)+"</div>"
+
             case "na": // no alignment -- disables justification until .ad
               break // not implemented
             case "ad": // left/right justify
+              let _ = await rest()
+              break // not implemented
+
+            case "nh": // disable hypenation until .hy
+              let _ = await rest()
               break // not implemented
               
-            case "nh": // disable hypenation until .hy
-              break // not implemented
             case "hy": // re-enable hyphenation
               let _ = await rest()
               break   // not implemented

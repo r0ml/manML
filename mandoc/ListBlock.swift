@@ -218,7 +218,7 @@ extension Mandoc {
       var output = ""
     while !atEnd {
       let line = peekLine
-      if line.hasPrefix(".") {
+      if line.hasPrefix(".") || line.hasPrefix("'") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken(),
            enders.contains( String(pt.value) ) {
@@ -259,7 +259,7 @@ extension Mandoc {
       if let cc { output.append(contentsOf: "<!-- \(cc) -->") }
 
       
-      if line.hasPrefix(".") {
+      if line.hasPrefix(".") || line.hasPrefix("'") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken() {
           if (enders.isEmpty && pt.isMacro) || enders.contains( String(pt.value) ) {

@@ -21,7 +21,6 @@ extension Mandoc {
 <div style="float: right">\(mm)</div>
 <div style="margin: 0 auto; width: 100%; text-align: center;">\(title)</div>
 </div>
-<br/>
 """
   }
   
