@@ -77,8 +77,6 @@
 
 - man postconf fails to parse  .ti   macros
 
-- man postdrop (and postfix-tls) fails to notice the DESCRIPTION section
-
-- man postkick fails to handle .ad and recognize the LICENSE section
-
-- man postmap crashes 
+- man postmap crashes in nextline() -- in the removeFirst() -- clearly a race condition 
+            if !lines.isEmpty { lines.removeFirst() }
+ 

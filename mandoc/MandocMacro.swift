@@ -960,10 +960,13 @@ extension Mandoc {
               // thisCommand = "<p style=\"margin-left: \(ind)em;\">\(k?.value ?? "")"
               
             case "nf":
-              var j = await textBlock(["fi"])
+              var j = await macroBlock(["fi", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
               // FIXME: did I need this?
 //              if j.hasSuffix("\n.") { j.removeLast(2) }
-              thisCommand = "<div style=\"margin-top: 0.5em\";>\(j)</div>"
+
+              if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                thisCommand = "<div class=nf style=\"margin-top: 0.5em\";>\(j)</div>"
+              }
 
             case "fi":
               let _ = await rest()

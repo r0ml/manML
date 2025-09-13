@@ -65,6 +65,12 @@ a.manref:hover { text-decoration: underline; }
 .literal { font-family: "Courier"; background-color: lightcyan }
 /* .literal::before { content: "'"; } */
 /* .literal::after { content: "'"; } */
+
+.nf {
+  white-space: pre;    /* preserve spaces and line breaks */
+  font-family: monospace; /* optional, for code-like look */
+}
+
 .os { color: navy; }
 .path { color: violet; }
 
