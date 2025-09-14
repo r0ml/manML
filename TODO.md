@@ -87,3 +87,5 @@
 
 - more perldoc mans:  pp, prove, ptar
 
+- man ruby -- nested list doesn't resolve gracefully on exit from the sub 
+    list in OPTIONS

@@ -179,7 +179,7 @@ actor Tokenizer {
               case "I":
                 res.append( #"<span class="italic">"# )
                 fontStyling.append("I")
-              case "P":
+              case "P", "":
                 if fontStyling.count > 0 {
                   fontStyling.removeLast()
                   res.append("</span>")
