@@ -181,7 +181,7 @@ extension Mandoc {
 
       case "Bf": // begin a font block
         if let j = await next() {
-          let k = await macroBlock( (enders ?? []) + ["Ef"])
+          let (k, _) = await macroBlock( (enders ?? []) + ["Ef"])
           switch j.value {
             case "Em", "-emphasis":
               thisCommand = span("", "<em>" + k + "</em>", lineNo)
@@ -195,15 +195,20 @@ extension Mandoc {
         }
       case "Bk": // keep block on single line
         let _ = await rest() // it should be `-words`
-        let j = await macroBlock( enders + ["Ek"])
+        let (j, _) = await macroBlock( enders + ["Ek"])
         thisCommand = j
         
       case "Bl": // begin list.
                  // FIXME: not all list types are supported yet
-        thisCommand = await listBlock()
+        let (tc, palm) = await listBlock()
+        if palm == "El" {
+          nextLine()
+        }
+        thisCommand = tc
 
       case "Bo": // begin square bracket block.
-        thisCommand = await span(nil, "[" + macroBlock( enders + ["Bc"])+"]", lineNo)
+        let (j, _) = await macroBlock( enders + ["Bc"])
+        thisCommand = span(nil, "[" + j + "]", lineNo)
 
       case "Bq": // enclose in square brackets.
         if let j = try await macro(enders: enders) {
@@ -293,7 +298,7 @@ extension Mandoc {
         //        }
         
       case "Do": // enclose block in quotes
-        let j = await macroBlock( (enders ?? [] ) + ["Dc"])
+        let (j, _) = await macroBlock( (enders ?? [] ) + ["Dc"])
         thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
         
       case "Dq": // enclosed in quotes
@@ -427,7 +432,7 @@ extension Mandoc {
         thisCommand = span("function-name", j.value, lineNo) + "&thinsp;("
         let bs = BlockState()
         bs.functionDef = true
-        let k = await macroBlock( (enders ?? []) + ["Fc"], bs)
+        let (k, _) = await macroBlock( (enders ?? []) + ["Fc"], bs)
         thisCommand.append(contentsOf: k.dropLast(faDelim.count+1) )
         thisCommand.append(");")
         
@@ -457,7 +462,7 @@ extension Mandoc {
 
       case "It":
         let currentTag = try await parseLine(bs, enders: enders)
-        let currentDescription = await macroBlock( (enders ?? []) + ["It", "El"], bs)
+        let (currentDescription, _) = await macroBlock( enders + ["It", "El"], bs)
 
         switch bs?.bl {
           case .diag:
@@ -744,7 +749,7 @@ extension Mandoc {
         let _ = await rest()
 
       case "Xo": // extend item
-        thisCommand = await macroBlock( (enders ?? []) + ["Xc"])
+        (thisCommand, _) = await macroBlock( (enders ?? []) + ["Xc"])
 
       case "Xr":
         if let j = await next() {
@@ -795,7 +800,7 @@ extension Mandoc {
               nextLine()
               let currentTag = try await handleLine(line, enders: enders)
 
-              let k = await macroBlock( [] ) // "TP", "PP", "SH"])
+              let (k, _) = await macroBlock( [] ) // "TP", "PP", "SH"])
               thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
               
             case "P", "PP", "LP":
@@ -829,7 +834,7 @@ extension Mandoc {
             case "ft": // set font
               let f = await next()?.value ?? "R"
               let _ = await rest()
-              let j = await macroBlock( (enders ?? []) + ["ft"])
+              let (j, _) = await macroBlock( (enders ?? []) + ["ft"])
               switch f {
                 case "R":
                   thisCommand = span("", j, lineNo) // no font
@@ -904,13 +909,13 @@ extension Mandoc {
               // FIXME: I see things like \w'abcdef'u -- which computes the length of 'abcdef' for the size of the hanging indent
               let _ = await rest()  // just not implemented
 
-              let kk = await macroBlock( (enders ?? []) + ["PP", "IP", "TP", "HP", "LP"])
+              let (kk, _) = await macroBlock( (enders ?? []) + ["PP", "IP", "TP", "HP", "LP"])
 
               let width = "3em"
               thisCommand = "<div class=hang style=\"text-indent: -\(width); padding-left: \(width);>"+span("", kk, lineNo)+"</div>"
 
             case "na": // no alignment -- disables justification until .ad
-              var j = await macroBlock( (enders ?? []) + ["ad", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
+              var (j, _) = await macroBlock( (enders ?? []) + ["ad", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
               // FIXME: did I need this?
 //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
@@ -978,7 +983,7 @@ extension Mandoc {
             case "in":
               let inx = await rest()
 //              print(inx)
-              let j = await macroBlock(enders+["in"])
+              let (j, _) = await macroBlock(enders+["in"])
               var iny = "0"
               if inx.value.first == "+" {
                 iny = (inx.value.dropFirst()+"en")
@@ -1015,7 +1020,7 @@ extension Mandoc {
               
               let _ = await rest()
 
-              let kk = await macroBlock([])
+              let (kk, _) = await macroBlock([])
 
               if ind > 0 {
 //                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
@@ -1030,7 +1035,7 @@ extension Mandoc {
             case "nf":
 
               // FIXME: macroBlocks must be nested.  A macroBlock terminates when any of its enders hit -- or any of its parent macroBlocks enders hit
-              var j = await macroBlock( (enders ?? []) +  ["fi", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
+              var (j, _) = await macroBlock( (enders ?? []) +  ["fi", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
               // FIXME: did I need this?
 //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
@@ -1061,7 +1066,7 @@ extension Mandoc {
 
             case "TS": // define table start
               let _ = await rest()
-              thisCommand = await macroBlock( (enders ?? []) + ["TE"])
+              (thisCommand, _) = await macroBlock( enders + ["TE"])
 //              print(thisCommand)
             default:
               // FIXME: if the token is not recognized as a macro, then it must be regular text

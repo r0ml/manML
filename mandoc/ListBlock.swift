@@ -50,7 +50,7 @@ extension Mandoc {
     }
 
     let bs = BlockState()
-    let block = await macroBlock(["Ed"], bs)
+    let (block, _) = await macroBlock(["Ed"], bs)
     thisCommand.append(block)
     return thisCommand
   }
@@ -113,7 +113,7 @@ extension Mandoc {
     }
   }
 
-  func listBlock() async -> String {
+  func listBlock() async -> (String, Substring?) {
     let j = await next()
     var width = "6em"
     var k = await next()
@@ -193,7 +193,7 @@ extension Mandoc {
     let _ = rest
 
     // FIXME: seems like I need to stick in the Sh as a list ender for some man pages
-    let blk = await macroBlock(["El", "Sh", "SH"] , bs)
+    let (blk, term) = await macroBlock(["El", "Sh", "SH"] , bs)
     thisCommand.append(blk)
 
     // nextLine()
@@ -215,7 +215,7 @@ extension Mandoc {
         thisCommand.append(span("unimplemented", "BLError", lineNo))
     }
 
-    return thisCommand
+    return (thisCommand, term)
   }
   
   func textBlock(_ enders : [String]) async -> String {
@@ -237,7 +237,7 @@ extension Mandoc {
     return String(output.dropLast())
   }
   
-  func macroBlock(_ enders : [String], _ bs : BlockState? = nil) async -> String {
+  func macroBlock(_ enders : [String], _ bs : BlockState? = nil) async -> (String, Substring?) {
     var output = ""
     while !atEnd {
 
@@ -251,7 +251,7 @@ extension Mandoc {
 
       if line.hasPrefix(".\\\"") {
         output.append(commentBlock())
-        if lines.isEmpty { return output }
+        if lines.isEmpty { return (output, nil) }
         line = peekLine
       }
 
@@ -269,11 +269,11 @@ extension Mandoc {
         if let pt = await peekToken() {
           if (enders.isEmpty && pt.isMacro) || enders.contains( String(pt.value) ) {
             await setz("")
-            break
+            return (output, pt.value)
           }
         } else {
           await setz("")
-          break
+          return (output, nil)
         } // if enders.contains("") { break}
 
         nextLine()
@@ -295,7 +295,7 @@ extension Mandoc {
         output.append(contentsOf: "\n")
       }
     }
-    return output
+    return (output, nil)
   }
     
   func definitionBlock() -> [Substring] {
