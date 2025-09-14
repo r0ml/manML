@@ -77,6 +77,11 @@ a.manref:hover { text-decoration: underline; }
 .pq::before { content: "("; }
 .pq::after { content: ")"; }
 
+.pre { font-family: "Courier";
+  white-space: pre;    /* preserve spaces and line breaks */
+  font-family: monospace; /* optional, for code-like look */
+}
+
 .roman { }
 .regular { }
 .serious { font-weight: bold; }

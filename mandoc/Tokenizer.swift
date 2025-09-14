@@ -11,38 +11,18 @@ struct Token {
   let isMacro : Bool
 }
 
-extension Mandoc {
-  
-
-  /// parse the remainder of a line contained by the Tokenizer.  This assumes the line needs to be parsed for macro evaluation.
-  /// Returns the HTML output as a result of the parsing.
-  /// The blockstate is primarily used for lists (to determine if I'm starting a new list item or not -- for example)
-  func parseLine(_ bs : BlockState? = nil) async throws(ThrowRedirect) -> String {
-    var output = Substring("")
-    while let thisCommand = try await macro(bs) {
-      output.append(contentsOf: thisCommand.value)
-      output.append(contentsOf: thisCommand.closingDelimiter)
-    }
-    return String(output)
-  }
-
-
-
-}
-
 
 // Designed to be a singleton reused tokenizer
 actor Tokenizer {
-  var fontStyling : Int = 0
+  var fontStyling : [String] = []
   var fontSizing = false
   var definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
   var definedMacro = [String: [Substring] ]()
-  var string : String = ""
   var nextWord : Substring?
   var nextToken : Token?
   var openingDelimiter : String?
   var spacingMode = true
-
+  var string : String = ""
 
   static let closingDelimiters = ".,:;)]?!"
   static let openingDelimiters = "(["
@@ -55,7 +35,7 @@ actor Tokenizer {
 
   private func reinit() {
     mandoc = Mandoc()
-    fontStyling = 0
+    fontStyling = []
     fontSizing = false
     definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
     definedMacro = [:]
@@ -95,6 +75,8 @@ actor Tokenizer {
     var s = String(ss)
     var res : Substring = Substring("")
 
+    res.append(contentsOf: holdovers())
+
     whiler:  while let c = s.first {
       if c == "\\" {
         var x : Substring
@@ -113,11 +95,12 @@ actor Tokenizer {
     }
 
     if fontSizing { res.append(contentsOf: "</span>") }
-    while fontStyling > 0 { res.append(contentsOf: "</span>"); fontStyling -= 1 }
+    // This gets called and wrapped in a <span> -- so if I try to leave the span open for fonting, it gets closed by the invoking handleLine()
+    for _ in fontStyling { res.append(contentsOf: "</span>") }
     return res
   }
 
-  func popDefinedString(_ sx : String) -> (String, String) {
+  private func popDefinedString(_ sx : String) -> (String, String) {
     var s = sx.dropFirst(2)
     guard !s.isEmpty else { return ("", String(s) ) }
 
@@ -143,62 +126,73 @@ actor Tokenizer {
     }
   }
 
-  func parseFontControl(_ sx : String, _ k : Character ) -> (String, String) {
+  private func holdovers() -> String {
+    var res = ""
+    for i in fontStyling {
+      switch i {
+        case "B": res.append("<span class=bold>")
+        case "I": res.append("<span class=italic")
+        case "C": res.append("<span class=pre")
+        default: break
+      }
+    }
+    return res
+  }
+
+  private func parseFontControl(_ sx : String ) -> (String, String) {
     var s = sx
     var res = ""
+    let k = s.removeFirst()
     switch k {
       case "f":   // font style
-        let m = s.dropFirst(2).first
+        let m = s.isEmpty ? nil : s.removeFirst()
         switch m {
           case "B":
-            res = #"<span class="bold">"#
-            s.removeFirst(1)
-            fontStyling += 1
+            res.append( #"<span class="bold">"# )
+            fontStyling.append("B")
           case "I":
             res = #"<span class="italic">"#
-            s.removeFirst(1)
-            fontStyling += 1
+            fontStyling.append("I")
           case "R": // regular font
-            s.removeFirst(1)
-            if fontStyling > 0 {
-              res = "</span>"
-            fontStyling -= 1
+            while fontStyling.count > 0 {
+              res.append("</span>")
+              fontStyling.removeLast()
             }
           case "P":
-            s.removeFirst(1)
-            if fontStyling > 0 {
-              res = "</span>"
-              fontStyling -= 1
+            if fontStyling.count > 0 {
+              res.append("</span>")
+              fontStyling.removeLast()
             }
+
           case "[":
             let j = s.prefix { $0 != "]" }
-            s.removeFirst(j.count - 1)
-            switch j.dropFirst(3) {
+            s.removeFirst(j.count + 1)
+            switch j.dropFirst() {
               case "B":
-                fontStyling += 1
-                res = #"<span class="bold">"#
+                fontStyling.append("B")
+                res.append( #"<span class="bold">"# )
               case "R":
-                if fontStyling > 0 {
-                  fontStyling -= 1
-                  res = "</span>"
+                while fontStyling.count > 0 {
+                  fontStyling.removeLast()
+                  res.append("</span>")
                 }
               case "I":
-                res = #"<span class="italic">"#
-                fontStyling += 1
+                res.append( #"<span class="italic">"# )
+                fontStyling.append("I")
               case "P":
-                if fontStyling > 0 {
-                  fontStyling -= 1
-                  res = "</span>"
+                if fontStyling.count > 0 {
+                  fontStyling.removeLast()
+                  res.append("</span>")
                 }
               default:
-                res = "<span class=\"unimplemented\">unknown font: \(j.dropFirst(3))</span>"
+                res = "<span class=\"unimplemented\">unknown font: \(j.dropFirst())</span>"
             }
           default:
             break
         }
       case "s": // font size
-        if fontSizing { res.append(contentsOf: "</span>") }
-        if let k = s.dropFirst(2).prefixMatch(of: /[-+]?\d+/),
+        if fontSizing { res.append(contentsOf: "</span>"); fontSizing = false }
+        if let k = s.prefixMatch(of: /[-+]?\d+/),
            let kk = Int(String(k.output) ) {
           if kk != 0 {
             fontSizing = true
@@ -218,11 +212,10 @@ actor Tokenizer {
       default:
         res = String(k)
     }
-    s.removeFirst(2)
     return (res, s)
   }
 
-  func popEscapedChar(_ sx : String) -> (Substring, String) {
+  private func popEscapedChar(_ sx : String) -> (Substring, String) {
     var s = sx
     let ss = s.dropFirst()
 
@@ -241,18 +234,18 @@ actor Tokenizer {
     }
 
     // if it is a font control sequence, parse that
-    if let k = s.dropFirst().first {
-      let (res, s) = parseFontControl(s, k)
+    s.removeFirst()
+    if !s.isEmpty {
+      let (res, s) = parseFontControl(s)
       return (Substring(res), s)
     } else {
       // keep the trailing backslash?
-      s.removeFirst()
       return ("\\", s)
     }
   }
 
   func reset() {
-    fontStyling = 0
+    fontStyling = []
     fontSizing = false
   }
 
@@ -436,13 +429,13 @@ actor Tokenizer {
   }
 
 
-  func nextArg() async throws(ThrowRedirect) -> Token? {
+  func nextArg(enders: [String]) async throws(ThrowRedirect) -> Token? {
     guard let k = peekToken() else { return nil }
 
     if k.isMacro {
       // FIXME: when I'm here, I don't need to read subsequence lines?
 //      var aa = ArraySlice<Substring>()
-      return try await mandoc.macro()
+      return try await mandoc.macro(enders: enders)
     }
 
     let _ = next()
@@ -462,38 +455,5 @@ actor Tokenizer {
     nextWord = nil
     reset()
   }
-}
-
-extension Mandoc {
-  var lineNo : Int {
-    lines.startIndex - 1
-  }
-
-  func nextLine() {
-    if !lines.isEmpty {
-      lines.removeFirst()
-    }
-  }
-
-  var atEnd : Bool {
-    return lines.isEmpty
-  }
-
-  var peekLine : Substring {
-    return lines.first!
-  }
-
-  func getLines() -> ArraySlice<Substring> {
-    return lines
-  }
-
-  func setz(_ s : String) async {
-    await Tokenizer.shared.setz(s)
-  }
-
-  func clearz(_ s : String) async {
-    await Tokenizer.shared.clearz(s)
-  }
-
 }
 

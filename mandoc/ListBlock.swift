@@ -240,7 +240,8 @@ extension Mandoc {
       var line = peekLine
       if line.isEmpty {
         nextLine();
-        output.append("<br class=br/>")
+//        output.append("<br class=br/>")
+        output.append("<p/>")
         continue
       }
 
@@ -279,7 +280,7 @@ extension Mandoc {
           await setz(String(line.dropFirst()))
         }
         
-        if let pl = try? await parseLine(bs) {
+        if let pl = try? await parseLine(bs, enders: enders) {
           output.append( pl )
         }
         if let cc { output.append(contentsOf: "<!-- \(cc) -->") }

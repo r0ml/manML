@@ -89,7 +89,7 @@ class Mandoc : @unchecked Sendable {
         }
       }
 
-      try await output.append(handleLine(Substring(line)))
+      try await output.append(handleLine(Substring(line), enders: []))
 
       if let cc {
         output.append( "<!-- \(cc) -->\n")
@@ -123,14 +123,14 @@ class Mandoc : @unchecked Sendable {
   }
 
   
-  func handleLine( _ line : Substring) async throws(ThrowRedirect) -> String {
+  func handleLine( _ line : Substring, enders: [String]) async throws(ThrowRedirect) -> String {
     if line.isEmpty {
       return "<p>\n"
     } else if line.first != "." && line.first != "'" {
       return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)
     } else {
       await setz(String(line.dropFirst()))
-      return try await parseLine()
+      return try await parseLine(enders: enders)
     }
   }
 
@@ -240,6 +240,57 @@ class Mandoc : @unchecked Sendable {
   }
 
 }
+
+
+extension Mandoc {
+
+
+  /// parse the remainder of a line contained by the Tokenizer.  This assumes the line needs to be parsed for macro evaluation.
+  /// Returns the HTML output as a result of the parsing.
+  /// The blockstate is primarily used for lists (to determine if I'm starting a new list item or not -- for example)
+  func parseLine(_ bs : BlockState? = nil, enders: [String]) async throws(ThrowRedirect) -> String {
+    var output = Substring("")
+    while let thisCommand = try await macro(bs, enders: enders) {
+      output.append(contentsOf: thisCommand.value)
+      output.append(contentsOf: thisCommand.closingDelimiter)
+    }
+    return String(output)
+  }
+}
+
+extension Mandoc {
+  var lineNo : Int {
+    lines.startIndex - 1
+  }
+
+  func nextLine() {
+    if !lines.isEmpty {
+      lines.removeFirst()
+    }
+  }
+
+  var atEnd : Bool {
+    return lines.isEmpty
+  }
+
+  var peekLine : Substring {
+    return lines.first!
+  }
+
+  func getLines() -> ArraySlice<Substring> {
+    return lines
+  }
+
+  func setz(_ s : String) async {
+    await Tokenizer.shared.setz(s)
+  }
+
+  func clearz(_ s : String) async {
+    await Tokenizer.shared.clearz(s)
+  }
+
+}
+
 
 enum ThrowRedirect : Error {
   case to(String)

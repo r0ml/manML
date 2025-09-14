@@ -80,3 +80,7 @@
 - man postmap crashes in nextline() -- in the removeFirst() -- clearly a race condition 
             if !lines.isEmpty { lines.removeFirst() }
  
+- man 5 postconf -- weird indents in SEE ALSO and AUTHORS
+
+- man 1 postconf -- the phrase        postconf html_directory    is half bold half not because the sequence \fB and \fR are split across lines.
+     The parse should remember its font state from the previous line and proceed from there.
