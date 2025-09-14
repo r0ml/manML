@@ -462,7 +462,7 @@ extension Mandoc {
         switch bs?.bl {
           case .diag:
             thisCommand = #"<div class="list-item">"# + span("diag", currentTag + "&nbsp;", lineNo)
-//            m.append(#"<div class="tag-description">"# + description + "</div>")
+            thisCommand.append(#"<div class="tag-description">"# + currentDescription + "</div>")
             thisCommand.append(#"</div><div style="clear: both;"></div>"#)
 
           case .tag:

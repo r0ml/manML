@@ -2,6 +2,7 @@
 
 - maybe use "apply" as a screenshot
 - clear the last man search, and restore it after it has finished rendering successfully
+- for all those weird special casings for existing man pages -- have a mode to produce a list of warnings and suggestions to improve quality of man pages.
 
 # BUGS
 
@@ -85,9 +86,67 @@
 - man 1 postconf -- the phrase        postconf html_directory    is half bold half not because the sequence \fB and \fR are split across lines.
      The parse should remember its font state from the previous line and proceed from there.
 
-- more perldoc mans:  pp, prove, ptar, say, scandeps, shasum
+- more perldoc mans:  pp, prove, ptar, say, scandeps, shasum, spfd, spfquery, splain, streamzip, tidy_changelog, tkpp, treereg, xgettext.pl, xpath, xsubpp, yapp, zipdetails
 
 - man ruby -- nested list doesn't resolve gracefully on exit from the sub 
     list in OPTIONS
 
 - man 1 screen -- .ds shmutz at the beginning
+
+- man 1 snmp-bridge-mib  fails to parse  .RS 4 
+
+- man 1 ssh-agent hung on a thread/race error.  Retry got rid of it.  But something to watch for
+
+- man 1 ssh-copy-id  uses a .ig macro which is not implemented.
+
+- man 1 ssh-keygen and ssh-keyscan and ssh - nested .Bl don't work?
+
+- man 1 stat -- nested .Bl don't work
+
+- man 1 tailspin is a complete mess -- multiple errors
+
+- man 1 tar is a nested Bl problem.
+
+- man 1 tclsh, tkcon, wish  is also a mess -- but it looks like a perl type mess
+
+- man 1 tcpdump SYNOPSIS is a mess
+
+- man 1 top is a mess -- missing .Nm and .Bl problems
+
+- man 1 torque has a bunch of /" visible -- which should not be?
+
+- man 1 touch -- nested .Bl problems
+
+- man 1 trace -- .Nm and .Bl problems
+
+- man 1 troptoemail -- complete mess
+
+- man 1 uniq -- nested .Bl problem -- short (so a good place to start)
+
+- man 1 units:  the Bl errors happen weirdly.  The line "memory for prefixes exceeded ends early.  Is this a race?
+
+- man 1 uucp doesn't reset the left margin for SEE ALSO (nested .Bl precedes)
+
+- man 1 who has the nested .Bl problem
+
+- man 1 xcode-select is a mess
+
+- man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
+
+- man 1 zegrep, zfgrep, zgrep -- nested Bl
+
+- man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
+
+- man 1 zipinfo : environment option weirdness, and EXAMPLES don't reset to left margin.
+
+- man 1 zshbuiltins : indentation and list handling seems wrong
+
+- man 1 zshcompsys : that first list has a bullet in totally the wrong place.
+
+- man 1 zshcompwid : list bullet placement 
+
+- the zxh functions often have the first element of a list misformatted -- but that may be due to the source 
+
+- man 1 zshmisc -- the indentation seems wonky
+
+- man 1 zshmodules -- the first element of most lists seems wrong. just all the zsh\* man pages have this problem.
