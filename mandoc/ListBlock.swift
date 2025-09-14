@@ -176,7 +176,9 @@ extension Mandoc {
         thisCommand = "<div class=\"inset\" style=\"margin-left: \(offset); margin-top: 0.5em; \">"
         bs.bl = .inset
       case "-item":
-        thisCommand = "<ul style=\"margin-left: \(width); margin-top: 0.5em;list-style-type: none; \">"
+        // FIXME: this was for BUGS in man rs -- is it correct?
+        width = "0"
+        thisCommand = "<ul style=\"margin-left: \(width); margin-top: 0.5em;list-style-type: circle; \">"
         bs.bl = .item
       case "-ohang":
         thisCommand = span("unimplemented", "Bl " + jj, lineNo )
