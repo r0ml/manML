@@ -29,7 +29,7 @@ a.manref:hover { text-decoration: underline; }
 .command { font-weight: bold; color: purple; }
 .defined-variable { color: green; font-weight: bold; font-style: italic; }
 .directive { color: black; font-weight: bold; font-family: "Courier"; }
-.environment { font: fixedwidth; color: orange; }
+.environment { font: fixedwidth; color: orangered; }
 .error { color: red; font-weight: bold; }
 .flag { font-weight: bold; color: purple; }
 .function-arg { font-weight: bold; color: darksalmon; }
@@ -90,9 +90,12 @@ a.manref:hover { text-decoration: underline; }
 .serious { font-weight: bold; }
 .small-caps { font-variant-caps: small-caps; }
 .standard { color: green; }
+
+.diag { color: seagreen; font-weight: bold; }
 .tag { color: purple; font-weight: bold; }
 .tag-description { width: calc(100% - var(--tag-width) ); float: right; }
 .tag-list { list-style-type: none; list-style-position: inside; }
+.diag-list { list-style-type: none; list-style-position: inside; margin-left: 4em;}
 .title { font-weight: bold; font-style: italic; }
 .unimplemented { color: red; background-color: lightgrey; }
 .unimplemented::before { content: "-->"; }

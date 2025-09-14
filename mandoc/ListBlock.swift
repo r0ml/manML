@@ -162,7 +162,8 @@ extension Mandoc {
         thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"
         bs.bl = .dash
       case "-diag":
-        thisCommand = span("unimplemented", "Bl " + jj, lineNo )
+        thisCommand = "<div class=\"diag-list\" style=\"--tag-width: \(width); --compact: 0em \">"
+        bs.bl = .diag
       case "-enum":
         thisCommand = "<ol style=\"margin-top: 0.5em; \">"
         bs.bl = ._enum
@@ -194,7 +195,7 @@ extension Mandoc {
 
     nextLine()
     switch bs.bl {
-      case .tag:
+      case .tag, .diag:
         thisCommand.append( #"</div><div style="clear: both;"></div>"# )
       case ._enum:
         thisCommand.append("</ol>")

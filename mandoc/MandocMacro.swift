@@ -459,6 +459,11 @@ extension Mandoc {
         let currentDescription = await macroBlock( (enders ?? []) + ["It", "El"], bs)
 
         switch bs?.bl {
+          case .diag:
+            thisCommand = #"<div class="list-item">"# + span("diag", currentTag + "&nbsp;", lineNo)
+//            m.append(#"<div class="tag-description">"# + description + "</div>")
+            thisCommand.append(#"</div><div style="clear: both;"></div>"#)
+
           case .tag:
             thisCommand = taggedParagraph(currentTag, currentDescription, lineNo) // "</div></div>"
           case .item, ._enum, .bullet, .dash:
