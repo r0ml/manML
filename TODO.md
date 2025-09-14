@@ -84,3 +84,6 @@
 
 - man 1 postconf -- the phrase        postconf html_directory    is half bold half not because the sequence \fB and \fR are split across lines.
      The parse should remember its font state from the previous line and proceed from there.
+
+- more perldoc mans:  pp, prove, ptar
+

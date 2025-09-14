@@ -212,10 +212,17 @@ extension Mandoc {
         }
         
       case "Brc": // end Bro
-        let _ = await rest()
+        thisCommand = ""
+        thisDelim = "}"
 
       case "Bro": // curly brace block
-        thisCommand = try await macroBlock( enders + ["Brc"])
+        while let j = try await macro(enders: ["Brc"]) {
+          thisCommand.append(thisDelim)
+          thisCommand.append(contentsOf: j.value)
+          thisDelim = j.closingDelimiter
+        }
+
+        thisCommand = "{"+thisCommand
 
       case "Brq": // curly brace
         if let j = try await macro(enders: enders) {
@@ -479,7 +486,17 @@ extension Mandoc {
           thisCommand.append(span("literal", j.value, lineNo))
           thisDelim = j.closingDelimiter
         }
-        
+
+      case "Lk":
+        if let jj = await next() {
+          let j = jj.value
+          var k = await rest().value
+          if k.isEmpty { k = j }
+          let t = span("link", k, lineNo)
+          thisCommand.append("<a href=\"\(j)\">\(t)</a>")
+          thisDelim = jj.closingDelimiter
+        }
+
       case "Mt":
         if let j = await next() {
           thisCommand = "<a href=\"mailto:\(j.value)\">\(j.value)</a>"
@@ -537,26 +554,20 @@ extension Mandoc {
         
       case "Oc":
         // let _ = rest()
-        thisCommand = "] "
-        thisDelim = ""
+        thisCommand = ""
+        thisDelim = "]"
         break
       case "Oo":
         // the Oc is often embedded somewhere in the rest of this line.
         // the difference between this and Op is that Op terminates at line end, but Oo does not
         while let j = try await macro(enders: ["Oc"]) {
-          if j.value != "] " { thisCommand.append(thisDelim) }
+          thisCommand.append(thisDelim)
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
         }
         
-        // FIXME: for an "Oo" whih goes across multiple lines, need to do the "macroBlock" type of solution
-        // so I need to be able to determine if I saw the closing macro during the above loop
-        
-        //       let k = macroBlock(&linesSlice, ["Oc"], bs)
-        thisCommand = "["+thisCommand
-        // FIXME: should I do this?
-        thisDelim = ""
-        
+        thisCommand = "[" + thisCommand
+
       case "Op":
         // in "apply", the .Ns macro is applied here, but "cd" is already " "
         // is the fix to have tknz maintain a previousClosingDelimiter?
@@ -789,7 +800,7 @@ extension Mandoc {
               let _ = await rest() // eat the rest of the line
 
               let k = await macroBlock( (enders ?? []) + ["RE"], bs)
-              thisCommand = "<div style=\"padding-left: 2em; --tag-width: \(tw)em\">\(k)</div>"
+              thisCommand = "<div style=\"padding-left: 2em; margin-top: 0.3em; --tag-width: \(tw)em\">\(k)</div>"
 
             case "RE":
               let _ = await rest() // already handled in RS
@@ -1047,13 +1058,13 @@ extension Mandoc {
               thisCommand = await macroBlock( (enders ?? []) + ["TE"])
 //              print(thisCommand)
             default:
-              // FIXME: don't advertise the failure to implement??
- //             if macroList.contains(thisToken.value) {
+              // FIXME: if the token is not recognized as a macro, then it must be regular text
+             if macroList.contains(thisToken.value) {
                 thisCommand = span("unimplemented", thisToken.value, lineNo)
-//              } else {
-//                thisCommand = span(nil, String(thisToken.value), lineNo)
-//                thisDelim = thisToken.closingDelimiter
-//              }
+              } else {
+                thisCommand = span(nil, String(thisToken.value), lineNo)
+                thisDelim = thisToken.closingDelimiter
+              }
           }
         } else {
           if macroList.contains(thisToken.value) {

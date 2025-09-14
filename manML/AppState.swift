@@ -4,6 +4,27 @@
 import SwiftUI
 import WebKit
 
+final class ExternalLinkDecider: WebPage.NavigationDeciding {
+    func decidePolicy(
+        for action: WebPage.NavigationAction,
+        preferences: inout WebPage.NavigationPreferences
+    ) async -> WKNavigationActionPolicy {
+        guard let url = action.request.url,
+              let scheme = url.scheme?.lowercased()
+        else { return .allow }
+
+        if ["mailto", "tel", "sms"].contains(scheme) {
+            #if os(macOS)
+            NSWorkspace.shared.open(url)
+            #else
+            UIApplication.shared.open(url)
+            #endif
+            return .cancel        // stop WebView from trying to load it
+        }
+        return .allow
+    }
+}
+
 @Observable final class AppState {
   var error : String = " "
   var legacy : Bool = false
@@ -15,6 +36,7 @@ import WebKit
   var mantext : String = ""
 
   var handler : SchemeHandler?
+
   var page : WebPage?
 
 //  var externalURL : URL?
@@ -37,7 +59,12 @@ import WebKit
     handler = SchemeHandler(self)
     var config = WebPage.Configuration()
     config.urlSchemeHandlers[u] = handler
+    
     config.defaultNavigationPreferences.allowsContentJavaScript = true
+
+
+
+
 
     let ucc = WKUserContentController()
     ucc.add( ClickBridge(
@@ -46,7 +73,7 @@ import WebKit
       }), name: "mouseClickMessage")
     config.userContentController = ucc
 
-    page = WebPage(configuration: config)
+    page = WebPage(configuration: config, navigationDecider: ExternalLinkDecider() )
     page?.isInspectable = true
 
 //    print("====> \(scheme) registered")

@@ -71,6 +71,9 @@ a.manref:hover { text-decoration: underline; }
   font-family: monospace; /* optional, for code-like look */
 }
 
+.oo::before { content: "[" }
+.oo::after { content: "]" }
+
 .os { color: navy; }
 .path { color: violet; }
 
