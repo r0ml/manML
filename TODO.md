@@ -85,7 +85,9 @@
 - man 1 postconf -- the phrase        postconf html_directory    is half bold half not because the sequence \fB and \fR are split across lines.
      The parse should remember its font state from the previous line and proceed from there.
 
-- more perldoc mans:  pp, prove, ptar
+- more perldoc mans:  pp, prove, ptar, say, scandeps, shasum
 
 - man ruby -- nested list doesn't resolve gracefully on exit from the sub 
     list in OPTIONS
+
+- man 1 screen -- .ds shmutz at the beginning

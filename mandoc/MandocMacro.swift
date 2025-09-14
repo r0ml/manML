@@ -338,8 +338,9 @@ extension Mandoc {
         let _ = await rest()
 
       case "El":
-        thisCommand = span("unimplemented", ".El encountered without .Bl", lineNo)
-        
+        thisCommand = ""
+        thisDelim = ""
+
       case "Em":
         thisCommand = try await restMacro(enders: enders) { self.span("bold italic", $0, self.lineNo) }
 

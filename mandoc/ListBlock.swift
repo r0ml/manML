@@ -192,10 +192,11 @@ extension Mandoc {
 
     let _ = rest
 
-    let blk = await macroBlock(["El"] , bs)
+    // FIXME: seems like I need to stick in the Sh as a list ender for some man pages
+    let blk = await macroBlock(["El", "Sh", "SH"] , bs)
     thisCommand.append(blk)
 
-    nextLine()
+    // nextLine()
     switch bs.bl {
       case .tag, .diag:
         thisCommand.append( #"</div><div style="clear: both;"></div>"# )
