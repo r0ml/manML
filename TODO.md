@@ -33,11 +33,7 @@
 
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
 
-- man mdimport has Bl errors for  .Bd -literal
-
-- man nslookup    ARGUMENTS render incorrectly
-
-- man patch  fails to render  .Qo and .Qc
+- man nslookup    ARGUMENTS render incorrectly (the use of .ie  and \h )
 
 - man plockstat renders improperly (Options list descriptions not aligned)  Highlights that TP should be handled like .Bl to align columns. 
 

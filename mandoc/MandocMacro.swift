@@ -623,6 +623,8 @@ extension Mandoc {
         //        thisCommand = "<p>"
         // for mbrtowc(3) , it seems to do nothing
         break
+
+
       case "Lp", "Pp":
         thisCommand = "<p>"
       case "Pq":
@@ -634,6 +636,7 @@ extension Mandoc {
           thisDelim = j.closingDelimiter
 //        }
 */
+
       case "Ql":
         if let j = try await macro(enders: enders) {
           thisCommand.append(thisDelim)
@@ -644,6 +647,14 @@ extension Mandoc {
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
         thisCommand = try await "<q>\(parseLine(enders: enders))</q>"
+
+      case "Qc":
+        let _ = await rest()
+
+      case "Qo":
+        thisCommand = try await restMacro(enders: ["Qc"]) { j in
+          "<q>\(j)</q>"
+        }
 
       case "Re":
         if let re = rsState {
