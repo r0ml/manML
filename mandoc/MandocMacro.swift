@@ -775,7 +775,7 @@ extension Mandoc {
               thisCommand = "<br/>"
               
               // "de" defines a macro -- and the macro definition goes until a line consisting of ".."
-            case "de":
+            case "de", "de1":
               // this would be the macro name if I were implementing roff macro definitions
               if let nam = await next() {
                 // FIXME: need to parse arguments
@@ -783,7 +783,16 @@ extension Mandoc {
                 let val = definitionBlock() // skip over the definition
                 await Tokenizer.shared.setDefinedMacro(String(nam.value), val)
               }
-              
+
+              // FIXME: these are like .de but append to a macro, instead of defining it
+/*            case "am", "am1":
+                 if let nam = await next() {
+                    let val = definitionBlock()
+                    await Tokenizer.shared.appendDefinedMacro(String(nam.value), val)
+                 }
+ */
+
+
             case "TP":
               // FIXME: get the indentation from the argument
               //        let ind = next()?.value ?? "10"
@@ -795,7 +804,7 @@ extension Mandoc {
               nextLine()
               let currentTag = try await handleLine(line, enders: enders)
 
-              let (k, _) = await macroBlock( [] ) // "TP", "PP", "SH"])
+              let (k, _) = await macroBlock( enders + ["TP", "PP", "SH"] ) // "TP", "PP", "SH"])
               thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
               
             case "P", "PP", "LP":

@@ -73,15 +73,11 @@
 
 - man 1 ssh-copy-id  uses a .ig macro which is not implemented.
 
-- man 1 ssh-keygen and ssh-keyscan and ssh - nested .Bl don't work?
-
 - man 1 tailspin is a complete mess -- multiple errors
 
 - man 1 tclsh, tkcon, wish  is also a mess -- but it looks like a perl type mess
 
 - man 1 tcpdump SYNOPSIS is a mess
-
-- man 1 top is a mess -- missing .Nm and .Bl problems
 
 - man 1 torque has a bunch of /" visible -- which should not be?
 
@@ -90,10 +86,6 @@
 - man 1 units:  the Bl errors happen weirdly.  The line "memory for prefixes exceeded ends early.  Is this a race? -- probably need to do for .Bd/.Ed  what I did for .Bl/.El
 
 - man 1 uucp doesn't reset the left margin for SEE ALSO (nested .Bl precedes)
-
-- man 1 who has the nested .Bl problem
-
-- man 1 xcode-select is a mess
 
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
 
