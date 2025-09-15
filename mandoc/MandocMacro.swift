@@ -529,11 +529,10 @@ extension Mandoc {
 
       case "Nm":
 
-// FIXME: do I need this sometimes?
-/*        if inSynopsis {
+        if inSynopsis {
           thisCommand.append("<br>")
         }
-*/
+
         if let k = await peekToken(), !k.isMacro {
           if name == nil { name = String(k.value) }
           thisDelim = k.closingDelimiter
@@ -805,7 +804,7 @@ extension Mandoc {
               let tw = await next()?.value ?? "10"
               let _ = await rest() // eat the rest of the line
 
-              let k = await macroBlock( (enders ?? []) + ["RE"], bs)
+              let (k, _) = await macroBlock( enders + ["RE"], bs)
               thisCommand = "<div style=\"padding-left: 2em; margin-top: 0.3em; --tag-width: \(tw)em\">\(k)</div>"
 
             case "RE":
@@ -829,7 +828,7 @@ extension Mandoc {
             case "ft": // set font
               let f = await next()?.value ?? "R"
               let _ = await rest()
-              let (j, _) = await macroBlock( (enders ?? []) + ["ft"])
+              let (j, _) = await macroBlock( enders + ["ft"])
               switch f {
                 case "R":
                   thisCommand = span("", j, lineNo) // no font
@@ -845,7 +844,8 @@ extension Mandoc {
                   thisCommand = span("", j, lineNo)
               }
 
-
+            case "fam": // set font family -- but I'm gong to ignore for now
+              let _ = await rest()
 
             case "BI":
               if let j = await next()?.value {
@@ -1033,7 +1033,7 @@ extension Mandoc {
             case "nf":
 
               // FIXME: macroBlocks must be nested.  A macroBlock terminates when any of its enders hit -- or any of its parent macroBlocks enders hit
-              var (j, _) = await macroBlock( (enders ?? []) +  ["fi", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
+              let (j, _) = await macroBlock( enders +  ["fi", "Sh", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
               // FIXME: did I need this?
 //              if j.hasSuffix("\n.") { j.removeLast(2) }
 

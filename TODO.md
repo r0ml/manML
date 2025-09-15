@@ -57,9 +57,7 @@
 
 - man piconv, pl2pm fail to render properly (they are perldoc))
 
-- man plockstat renders improperly
-
-- man pmset loses it on the last SYNOPSIS line.
+- man plockstat renders improperly (Options list descriptions not aligned)  Highlights that TP should be handled like .Bl to align columns. 
 
 - all the pod\* ( and there are many) fail to render properly (they are perldoc)
 

@@ -267,7 +267,7 @@ extension Mandoc {
       if line.hasPrefix(".") || line.hasPrefix("'") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken() {
-          if (enders.isEmpty && pt.isMacro || additionalMacroList.contains(pt.value) ) || enders.contains( String(pt.value) ) {
+          if (enders.isEmpty && (pt.isMacro || additionalMacroList.contains(pt.value) )) || enders.contains( String(pt.value) ) {
             await setz("")
             return (output, pt.value)
           }

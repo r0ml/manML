@@ -15,11 +15,17 @@ extension Mandoc {
   
   func pageHeader(_ name : any StringProtocol , _ section : any StringProtocol, _ title : any StringProtocol) -> String {
     let mm = "\(String(name))(\(section))"
+    var tit : String
+    if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      tit = "Unknown"
+    } else {
+      tit = String(title)
+    }
     return """
 <div style="margin-left: -40px">
 <div style="float: left">\(mm)</div>
 <div style="float: right">\(mm)</div>
-<div style="margin: 0 auto; width: 100%; text-align: center;">\(title)</div>
+<div style="margin: 0 auto; width: 100%; text-align: center;">\(tit)</div>
 </div>
 """
   }
