@@ -77,25 +77,19 @@
 
 - man 1 tclsh, tkcon, wish  is also a mess -- but it looks like a perl type mess
 
-- man 1 tcpdump SYNOPSIS is a mess
-
 - man 1 torque has a bunch of /" visible -- which should not be?
 
 - man 1 troptoemail -- complete mess
 
 - man 1 units:  the Bl errors happen weirdly.  The line "memory for prefixes exceeded ends early.  Is this a race? -- probably need to do for .Bd/.Ed  what I did for .Bl/.El
 
-- man 1 uucp doesn't reset the left margin for SEE ALSO (nested .Bl precedes)
-
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
-
-- man 1 zegrep, zfgrep, zgrep -- nested Bl
 
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
 
 - man 1 zipinfo : environment option weirdness, and EXAMPLES don't reset to left margin.
 
-- man 1 zshbuiltins : indentation and list handling seems wrong
+- man 1 zshbuiltins : indentation and list handling seems wrong -- is the problem ".PD" ??
 
 - man 1 zshcompsys : that first list has a bullet in totally the wrong place.
 

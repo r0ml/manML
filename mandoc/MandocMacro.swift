@@ -534,15 +534,17 @@ extension Mandoc {
           thisCommand.append("<br>")
         }
 
+        var arg : String
         if let k = await peekToken(), !k.isMacro {
           if name == nil { name = String(k.value) }
+          arg = String(k.value)
           thisDelim = k.closingDelimiter
           let _ = await next()
         } else {
+          arg = name ?? "??"
           thisDelim = " "
         }
-        thisCommand.append(span("utility", name ?? "??", lineNo))
-        thisCommand.append(thisDelim)
+        thisCommand.append(span("utility", arg, lineNo))
 
       case "Ns":
         return try await macro(bs, enders: enders)
@@ -1001,13 +1003,24 @@ extension Mandoc {
               let _ = await rest()
               
             case "ti":
+              // This wants to indent for a single line -- but there is not a good way to detect when "a single line" ends.
               let inx = await rest()
-              let jx = lines.removeFirst()
-              let j = try await handleLine(jx, enders: enders)
               var iny = "0"
               if inx.value.first == "+" { iny = (inx.value + "ch") }
               else if inx.value.first == "-" { iny = inx.value + "ch" }
+
+              // FIXME: may be many more "enders" here
+              let (z, m) = await macroBlock(enders + ["ti", "in", "ad", "br"])
+              if m == "br" {
+                nextLine()
+              }
+              thisCommand = "<div style=\"margin-left: \(iny)\">\(z)</div>"
+              
+              // FIXME: this was the old way -- didn't handle use case in tcpdump
+/*              let jx = lines.removeFirst()
+              let j = try await handleLine(jx, enders: enders)
               thisCommand = "<div style=\"margin-left: \(iny)\">\(j)</div>"
+*/
 
             case "tr": // replace characters -- ignored for now
               let _ = await rest()
@@ -1028,11 +1041,11 @@ extension Mandoc {
               
               let _ = await rest()
 
-              let (kk, _) = await macroBlock([])
+              let (kk, _) = await macroBlock(enders + ["IP", "LP", "PP", "TP", "SH", "Sh"])
 
               if ind > 0 {
 //                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
-                thisCommand = "<div class=hanging  style=\"--hang: \(Double(ind)/2.0)em\">" + 
+                thisCommand = "<div class=hanging style=\"margin-left: \(ind)em; --hang: \(Double(ind)/2.0)em\">" + 
                 k + " " +
                 span("hanging", kk, lineNo) +
                 "</div>"
