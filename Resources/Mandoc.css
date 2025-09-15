@@ -98,6 +98,11 @@ a.manref:hover { text-decoration: underline; }
 .small-caps { font-variant-caps: small-caps; }
 .standard { color: green; }
 
+.synopsis {
+  text-indent: -4em;
+  padding-inline-start: 4em;
+}
+
 .diag { color: seagreen; font-weight: bold; }
 .tag { color: purple; font-weight: bold; }
 .tag-description { width: calc(100% - var(--tag-width) ); float: right; }

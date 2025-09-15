@@ -184,6 +184,7 @@ extension Mandoc {
           nextLine()
         }
         thisCommand = tc
+        thisCommand.append("</blockquote>")
 
       case "Bf": // begin a font block
         if let j = await next() {
@@ -342,6 +343,7 @@ extension Mandoc {
         // =======================================================
         
       case "Ed":
+        // I should never get here -- because it gets handled in Bd
         thisCommand = "</blockquote>"
         
       case "Ef":
@@ -545,6 +547,8 @@ extension Mandoc {
           thisCommand.append("<br>")
         }
 
+        // FIXME: I would like (in SYNOPSIS) to take each macroBlock of .Nm and put it in a hanging indent
+        // but figuring out where the hanging lines are is tricky
         var arg : String
         if let k = await peekToken(), !k.isMacro {
           if name == nil { name = String(k.value) }
@@ -678,7 +682,11 @@ extension Mandoc {
         let j = await rest()
         thisCommand = "<a id=\"\(j.value)\"><h4>" + span(nil, j.value, lineNo) + "</h4></a>"
         inSynopsis = j.value == "SYNOPSIS"
-        thisDelim = j.closingDelimiter
+/*        if inSynopsis {
+          let (j, _) = await macroBlock( enders + ["Sh", "SH"])
+          thisCommand.append("<div class=synopsis>\(j)</div>")
+        }
+*/
         
       case "Sm": // spacing mode
         let j = await rest().value

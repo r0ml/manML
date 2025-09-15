@@ -11,8 +11,6 @@
 - ssh   (-D [bind_address:port] -- loses is because macroblock starts mid-line (twice) for Xo and Oo
 - the places where safify needs to be called need to be identified.  Currently, there are places where it needs to be called and isn't.
 
-- in man arch, need to do for .Bd/.Ed what I did for .Bl/.El
-
 - man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
 
 - man captoinfo fails because it uses .TS -- the tbl processor
