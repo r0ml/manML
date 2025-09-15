@@ -267,7 +267,7 @@ extension Mandoc {
       if line.hasPrefix(".") || line.hasPrefix("'") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken() {
-          if (enders.isEmpty && pt.isMacro) || enders.contains( String(pt.value) ) {
+          if (enders.isEmpty && pt.isMacro || additionalMacroList.contains(pt.value) ) || enders.contains( String(pt.value) ) {
             await setz("")
             return (output, pt.value)
           }
@@ -277,17 +277,10 @@ extension Mandoc {
         } // if enders.contains("") { break}
 
         nextLine()
-        var cc : String? = nil
-        if let k = line.firstMatch(of: /\\\"/) {
-          cc = String(line.suffix(from: k.endIndex))
-          line = line.prefix(upTo: k.startIndex)
-          await setz(String(line.dropFirst()))
-        }
         
         if let pl = try? await parseLine(bs, enders: enders) {
           output.append( pl )
         }
-        if let cc { output.append(contentsOf: "<!-- \(cc) -->") }
         output.append("\n")
       } else {
         nextLine()

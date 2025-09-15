@@ -29,11 +29,7 @@
 
 - man enc2xs, encguess, eyapp, findrule, h2ph, h2xs, htmltree, instmodsh, ip2cc, jsonpp, json_xs fail to render properly (they are perldoc))
 
-- man expr -- the final paragraph seems to render wrong and reports a .Bl error
-
 - man funzip renders the Example section improperly -- it defines macros  EE  and    EX -- performs the substitution when invoked -- but fails to evaluate the substituted macros.
-
-- man infocmp renders improperly:  The FILES section shows  \*d   and it should be   /usr/share/terminfo
 
 - the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
 
@@ -43,8 +39,6 @@
 
 - man ktrace has many .Bl errors.  Also,  .It Nm Cm info  does not display the Nm.  It defines (.de) trace-opts, then doesn't evaluate it properly.
 
-- man leave -- there is an extra space following the + option.
-
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
 
 - man libnetcfg, lsm, lwp-download, lwp-dump, lwp-mirror, lwp-request, macerror, net-server fail to render properly (they are perldoc))
@@ -52,8 +46,6 @@
 - man mailq (and sendmail) is a mess.
 
 - man mdimport has Bl errors for  .Bd -literal
-
-- man netusage-client (and netusage)  -- .It Xo Cm --all-traffic  doesn't render in NETWORK STATISTICS COMMANDS
 
 - man nslookup    ARGUMENTS render incorrectly
 

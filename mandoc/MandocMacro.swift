@@ -740,7 +740,11 @@ extension Mandoc {
         let _ = await rest()
 
       case "Xo": // extend item
-        (thisCommand, _) = await macroBlock( (enders ?? []) + ["Xc"])
+        let j = try await macro(bs, enders: [])
+        thisCommand = String(j?.value ?? "")
+        let (k, _) = await macroBlock( enders + ["Xc"])
+        thisCommand.append(k)
+        thisDelim = "\n"
 
       case "Xr":
         if let j = await next() {
