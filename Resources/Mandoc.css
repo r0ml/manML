@@ -14,6 +14,11 @@ pre { margin-top: 0.2em; margin-bottom: 0.2em; }
 q { quotes: "“" "”" "‘" "’" }
 q.single { quotes: "‘" "’" }
 
+p {
+  margin-block-start: 0.6em;
+  margin-block-end: 0.6em;
+}
+
 h4 { margin-left: -2.5em; margin-bottom: 3px; }
 h5 { margin-left: -1.5em; margin-bottom: 3px; }
 td { vertical-align: top; }

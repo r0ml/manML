@@ -157,11 +157,12 @@ extension Mandoc {
           thisDelim = jj.closingDelimiter
           while await peekToken()?.value != "|",
                 let kk = try await nextArg(enders: enders) {
-            thisCommand.append(thisDelim)
+              thisCommand.append(thisDelim)
             //             thisCommand.append(span("argument", kk.value, lineNo))
-            thisCommand.append(span("argument", kk.value, lineNo))
+            if !kk.value.isEmpty { thisCommand.append(span("argument", kk.value, lineNo)) }
             thisDelim = kk.closingDelimiter
           }
+          thisDelim = ""
         } else {
           thisCommand.append(span("argument", "file", lineNo) + " " + span("argument", "…", lineNo))
         }
@@ -302,17 +303,19 @@ extension Mandoc {
         thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
         
       case "Dq": // enclosed in quotes
-        let q = await peekToken()
-        if let j = try await macro(enders: enders) {
-          // This is an ugly Kludge for find(1) and others that double quote literals.
-          if q?.value == "Li" {
-            thisCommand = String(j.value)
+        if let q = await peekToken() {
+          var j : Token?
+          if q.isMacro {
+            j = try await macro(enders: enders)
           } else {
-            thisCommand = "<q>\(j.value)</q>"
+            j = await next()
           }
-          thisDelim = j.closingDelimiter
+          if let j {
+            thisCommand = "<q>\(j.value)</q>"
+            thisDelim = j.closingDelimiter
+          }
         }
-        
+
       case "Dt": // document title
         title = String(await rest().value)
         let tt = title!.split(separator: " ")
@@ -555,6 +558,7 @@ extension Mandoc {
         thisCommand = ""
         thisDelim = "]"
         break
+
       case "Oo":
         // the Oc is often embedded somewhere in the rest of this line.
         // the difference between this and Op is that Op terminates at line end, but Oo does not

@@ -10,9 +10,10 @@
 - man page for c++ does not render properly
 - ssh   (-D [bind_address:port] -- loses is because macroblock starts mid-line (twice) for Xo and Oo
 - the places where safify needs to be called need to be identified.  Currently, there are places where it needs to be called and isn't.
-- in man arch, some of the closing parens are in italic
-- in man audiosyncd -- there is a closing .El without an opening .Bl
-- man avmediainfo has a .Bl error
+
+- in man arch, need to do for .Bd/.Ed what I did for .Bl/.El
+
+- man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
 
 - man binhex.pl fails because it misparses: ds C' ""  -- which has a carriage return and continues onto the next line.  This is a standard
    prefix for perl documentaion -- and so I expect it will cause all Perl docs to fail.
@@ -23,8 +24,6 @@
 - man config_data, corelist, cpan, dbicadmin, dbilogstrip, dbiprof, dbiproxy, debinhex.pl ... fail because they are perl docs
 
 - man dig has a problem with  .if  macro.
-
-- man dns-sd misparses  IP  as a macro and renders the line for -P wrong.
 
 - man dyld-usage defines macros INDENT and UNIDENT -- then processes them wrong in the OPTIONS section
 
@@ -101,11 +100,7 @@
 
 - man 1 ssh-keygen and ssh-keyscan and ssh - nested .Bl don't work?
 
-- man 1 stat -- nested .Bl don't work
-
 - man 1 tailspin is a complete mess -- multiple errors
-
-- man 1 tar is a nested Bl problem.
 
 - man 1 tclsh, tkcon, wish  is also a mess -- but it looks like a perl type mess
 
@@ -115,11 +110,9 @@
 
 - man 1 torque has a bunch of /" visible -- which should not be?
 
-- man 1 touch -- nested .Bl problems
-
 - man 1 troptoemail -- complete mess
 
-- man 1 units:  the Bl errors happen weirdly.  The line "memory for prefixes exceeded ends early.  Is this a race?
+- man 1 units:  the Bl errors happen weirdly.  The line "memory for prefixes exceeded ends early.  Is this a race? -- probably need to do for .Bd/.Ed  what I did for .Bl/.El
 
 - man 1 uucp doesn't reset the left margin for SEE ALSO (nested .Bl precedes)
 

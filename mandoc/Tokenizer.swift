@@ -454,9 +454,13 @@ actor Tokenizer {
     guard let k = peekToken() else { return nil }
 
     if k.isMacro {
-      // FIXME: when I'm here, I don't need to read subsequence lines?
-//      var aa = ArraySlice<Substring>()
-      return try await mandoc.macro(enders: enders)
+      if enders.contains(String(k.value)) {
+        return nil
+      } else {
+        // FIXME: when I'm here, I don't need to read subsequence lines?
+        //      var aa = ArraySlice<Substring>()
+        return try await mandoc.macro(enders: enders)
+      }
     }
 
     return next()
