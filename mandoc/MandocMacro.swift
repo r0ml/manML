@@ -487,7 +487,7 @@ extension Mandoc {
           case .item, ._enum, .bullet, .dash:
             thisCommand = "<li>" + currentDescription + "</li>"
           case .hang:
-            thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
+            thisCommand = "<div style=\"margin-top: var(--compact);\">\(currentTag) \(currentDescription)</div>"
           case .table:
             thisCommand = "<tr><td>\(currentTag) \(currentDescription)</td></tr>"
           case .inset:
@@ -541,7 +541,7 @@ extension Mandoc {
 
       case "Nm":
 
-        if inSynopsis {
+        if inSynopsis && bs?.bl == nil {
           thisCommand.append("<br>")
         }
 
@@ -794,7 +794,8 @@ extension Mandoc {
           switch(thisToken.value) {
             case "br":
               thisCommand = "<br/>"
-              
+              let _ = await rest()
+
             case "sp":
               thisCommand = "<br/>"
               
