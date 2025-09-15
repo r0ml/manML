@@ -273,7 +273,8 @@ extension Mandoc {
           }
         } else {
           await setz("")
-          return (output, nil)
+          // FIXME: maybe I need this return when enders are empty?
+//          return (output, nil)
         } // if enders.contains("") { break}
 
         nextLine()

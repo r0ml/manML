@@ -147,10 +147,11 @@ extension Mandoc {
         thisCommand = "'"
         
       case "Aq": // enclose rest of line in angle brackets
-        let j = await rest()
-        thisCommand.append(span(nil, "&lt;\(j.value)&gt;", lineNo))
-        thisDelim = j.closingDelimiter
-        
+        if let j = try await macro(bs, enders: enders) {
+          thisCommand.append(span(nil, "&lt;\(j.value)&gt;", lineNo))
+          thisDelim = j.closingDelimiter
+        }
+
       case "Ar": // command arguments
         if let jj = try await nextArg(enders: enders) {
           thisCommand.append(span("argument", jj.value, lineNo))
