@@ -117,11 +117,7 @@
 
 - man 1 touch -- nested .Bl problems
 
-- man 1 trace -- .Nm and .Bl problems
-
 - man 1 troptoemail -- complete mess
-
-- man 1 uniq -- nested .Bl problem -- short (so a good place to start)
 
 - man 1 units:  the Bl errors happen weirdly.  The line "memory for prefixes exceeded ends early.  Is this a race?
 

@@ -168,7 +168,7 @@ extension Mandoc {
         thisCommand = "<ol style=\"margin-top: 0.5em; \">"
         bs.bl = ._enum
       case "-hang":
-        thisCommand = "<div class=\"hang\" style=\"text-indent: -\(width); padding-left: \(width); margin-top: 0.5em; \">"
+        thisCommand = "<div class=\"hang\" style=\"text-indent: -\(width); padding-left: \(width); --compact: \(isCompact ? 0 : 0.5)em; margin-top: 0.5em \">"
         bs.bl = .hang
       case "-hyphen":
         thisCommand = span("unimplemented", "Bl " + jj , lineNo)

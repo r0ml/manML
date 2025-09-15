@@ -457,7 +457,11 @@ extension Mandoc {
         }
       case "In": // include
         let j = await rest()
-        thisCommand = "<br>"+span("include", "#include &lt;\(j.value)&gt;", lineNo)
+        if inSynopsis {
+          thisCommand = "<br>"+span("include", "#include &lt;\(j.value)&gt;", lineNo)
+        } else {
+          thisCommand = span("include", "&lt;\(j.value)&gt;", lineNo)
+        }
         thisDelim = j.closingDelimiter
 
       case "It":
@@ -521,38 +525,21 @@ extension Mandoc {
         thisCommand = " - \(await rest().value)" // removed a <br/> because it mucked up "ctags"
 
       case "Nm":
-        // in the case of ".Nm :" , the : winds up as the closing delimiter for the macro name.
-        if inSynopsis {
+
+// FIXME: do I need this sometimes?
+/*        if inSynopsis {
           thisCommand.append("<br>")
         }
-
-        var named = false
-        while let j = try await nextArg(enders: enders) {
-          named = true
-          if j.isMacro || j.value.isEmpty {
-            if let name {
-              thisCommand.append( span("utility", name, lineNo))
-              thisCommand.append(" ")
-            }
-            thisCommand.append(thisToken.closingDelimiter)
-            thisCommand.append(contentsOf: j.value)
-            thisDelim = j.closingDelimiter
-            break
-          } else {
-            //        if let j = nextArg() {
-            if name == nil { name = String(j.value) }
-
-            //          if parseState.inSynopsis { thisCommand.append("<br/>") }
-
-            thisCommand.append(thisDelim)
-            thisCommand.append( span("utility", j.value, lineNo) )
-            thisDelim = j.closingDelimiter
-          }
+*/
+        if let k = await peekToken(), !k.isMacro {
+          if name == nil { name = String(k.value) }
+          thisDelim = k.closingDelimiter
+          let _ = await next()
+        } else {
+          thisDelim = " "
         }
-        if !named {
-          if let name { thisCommand.append( span("utility", name, lineNo)) }
-          thisDelim = thisToken.closingDelimiter
-        }
+        thisCommand.append(span("utility", name ?? "??", lineNo))
+        thisCommand.append(thisDelim)
 
       case "Ns":
         return try await macro(bs, enders: enders)

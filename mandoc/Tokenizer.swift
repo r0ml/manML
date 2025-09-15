@@ -438,8 +438,7 @@ actor Tokenizer {
       return try await mandoc.macro(enders: enders)
     }
 
-    let _ = next()
-    return k
+    return next()
   }
 
   func setz(_ s : String) {

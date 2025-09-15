@@ -37,7 +37,7 @@ a.manref:hover { text-decoration: underline; }
 .function-arg { font-weight: bold; color: darksalmon; }
 .function-name { font-weight: bold; color: black; }
 .function-type { font-weight: bold; color: green; margin-top: 0.5em; display: inline-block; }
-.hang { text-indentation: -6em; text-padding: 6em; margin-top: 1em; }
+.hang { text-indentation: -6em; text-padding: 6em; margin-top: var(--compact); }
 
 :root {
   --hang-step: 2em;  /* base hanging indent */
