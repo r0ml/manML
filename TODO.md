@@ -49,8 +49,6 @@
 
 - man nslookup    ARGUMENTS render incorrectly
 
-- man ocspd    the first file in FILES  does not render properly
-
 - man package-stack-conflicts, par.pl, parl, perl fail to render properly (they are perldoc))
 
 - man patch  fails to render  .Qo and .Qc

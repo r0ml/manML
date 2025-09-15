@@ -987,6 +987,9 @@ extension Mandoc {
                 thisCommand = j
               }
 
+            case "ta":  // sets tab stops.  For now, just ignore it.
+              let _ = await rest()
+              
             case "ti":
               let inx = await rest()
               let jx = lines.removeFirst()
