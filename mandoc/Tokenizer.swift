@@ -16,7 +16,28 @@ struct Token {
 actor Tokenizer {
   var fontStyling : [String] = []
   var fontSizing = false
-  var definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
+  let initialDefinedString = [
+    "`": "&lsquo;",
+    "``": "&ldquo;",
+    "'" : "&rsquo;",
+    "''" : "&rdquo;",
+    "Gt" : "&gt;",
+    "Lt" : "&lt;",
+    "Le" : "&le;",
+    "Ge" : "&ge;",
+    "Eq" : "=",
+    "Ne" : "&ne;",
+    "Pm" : "&plusmn;",
+    "Am" : "&amp;",
+    "Ba" : "|",
+    "Br" : "[",
+    "Ket" : "]",
+    "Lq" : "&ldquo;",
+    "Rq" : "&rdquo;",
+//    "Aq" : "&lt;...&rt;",  // The value of Aq alternates between < and > -- so I don't know that I can implement this one.
+  ]
+
+  var definedString : [String:String]
   var definedMacro = [String: [Substring] ]()
   var nextWord : Substring?
   var nextToken : Token?
@@ -31,13 +52,13 @@ actor Tokenizer {
   var mandoc = Mandoc()
 
   static let shared : Tokenizer = Tokenizer()
-  private init() { }
+  private init() { definedString = initialDefinedString }
 
   private func reinit() {
     mandoc = Mandoc()
     fontStyling = []
     fontSizing = false
-    definedString = ["`": "&lsquo;", "``": "&ldquo;", "'" : "&rsquo;", "''" : "&rdquo;" ]
+    definedString = initialDefinedString
     definedMacro = [:]
     string = ""
     nextWord = nil
