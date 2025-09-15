@@ -179,11 +179,15 @@ extension Mandoc {
 
       case "Bd": // begin a display block
                  // FIXME: doesn't handle all types of display blocks
-        thisCommand = await blockBlock()
+        let (tc, palm) = await blockBlock()
+        if palm == "Ed" {
+          nextLine()
+        }
+        thisCommand = tc
 
       case "Bf": // begin a font block
         if let j = await next() {
-          let (k, _) = await macroBlock( (enders ?? []) + ["Ef"])
+          let (k, _) = await macroBlock( enders + ["Ef"])
           switch j.value {
             case "Em", "-emphasis":
               thisCommand = span("", "<em>" + k + "</em>", lineNo)
@@ -300,7 +304,7 @@ extension Mandoc {
         //        }
         
       case "Do": // enclose block in quotes
-        let (j, _) = await macroBlock( (enders ?? [] ) + ["Dc"])
+        let (j, _) = await macroBlock( enders + ["Dc"])
         thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
         
       case "Dq": // enclosed in quotes
@@ -436,7 +440,7 @@ extension Mandoc {
         thisCommand = span("function-name", j.value, lineNo) + "&thinsp;("
         let bs = BlockState()
         bs.functionDef = true
-        let (k, _) = await macroBlock( (enders ?? []) + ["Fc"], bs)
+        let (k, _) = await macroBlock( enders + ["Fc"], bs)
         thisCommand.append(contentsOf: k.dropLast(faDelim.count+1) )
         thisCommand.append(");")
         
@@ -470,7 +474,7 @@ extension Mandoc {
 
       case "It":
         let currentTag = try await parseLine(bs, enders: enders)
-        let (currentDescription, _) = await macroBlock( enders + ["It", "El"], bs)
+        let (currentDescription, _) = await macroBlock( enders + ["It", "El", "Ed"], bs)
 
         switch bs?.bl {
           case .diag:
@@ -488,6 +492,13 @@ extension Mandoc {
             thisCommand = "<tr><td>\(currentTag) \(currentDescription)</td></tr>"
           case .inset:
             thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
+
+          case .filled:    fallthrough
+          case .unfilled:  fallthrough
+          case .centered:  fallthrough
+          case .ragged:    fallthrough
+          case .literal: 
+            thisCommand = taggedBlock(currentTag, currentDescription, lineNo) // "</div></div>"
           default:
             thisCommand = span("unimplemented", "BLError", lineNo)
         }
@@ -916,13 +927,13 @@ extension Mandoc {
               // FIXME: I see things like \w'abcdef'u -- which computes the length of 'abcdef' for the size of the hanging indent
               let _ = await rest()  // just not implemented
 
-              let (kk, _) = await macroBlock( (enders ?? []) + ["PP", "IP", "TP", "HP", "LP"])
+              let (kk, _) = await macroBlock( enders + ["PP", "IP", "TP", "HP", "LP"])
 
               let width = "3em"
               thisCommand = "<div class=hang style=\"text-indent: -\(width); padding-left: \(width);>"+span("", kk, lineNo)+"</div>"
 
             case "na": // no alignment -- disables justification until .ad
-              var (j, _) = await macroBlock( (enders ?? []) + ["ad", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
+              let (j, _) = await macroBlock( enders + ["ad", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
               // FIXME: did I need this?
 //              if j.hasSuffix("\n.") { j.removeLast(2) }
 

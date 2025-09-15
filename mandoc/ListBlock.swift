@@ -4,7 +4,7 @@
 import Foundation
 
 extension Mandoc {
-  func blockBlock() async -> String {
+  func blockBlock() async -> (String, Substring?) {
     let j = await next()?.value
     var k = await next()?.value
     var width = "3em"
@@ -34,25 +34,30 @@ extension Mandoc {
     
     let isCompact = k == "-compact"
 
+    let bs = BlockState()
     switch j {
       case "-centered":
+        bs.bl = .centered
         thisCommand = "<blockquote>"
       case "-filled":
+        bs.bl = .filled
         thisCommand = "<blockquote>"
       case "-literal":
+        bs.bl = .literal
         thisCommand = "<blockquote style=\"margin-left: \(width)\">"
       case "-ragged":
+        bs.bl = .ragged
         thisCommand = "<blockquote>"
       case "-unfilled":
+        bs.bl = .unfilled
         thisCommand = "<blockquote>"
       default:
         thisCommand = span("unimplemented", "Bd \(j ?? "")", lineNo)
     }
 
-    let bs = BlockState()
-    let (block, _) = await macroBlock(["Ed"], bs)
+    let (block, term) = await macroBlock(["Ed", "Sh", "SH"], bs)
     thisCommand.append(block)
-    return thisCommand
+    return (thisCommand, term)
   }
 
   func calcWidth() async -> String {

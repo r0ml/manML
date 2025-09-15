@@ -91,6 +91,7 @@ class BlockState {
 }
 
 enum blState {
+  // for .BL
   case none
   case tag
   case _enum
@@ -101,6 +102,12 @@ enum blState {
   case dash
   case inset
   case diag
+  // for .BD
+  case filled
+  case unfilled
+  case ragged
+  case centered
+  case literal
 }
 
 // State for tagged paragraphs

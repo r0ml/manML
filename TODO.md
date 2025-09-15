@@ -15,19 +15,11 @@
 
 - man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
 
-- man binhex.pl fails because it misparses: ds C' ""  -- which has a carriage return and continues onto the next line.  This is a standard
-   prefix for perl documentaion -- and so I expect it will cause all Perl docs to fail.
-   Also, the definition for Vb seems to have worked -- but the substitution does not process the .tm and the .ft as macros.
-   
 - man captoinfo fails because it uses .TS -- the tbl processor
-
-- man config_data, corelist, cpan, dbicadmin, dbilogstrip, dbiprof, dbiproxy, debinhex.pl ... fail because they are perl docs
 
 - man dig has a problem with  .if  macro.
 
 - man dyld-usage defines macros INDENT and UNIDENT -- then processes them wrong in the OPTIONS section
-
-- man enc2xs, encguess, eyapp, findrule, h2ph, h2xs, htmltree, instmodsh, ip2cc, jsonpp, json_xs fail to render properly (they are perldoc))
 
 - man funzip renders the Example section improperly -- it defines macros  EE  and    EX -- performs the substitution when invoked -- but fails to evaluate the substituted macros.
 
@@ -41,29 +33,15 @@
 
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
 
-- man libnetcfg, lsm, lwp-download, lwp-dump, lwp-mirror, lwp-request, macerror, net-server fail to render properly (they are perldoc))
-
-- man mailq (and sendmail) is a mess.
-
 - man mdimport has Bl errors for  .Bd -literal
 
 - man nslookup    ARGUMENTS render incorrectly
 
-- man package-stack-conflicts, par.pl, parl, perl fail to render properly (they are perldoc))
-
 - man patch  fails to render  .Qo and .Qc
-
-- all the perl\* (and there are many) fail to render properly (they are perldoc))
-
-- man piconv, pl2pm fail to render properly (they are perldoc))
 
 - man plockstat renders improperly (Options list descriptions not aligned)  Highlights that TP should be handled like .Bl to align columns. 
 
-- all the pod\* ( and there are many) fail to render properly (they are perldoc)
- 
 - man 5 postconf -- weird indents in SEE ALSO and AUTHORS
-
-- more perldoc mans:  pp, prove, ptar, say, scandeps, shasum, spfd, spfquery, splain, streamzip, tidy_changelog, tkpp, treereg, xgettext.pl, xpath, xsubpp, yapp, zipdetails
 
 - man 1 screen -- .ds shmutz at the beginning
 
@@ -89,6 +67,9 @@
 
 - man 1 zipinfo : environment option weirdness, and EXAMPLES don't reset to left margin.
 
+
+
+==========> zsh man pages
 - man 1 zshbuiltins : indentation and list handling seems wrong -- is the problem ".PD" ??
 
 - man 1 zshcompsys : that first list has a bullet in totally the wrong place.
@@ -100,3 +81,27 @@
 - man 1 zshmisc -- the indentation seems wonky
 
 - man 1 zshmodules -- the first element of most lists seems wrong. just all the zsh\* man pages have this problem.
+
+============> perl man pages
+
+- man binhex.pl fails because it misparses: ds C' ""  -- which has a carriage return and continues onto the next line.  This is a standard
+   prefix for perl documentaion -- and so I expect it will cause all Perl docs to fail.
+   Also, the definition for Vb seems to have worked -- but the substitution does not process the .tm and the .ft as macros.
+
+- man config_data, corelist, cpan, dbicadmin, dbilogstrip, dbiprof, dbiproxy, debinhex.pl ... fail because they are perl docs
+
+- man enc2xs, encguess, eyapp, findrule, h2ph, h2xs, htmltree, instmodsh, ip2cc, jsonpp, json_xs fail to render properly (they are perldoc))
+
+- man libnetcfg, lsm, lwp-download, lwp-dump, lwp-mirror, lwp-request, macerror, net-server fail to render properly (they are perldoc))
+
+- man package-stack-conflicts, par.pl, parl, perl fail to render properly (they are perldoc))
+
+- all the perl\* (and there are many) fail to render properly (they are perldoc))
+
+- man piconv, pl2pm fail to render properly (they are perldoc))
+
+- all the pod\* ( and there are many) fail to render properly (they are perldoc)
+ 
+- more perldoc mans:  pp, prove, ptar, say, scandeps, shasum, spfd, spfquery, splain, streamzip, tidy_changelog, tkpp, treereg, xgettext.pl, xpath, xsubpp, yapp, zipdetails
+
+
