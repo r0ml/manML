@@ -72,11 +72,16 @@ extension Mandoc {
       // either need to maintain a list of line numbers with the source macro line repeated --
       // or a list of line numbers with the target macro text associated
       // or a first pass of the source substituting the defined macros.
-      let pp = getLines()
-      let mm = ArraySlice(m+pp)
+      //      let pp = getLines()
+      //      let mm = ArraySlice(m+pp)
+
+      lines.replaceSubrange(lines.startIndex..<lines.startIndex, with: m) // + (lines.isEmpty ? [] : [lines.first!] ))
+
+      sourceWrapper.manSource.insert(contentsOf: m, at: lines.startIndex)
+
       // FIXME: this modifies the lines being parsed, breaks the line numbering -- and should ideally be done in a way
       // to maintain the hierarchy of substitutions
-      lines = mm
+//      lines = mm
       return nil
       //      let output = macroBlock(&mm, [], BlockState() )
       //      return Token(value: Substring(output), closingDelimiter: "\n", isMacro: false)
@@ -163,7 +168,7 @@ extension Mandoc {
             if !kk.value.isEmpty { thisCommand.append(span("argument", kk.value, lineNo)) }
             thisDelim = kk.closingDelimiter
           }
-          thisDelim = ""
+        //  thisDelim = ""
         } else {
           thisCommand.append(span("argument", "file", lineNo) + " " + span("argument", "…", lineNo))
         }
@@ -615,19 +620,17 @@ extension Mandoc {
           thisDelim = j.closingDelimiter
         }
       case "Pc":
-        //        thisCommand = "<br>"
-        // for mbrtowc(3), it seems to do nothing
-        break
+        thisCommand = ")"
+        thisDelim = thisToken.closingDelimiter
+        
       case "Pf":
         if let j = await next() {
           thisCommand.append(contentsOf: j.value)
         }
         
       case "Po":
-        //        thisCommand = "<p>"
-        // for mbrtowc(3) , it seems to do nothing
-        break
-
+        thisCommand = "("
+        thisDelim = thisToken.closingDelimiter
 
       case "Lp", "Pp":
         thisCommand = "<p>"
@@ -806,7 +809,7 @@ extension Mandoc {
 
             case "sp":
               thisCommand = "<br/>"
-              
+
               // "de" defines a macro -- and the macro definition goes until a line consisting of ".."
             case "de", "de1":
               // this would be the macro name if I were implementing roff macro definitions
@@ -818,18 +821,18 @@ extension Mandoc {
               }
 
               // FIXME: these are like .de but append to a macro, instead of defining it
-/*            case "am", "am1":
-                 if let nam = await next() {
-                    let val = definitionBlock()
-                    await Tokenizer.shared.appendDefinedMacro(String(nam.value), val)
-                 }
- */
+              /*            case "am", "am1":
+               if let nam = await next() {
+               let val = definitionBlock()
+               await Tokenizer.shared.appendDefinedMacro(String(nam.value), val)
+               }
+               */
 
 
             case "TP":
               // FIXME: get the indentation from the argument
               //        let ind = next()?.value ?? "10"
-              
+
               if atEnd {
                 break
               }
@@ -839,10 +842,10 @@ extension Mandoc {
 
               let (k, _) = await macroBlock( enders + ["TP", "PP", "SH"] ) // "TP", "PP", "SH"])
               thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
-              
+
             case "P", "PP", "LP":
               thisCommand = "<p>"
-              
+
             case "RS":
               let tw = await next()?.value ?? "10"
               let _ = await rest() // eat the rest of the line
@@ -891,38 +894,35 @@ extension Mandoc {
               let _ = await rest()
 
             case "BI":
-              if let j = await next()?.value {
-                let k = await rest()
-                if k.value.isEmpty {
-                  thisCommand = span("italic", span("bold", j, lineNo), lineNo)
-                } else {
-                  thisCommand = span("italic", span("bold", j, lineNo) + k.value, lineNo)
-                }
+              var f = true
+              while let j = await next() {
+                thisCommand.append(thisDelim)
+                thisCommand.append(span( f ? "bold" : "italic", j.value, lineNo ))
+                thisDelim = j.closingDelimiter
+                f.toggle()
               }
-              
+
+            case "DT":   // reset tab stops -- just a noop
+              let _ = await rest()
+
+            case "IB":
+              var f = false
+              while let j = await next() {
+                thisCommand.append(thisDelim)
+                thisCommand.append(span( f ? "bold" : "italic", j.value, lineNo ))
+                thisDelim = j.closingDelimiter
+                f.toggle()
+              }
+
             case "BR":
-              /*        if let j = next() {
-               let k = rest()
-               if k.isEmpty {
-               thisCommand = span("roman", span("bold", j))
-               } else {
-               thisCommand = span("roman", span("bold", j) + k)
-               }
-               }
-               */
-              var toggle = true
-              //        let cd = ""
-              while let j = await next()?.value {
-                if toggle {
-                  thisCommand.append( span("bold", j, lineNo) )
-                } else {
-                  thisCommand.append( span("regular", j, lineNo))
-                }
-                toggle.toggle()
-                //         cd = closingDelimiter
+              var f = true
+              while let j = await next() {
+                thisCommand.append(thisDelim)
+                thisCommand.append(span( f ? "bold" : "", j.value, lineNo ))
+                thisDelim = j.closingDelimiter
+                f.toggle()
               }
-              //        thisCommand.append(cd)
-              
+
             case "IR":
               var toggle = true
               while let j = await next()?.value {

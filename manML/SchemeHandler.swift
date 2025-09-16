@@ -39,15 +39,18 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
         return html.data(using: .utf8 ) ?? Data()
     } else {
       if u.path.isEmpty {
-        state.manSource = SchemeHandler.fileData[u.query() ?? ""] ?? ""
+          let m = SchemeHandler.fileData[u.query() ?? ""] ?? ""
+        state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
         // FIXME: when I read the data, I can store the error as well as the contents
         state.error = ""
       } else {
-        (state.error, state.manSource) = await Mandoc.readManFile(u, state.manpath)
+        var m : String
+        (state.error, m) = await Mandoc.readManFile(u, state.manpath)
+        state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
       }
-      if state.manSource.isEmpty { return Data() }
+      if state.manSource.manSource.isEmpty { return Data() }
         var html : String = ""
-        (state.error, html, state.manSource) = await Mandoc.newParse(state.manSource, state.manpath)
+      (state.error, html, state.manSource.manSource) = await Mandoc.newParse(state)
         return html.data(using: .utf8 ) ?? Data()
       }
   }

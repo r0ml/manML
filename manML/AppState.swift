@@ -25,13 +25,21 @@ final class ExternalLinkDecider: WebPage.NavigationDeciding {
     }
 }
 
+final class SourceWrapper : @unchecked Sendable {
+  var manSource : [Substring]
+
+  init(_ x : [Substring] = []) {
+    manSource = x
+  }
+}
+
 @Observable final class AppState {
   var error : String = " "
   var legacy : Bool = false
   var manpath : Manpath = Manpath()
   var sourceLine : Int? = nil
   var lineSource : String = ""
-  var manSource : String = ""
+  @ObservationIgnored var manSource = SourceWrapper()
 
   var mantext : String = ""
 

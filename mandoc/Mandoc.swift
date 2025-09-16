@@ -8,12 +8,13 @@ import AppKit
 class Mandoc : @unchecked Sendable {
 
   private var origInput : [Substring] = []
-  private var input : String = ""
+//  private var input : String = ""
   var date : String?
   var title : String?
   var os : String = ""
   var name : String?
   var argument : String?
+  var lineNoOffset : Int = 0
 
   // ============================
 
@@ -30,14 +31,13 @@ class Mandoc : @unchecked Sendable {
 
   // ============================
   var ifNestingDepth = 0
+  var sourceWrapper : SourceWrapper!
 
 
-
-
-
-  func setString(_ s : String) {
-    input = s
-    origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
+  func setSourceWrapper(_ sw : SourceWrapper) async {
+    sourceWrapper = sw
+    origInput = sw.manSource
+//    origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
     lines = ArraySlice(origInput)
   }
   
@@ -164,15 +164,15 @@ class Mandoc : @unchecked Sendable {
     return (error, "")
   }
 
-  static func newParse(_ mm : String, _ manpath : Manpath) async -> (String, String, String) {
+  static func newParse(_ ap : AppState) async -> (String, String, [Substring]) {
     // Now, in theory, for handling a .so, I can throw an error from toHTML(), catch the error, load a new source text, parse it, and return it.
-    var mx = mm
+//    var mx = ap.manSource
     var n = 0
     while n < 2 {
-      await Tokenizer.shared.setMandoc(mx)
+      await Tokenizer.shared.setMandoc(ap.manSource )
       do {
         let h = try await Tokenizer.shared.toHTML()
-        return ("", h, mx)
+        return ("", h, ap.manSource.manSource)
       } catch let e {
         n += 1
         switch e {
@@ -181,20 +181,21 @@ class Mandoc : @unchecked Sendable {
             let j = (k.split(separator: ".").map { String($0) })+["", ""]
 
             if let u = URL(string: "\(scheme)://\(j[1])/\(j[0])") {
-              let (e, m) = await readManFile( u, manpath)
+              let (e, mm) = await readManFile( u, ap.manpath)
+              let m = mm.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
               if !e.isEmpty { return (e, "", m) }
               // FIXME: infinite loops can happen here.
               // if mx == m it is a tight loop.  In theory, it can alternate.  Needs to be fixed.
-              if mx == m { return ("indirection loop detected", "", "") }
-              mx = m
+              if ap.manSource.manSource == m { return ("indirection loop detected", "", []) }
+              ap.manSource.manSource = m
               continue
             } else {
-              return ("invalid redirection: \(z)", "", "")
+              return ("invalid redirection: \(z)", "", [])
             }
         }
       }
     }
-    return ("repeated redirects", "", "")
+    return ("repeated redirects", "", [])
   }
 
   static func canonicalize(_ man : String) -> URL? {
@@ -260,7 +261,7 @@ extension Mandoc {
 
 extension Mandoc {
   var lineNo : Int {
-    lines.startIndex - 1
+    lineNoOffset + lines.startIndex - 1
   }
 
   func nextLine() {

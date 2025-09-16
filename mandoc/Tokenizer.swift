@@ -67,9 +67,9 @@ actor Tokenizer {
     spacingMode = true
   }
 
-  func setMandoc(_ s : String) {
+  func setMandoc(_ s : SourceWrapper) async {
     reinit()
-    mandoc.setString(s)
+    await mandoc.setSourceWrapper(s)
   }
 
   func toHTML() async throws(ThrowRedirect) -> String {
@@ -208,6 +208,12 @@ actor Tokenizer {
               default:
                 res = "<span class=\"unimplemented\">unknown font: \(j.dropFirst())</span>"
             }
+
+          case "(": // changes to courier if followed by CW
+            if s.hasPrefix("CW") { s.removeFirst(2) }
+            fontStyling.append("C")
+            res.append("<span class=pre>" )
+
           default:
             break
         }
@@ -228,8 +234,6 @@ actor Tokenizer {
           }
           s.removeFirst(k.output.count)
         }
-      case "(": // changes to courier if followed by CW
-        break
       default:
         res = String(k)
     }

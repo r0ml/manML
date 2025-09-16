@@ -6,12 +6,13 @@
 
 # BUGS
 
-- man page for awk does not render properly
-- man page for c++ does not render properly
-- ssh   (-D [bind_address:port] -- loses is because macroblock starts mid-line (twice) for Xo and Oo
-- the places where safify needs to be called need to be identified.  Currently, there are places where it needs to be called and isn't.
+- man page for awk  looks fixed -- but there is too much whitespace near the beginning of DESCRIPTION
 
-- man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
+- man page for c++ does not render properly -- .TP right justifying sometimes.
+
+- legacy display always displays error: no manual entry for /
+
+* man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
 
 - man captoinfo fails because it uses .TS -- the tbl processor
 
@@ -21,13 +22,11 @@
 
 - man funzip renders the Example section improperly -- it defines macros  EE  and    EX -- performs the substitution when invoked -- but fails to evaluate the substituted macros.
 
-- the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
+* the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
 
 - LEGACY mode fails on man jq -- it terminates reading the stdout too soon -- borrow the code from ShellTesting .  Noticed because the BUGS section has an extra final dot in the render.
 
 - man ksh doen't handle the roff prelude definitions properly -- looks like a mess.
-
-- man ktrace has many .Bl errors.  Also,  .It Nm Cm info  does not display the Nm.  It defines (.de) trace-opts, then doesn't evaluate it properly.
 
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
 

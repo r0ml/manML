@@ -14,7 +14,7 @@ struct SourceView : View {
         .background(Color.green.opacity(0.05))
         .onChange(of: ss.sourceLine) {
           if var ssx = ss.sourceLine {
-            let lines = ss.manSource.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
+            let lines = ss.manSource.manSource
             if ssx >= lines.count { ss.sourceLine = lines.count - 1; ssx = lines.count - 1 }
             if ssx >= 0 && ssx < lines.count {
               source = String(lines[ssx])
