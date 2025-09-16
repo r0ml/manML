@@ -274,6 +274,11 @@ actor Tokenizer {
     fontSizing = false
   }
 
+  func popScriptLine() -> Substring? {
+    var res = string
+    return Substring(res)
+  }
+
   func popWord() -> Substring? {
     while let c = string.first,
           c == " " || c == "\t" { string.removeFirst() }
@@ -303,6 +308,14 @@ actor Tokenizer {
       // for that weird construction: "el\\{\\"
       var k : Substring
         while !string.isEmpty {
+          if string.hasPrefix("\\{") {
+            if res.isEmpty {
+              string.removeFirst(2)
+              return "{"
+            } else {
+              return res
+            }
+          }
           if string.first == "\\" {
             (k, string) = popEscapedChar(string)
             res.append(contentsOf: k)

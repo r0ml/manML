@@ -306,8 +306,7 @@ extension Mandoc {
     }
     return k
   }
-  
-  
+
   func commentBlock() -> String {
     var output = ""
     

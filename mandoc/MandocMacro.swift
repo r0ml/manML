@@ -141,7 +141,7 @@ extension Mandoc {
         let z = await peekToken()
         if z?.value == "-split" { authorSplit = true; let _ = await rest(); break }
         else if z?.value == "-nosplit" { authorSplit = false; let _ = await rest(); break }
-        let k = try await parseLine(enders: enders)
+        let k = try await parseLine(enders: enders, flag: true)
         thisCommand = span("author", k , lineNo)
         
       case "Ao": // enclose in angle bracketrs
@@ -305,7 +305,7 @@ extension Mandoc {
         
       case "D1", "Dl": // single indented line
                        //        if let j = macro(&linesSlice, tknz) {
-        let j = try await parseLine(enders: enders)
+        let j = try await parseLine(enders: enders, flag: true)
         thisCommand = "<blockquote>"+span("", j, lineNo )+"</blockquote>"
         thisDelim = "\n"
         //        }
@@ -483,7 +483,7 @@ extension Mandoc {
         thisDelim = j.closingDelimiter
 
       case "It":
-        let currentTag = try await parseLine(bs, enders: enders)
+        let currentTag = try await parseLine(bs, enders: enders, flag: true)
         let (currentDescription, _) = await macroBlock( enders + ["It", "El", "Ed"], bs)
 
         switch bs?.bl {
@@ -656,7 +656,7 @@ extension Mandoc {
         
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
-        thisCommand = try await "<q>\(parseLine(enders: enders))</q>"
+        thisCommand = try await "<q>\(parseLine(enders: enders, flag: true))</q>"
 
       case "Qc":
         let _ = await rest()
@@ -746,13 +746,13 @@ extension Mandoc {
         thisCommand = "</td><td>"
         
       case "Tn":
-        let j = try await parseLine(enders: enders)
+        let j = try await parseLine(enders: enders, flag: true)
         thisCommand = span("small-caps", j, lineNo)
       case "Ux":
         thisCommand = span("os", "UNIX", lineNo)
         
       case "Va":
-        let j = try await parseLine(enders: enders) // rest()
+        let j = try await parseLine(enders: enders, flag: true) // rest()
         thisCommand = span("variable", j, lineNo)
         
       case "Vb":
@@ -821,6 +821,7 @@ extension Mandoc {
                 //          let a = rest()
                 let val = definitionBlock() // skip over the definition
                 await Tokenizer.shared.setDefinedMacro(String(nam.value), val)
+                print("defined macro: \(nam.value)")
               }
 
               // FIXME: these are like .de but append to a macro, instead of defining it
@@ -1006,20 +1007,17 @@ extension Mandoc {
               let _ = await rest()
 
             case "if":
-              if let j = await next() {
-                if j.value == "n" {
-                  let tr = await rest()
-                  thisCommand = String(tr.value)
-                  thisDelim = tr.closingDelimiter
-                } else {
-                  let _ = await rest()
-                }
-              }
-              
-            case "ie", "el":
-              let j = await rest().value
-              let k = j.matches(of: /\{/)
-              ifNestingDepth += k.count
+              await doConditional()
+              try? await doIf(true)
+            case "ie":
+              await doConditional()
+              try? await doIf(true)
+
+            case "el":
+              try? await doIf(false)
+
+            case "ne": // need this much space left on the page.  For an HTML page, just ignore it.
+              let _ = await rest()
 
             case "in":
               let inx = await rest()
@@ -1060,9 +1058,17 @@ extension Mandoc {
               let _ = await rest()
 
             case "nr": // set number register -- ignored for now
+              if let j = await next() {
+                if let k = await next() {
+                  definedRegisters[String(j.value)] = String(k.value)
+                }
+              }
               let _ = await rest()
 
             case "rr": // remove register -- ignored for now because set register is ignored
+              if let j = await next() {
+                definedRegisters[String(j.value)] = nil
+              }
               let _ = await rest()
 
             case "IP":

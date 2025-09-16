@@ -366,7 +366,9 @@ let escapeSequences = [
    "(*F": "Φ", //  Phi
    "(*X": "Χ", //  Chi
    "(*Q": "Ψ", //  Psi
-   "(*W": "Ω", //  Omega
+
+   // "(*W": "Ω", //  Omega
+   "(*W": "—", // emdash
    "(*a": "α", //  alpha
    "(*b": "β", //  beta
    "(*g": "γ", //  gamma

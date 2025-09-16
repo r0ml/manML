@@ -8,7 +8,7 @@ import AppKit
 class Mandoc : @unchecked Sendable {
 
   private var origInput : [Substring] = []
-//  private var input : String = ""
+  //  private var input : String = ""
   var date : String?
   var title : String?
   var os : String = ""
@@ -30,17 +30,18 @@ class Mandoc : @unchecked Sendable {
   // ============================
 
   // ============================
-  var ifNestingDepth = 0
   var sourceWrapper : SourceWrapper!
-
+  var ifCondition : Bool = true
+  var ifNestingDepth = 0
+  var definedRegisters = [String : String]()
 
   func setSourceWrapper(_ sw : SourceWrapper) async {
     sourceWrapper = sw
     origInput = sw.manSource
-//    origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
+    //    origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
     lines = ArraySlice(origInput)
   }
-  
+
   func macroPrefix(_ lin : Substring) -> (String, String)? {
     if lin.first != "." && lin.first != "'" { return nil }
     let k = lin.dropFirst().drop(while: { $0.isWhitespace })
@@ -49,7 +50,7 @@ class Mandoc : @unchecked Sendable {
     if h { return (String(j), String(k.dropFirst(2).drop(while: { $0.isWhitespace } ))) }
     else { return nil }
   }
-  
+
   func generateBody() async throws(ThrowRedirect) -> String {
 
     var output = ""
@@ -58,25 +59,25 @@ class Mandoc : @unchecked Sendable {
       var line = String(lines.first!)
 
 
-/*      if line.isEmpty {
-        output.append("<br>")
-        lines.removeFirst()
-        continue
-      }
-*/
-      
+      /*      if line.isEmpty {
+       output.append("<br>")
+       lines.removeFirst()
+       continue
+       }
+       */
+
       if line.hasPrefix(".\\\"") {
         output.append(commentBlock())
         if lines.isEmpty { return output }
         line = String(lines.first!)
       }
-      
+
       var cc : String? = nil
       if let k = line.firstMatch(of: /\\\"/) {
         cc = String(line.suffix(from: k.endIndex))
         line = String(line.prefix(upTo: k.startIndex))
       }
-      
+
       lines.removeFirst()
 
       // FIXME: possibly this loop goes before the comment handling?
@@ -96,11 +97,11 @@ class Mandoc : @unchecked Sendable {
       } else {
         output.append("\n")
       }
-      
+
     }
     return output
   }
-  
+
   func toHTML() async throws(ThrowRedirect) -> String {
 
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
@@ -122,7 +123,7 @@ class Mandoc : @unchecked Sendable {
 """
   }
 
-  
+
   func handleLine( _ line : Substring, enders: [String]) async throws(ThrowRedirect) -> String {
     if line.isEmpty {
       return "<p>\n"
@@ -166,7 +167,7 @@ class Mandoc : @unchecked Sendable {
 
   static func newParse(_ ap : AppState) async -> (String, String, [Substring]) {
     // Now, in theory, for handling a .so, I can throw an error from toHTML(), catch the error, load a new source text, parse it, and return it.
-//    var mx = ap.manSource
+    //    var mx = ap.manSource
     var n = 0
     while n < 2 {
       await Tokenizer.shared.setMandoc(ap.manSource )
@@ -214,8 +215,8 @@ class Mandoc : @unchecked Sendable {
   }
 
   static func readManFile(_ manu : URL, _ manpath : Manpath) async -> (String, String) {
-//    let ad = (NSApp.delegate) as? AppDelegate
-//    let manu = canonicalize(man)
+    //    let ad = (NSApp.delegate) as? AppDelegate
+    //    let manu = canonicalize(man)
     let j = manu.pathComponents + ["",""]
     let manx = "\(j[2]) \(j[1])"
     let (pp, defered) = Mandoc.mandocFind( manu, manpath)
@@ -225,18 +226,18 @@ class Mandoc : @unchecked Sendable {
     var error = ""
     if pp.count == 0 {
       return ("not found: \(manx)", "")
-/*    } else if pp.count > 1 {
-      error = "multiple found"
-      let a = makeMenu(pp)
-      a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
-*/    } else if pp.count >= 1 {
-      error = ""
-      do {
-        return try (error, String(contentsOf: pp[0], encoding: .utf8))
-      } catch(let e) {
-        return (e.localizedDescription, "")
-      }
-    }
+      /*    } else if pp.count > 1 {
+       error = "multiple found"
+       let a = makeMenu(pp)
+       a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+       */    } else if pp.count >= 1 {
+         error = ""
+         do {
+           return try (error, String(contentsOf: pp[0], encoding: .utf8))
+         } catch(let e) {
+           return (e.localizedDescription, "")
+         }
+       }
     return ("not found: \(manx)", "")
   }
 
@@ -249,14 +250,81 @@ extension Mandoc {
   /// parse the remainder of a line contained by the Tokenizer.  This assumes the line needs to be parsed for macro evaluation.
   /// Returns the HTML output as a result of the parsing.
   /// The blockstate is primarily used for lists (to determine if I'm starting a new list item or not -- for example)
-  func parseLine(_ bs : BlockState? = nil, enders: [String]) async throws(ThrowRedirect) -> String {
+  func parseLine(_ bs : BlockState? = nil, enders: [String], flag: Bool = false) async throws(ThrowRedirect) -> String {
     var output = Substring("")
-    while let thisCommand = try await macro(bs, enders: enders, flag: true) {
+    while let thisCommand = try await macro(bs, enders: enders, flag: flag) {
       output.append(contentsOf: thisCommand.value)
       output.append(contentsOf: thisCommand.closingDelimiter)
     }
     return String(output)
   }
+
+  func doConditional() async {
+    if let j = await next()  {
+      switch j.value {
+        case "n": // terminal output -- skip this
+          ifCondition = false
+        case "t": // typeset output -- skip this
+          ifCondition = true
+        case "o": // current page is odd -- not going to implement this
+          ifCondition = true
+        case "e": // current page is even -- not going to implement this
+          ifCondition = false
+        default: // some other test case -- not yet implemented
+          let z = evalCondition(j.value)
+          ifCondition = z
+      }
+    } else {
+      ifCondition = false
+    }
+  }
+
+  func evalCondition(_ s : any StringProtocol) -> Bool {
+    // FIXME: need to actually parse this, for now: punt
+    print("condition: \(s)")
+    return false
+  }
+
+  func doIf(_ b : Bool) async throws(ThrowRedirect) {
+    var ifNest = 0
+    if b != ifCondition {
+      let k = await rest().value
+      // FIXME: doesnt handle { embedded in strings
+      ifNest += k.count { $0 == "{" }
+      ifNest -= k.count { $0 == "}" }
+      print("skip: \(k)")
+          // FIXME: instead of using lines.first and nextLine -- need a parser function to read/advance through source
+          while ifNest > 0,
+                let j = lines.first {
+            ifNest += j.count { $0 == "{" }
+            ifNest -= j.count { $0 == "}" }
+            print("skip: \(lines.first!)")
+            nextLine()
+          }
+    } else {
+      // FIXME: I need to evaluate command lines until end.
+      let k = await rest().value
+      if k.hasPrefix("{") {
+        var j = k.dropFirst()
+        ifNest = 1
+        if j.hasSuffix("\\}") { j.removeLast(2); ifNest -= 1}
+        if j.hasSuffix("}") { j.removeLast(); ifNest -= 1 }
+        print("eval: \(j)")
+        try await handleLine(j, enders: [])
+        while ifNest > 0, !lines.isEmpty {
+          let k = lines.removeFirst()
+          ifNest += k.count { $0 == "{" }
+          ifNest -= k.count { $0 == "}" }
+          print("eval: \(k)")
+          try await handleLine(k, enders: [])
+        }
+      } else {
+        print("eval: \(k)")
+        try await handleLine(k, enders: [])
+      }
+    }
+  }
+
 }
 
 extension Mandoc {
