@@ -251,7 +251,7 @@ extension Mandoc {
   /// The blockstate is primarily used for lists (to determine if I'm starting a new list item or not -- for example)
   func parseLine(_ bs : BlockState? = nil, enders: [String]) async throws(ThrowRedirect) -> String {
     var output = Substring("")
-    while let thisCommand = try await macro(bs, enders: enders) {
+    while let thisCommand = try await macro(bs, enders: enders, flag: true) {
       output.append(contentsOf: thisCommand.value)
       output.append(contentsOf: thisCommand.closingDelimiter)
     }

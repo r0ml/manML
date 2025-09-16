@@ -40,15 +40,11 @@
 
 - man 1 snmp-bridge-mib  fails to parse  .RS 4 
 
-- man 1 ssh-agent hung on a thread/race error.  Retry got rid of it.  But something to watch for
-
 - man 1 ssh-copy-id  uses a .ig macro which is not implemented.
 
 - man 1 tclsh, tkcon, wish  is also a mess -- but it looks like a perl type mess
 
 - man 1 torque has a bunch of /" visible -- which should not be?
-
-- man 1 units:  the Bl errors happen weirdly.  The line "memory for prefixes exceeded ends early.  Is this a race? -- probably need to do for .Bd/.Ed  what I did for .Bl/.El
 
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
 

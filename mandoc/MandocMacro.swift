@@ -287,7 +287,8 @@ extension Mandoc {
         let _ = await rest()
 
       case "Dc": // close a "Do" block
-        let _ = await rest()
+        thisCommand = span(nil, "&rdquo;", lineNo)
+        thisDelim = thisToken.closingDelimiter
 
       case "Dd": // document date
         var d = String(await rest().value)
@@ -310,9 +311,11 @@ extension Mandoc {
         //        }
         
       case "Do": // enclose block in quotes
-        let (j, _) = await macroBlock( enders + ["Dc"])
-        thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
-        
+        thisCommand = span(nil, "&ldquo;", lineNo)
+        thisDelim = thisToken.closingDelimiter
+//        let (j, _) = await macroBlock( enders + ["Dc"])
+//        thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
+
       case "Dq": // enclosed in quotes
         if let q = await peekToken() {
           var j : Token?
