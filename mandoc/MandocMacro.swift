@@ -46,27 +46,27 @@ extension Mandoc {
     guard let thisToken = await next() else { return nil }
     var thisCommand = ""
     var thisDelim = ""
-    
+
     // FIXME: use these categories?
     /*
      if blockFullExplicit.keys.contains(String(thisToken.value) ) {
-     
+
      } else if blockFullImplicit.keys.contains(String(thisToken.value) ) {
-     
+
      } else if blockPartialExplicit.keys.contains(String(thisToken.value) ) {
-     
+
      } else if blockPartialImplicit.contains(String(thisToken.value) ) {
-     
+
      } else if inLine.contains(String(thisToken.value)) {
-     
+
      } else {
-     
+
      }
      */
-    
+
     //    parseState.isFa = false
     //    parseState.previousClosingDelimiter = ""
-    
+
     if let m = await Tokenizer.shared.getDefinedMacro(String(thisToken.value)) {
       // FIXME: because of this catenation, the line numbering must be adjusted.
       // either need to maintain a list of line numbers with the source macro line repeated --
@@ -83,14 +83,14 @@ extension Mandoc {
 
       // FIXME: this modifies the lines being parsed, breaks the line numbering -- and should ideally be done in a way
       // to maintain the hierarchy of substitutions
-//      lines = mm
+      //      lines = mm
       return nil
       //      let output = macroBlock(&mm, [], BlockState() )
       //      return Token(value: Substring(output), closingDelimiter: "\n", isMacro: false)
     }
-    
+
     switch thisToken.value {
-      case "%A": 
+      case "%A":
         let rv = String(await Tokenizer.shared.rest().value)
         rsState?.author.append( rv )
       case "%B":
@@ -132,27 +132,27 @@ extension Mandoc {
       case "%V":
         let rv = String(await Tokenizer.shared.rest().value)
         rsState?.volume = rv
-        
+
       case "Ac": // end Ao
         thisCommand = ">"
         thisDelim = "&thinsp;"
       case "Ad": // memory address
         thisCommand = span("unimplemented", "Ad", lineNo)
-        
+
       case "An": // Author name
         let z = await peekToken()
         if z?.value == "-split" { authorSplit = true; let _ = await rest(); break }
         else if z?.value == "-nosplit" { authorSplit = false; let _ = await rest(); break }
         let k = try await parseLine(enders: enders, flag: true)
         thisCommand = span("author", k , lineNo)
-        
+
       case "Ao": // enclose in angle bracketrs
         thisCommand = "<"
         thisDelim = "&thinsp;"
-        
+
       case "Ap": // apostrophe
         thisCommand = "'"
-        
+
       case "Aq": // enclose rest of line in angle brackets
         if let j = try await macro(bs, enders: enders) {
           thisCommand.append(span(nil, "&lt;\(j.value)&gt;", lineNo))
@@ -165,22 +165,22 @@ extension Mandoc {
           thisDelim = jj.closingDelimiter
           while await peekToken()?.value != "|",
                 let kk = try await nextArg(enders: enders) {
-              thisCommand.append(thisDelim)
+            thisCommand.append(thisDelim)
             //             thisCommand.append(span("argument", kk.value, lineNo))
             if !kk.value.isEmpty { thisCommand.append(span("argument", kk.value, lineNo)) }
             thisDelim = kk.closingDelimiter
           }
-        //  thisDelim = ""
+          //  thisDelim = ""
         } else {
           thisCommand.append(span("argument", "file", lineNo) + " " + span("argument", "…", lineNo))
         }
-        
+
       case "At": // at&t unix version
         if let jt = await next() {
           thisCommand = "<nobr>"+span("os", att[String(jt.value)] ?? "AT&T Unix", lineNo)+"</nobr>"
           thisDelim = jt.closingDelimiter
         }
-        
+
       case "Bc": // cloase a Bo block
         let _ = await rest()
 
@@ -211,7 +211,7 @@ extension Mandoc {
         let _ = await rest() // it should be `-words`
         let (j, _) = await macroBlock( enders + ["Ek"])
         thisCommand = j
-        
+
       case "Bl": // begin list.
                  // FIXME: not all list types are supported yet
         let (tc, palm) = await listBlock()
@@ -229,7 +229,7 @@ extension Mandoc {
           thisCommand = span(nil, "["+j.value+"]", lineNo)
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Brc": // end Bro
         thisCommand = ""
         thisDelim = "}"
@@ -248,7 +248,7 @@ extension Mandoc {
           thisCommand = span(nil, "{"+j.value+"}", lineNo)
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Bsx": // BSD version
         if let j = try await nextArg(enders: enders) {
           thisCommand = span("os", "BSD/OSv\(j.value)", lineNo)
@@ -257,10 +257,10 @@ extension Mandoc {
           thisCommand = span("os", "BSD/OS", lineNo)
           thisDelim = "\n"
         }
-        
+
       case "Bt": // deprecated
         thisCommand = span(nil, "is currently in beta test.", lineNo)
-        
+
       case "Bx":
         if let j = await next() {
           thisCommand = span("os","\(j.value)BSD", lineNo) // + parseState.closingDelimiter
@@ -269,14 +269,14 @@ extension Mandoc {
           thisCommand = span("os", "BSD", lineNo)
           thisDelim = "\n"
         }
-        
+
         // ==============================================
-        
+
       case "Cd": // kernel configuration
         let j = await rest()
         thisCommand = span("kernel", j.value, lineNo)
         thisDelim = j.closingDelimiter
-        
+
       case "Cm": // command modifiers
         while let j = try await macro(enders: enders, flag: true) {
           if !j.value.isEmpty {
@@ -284,7 +284,7 @@ extension Mandoc {
           }
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Db": // obsolete and ignored
         let _ = await rest()
 
@@ -304,19 +304,19 @@ extension Mandoc {
           d = d.trimmingCharacters(in: .whitespaces)
         }
         date = d
-        
+
       case "D1", "Dl": // single indented line
                        //        if let j = macro(&linesSlice, tknz) {
         let j = try await parseLine(enders: enders, flag: true)
         thisCommand = "<blockquote>"+span("", j, lineNo )+"</blockquote>"
         thisDelim = "\n"
         //        }
-        
+
       case "Do": // enclose block in quotes
         thisCommand = span(nil, "&ldquo;", lineNo)
         thisDelim = thisToken.closingDelimiter
-//        let (j, _) = await macroBlock( enders + ["Dc"])
-//        thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
+        //        let (j, _) = await macroBlock( enders + ["Dc"])
+        //        thisCommand = span(nil, "<q>"+j+"</q>", lineNo)
 
       case "Dq": // enclosed in quotes
         if let q = await peekToken() {
@@ -340,22 +340,22 @@ extension Mandoc {
 
         thisCommand = pageHeader(name, section, sections[String(section)] ?? "Unknown")
 
-        
+
       case "Dv": // defined variable
         if let j = try await nextArg(enders: enders) {
           thisCommand = span("defined-variable", j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Dx": // dragonfly version
         thisCommand = span("unimplemented", "Dx", lineNo)
-        
+
         // =======================================================
-        
+
       case "Ed":
         // I should never get here -- because it gets handled in Bd
         thisCommand = "</blockquote>"
-        
+
       case "Ef":
         let _ = await rest()
 
@@ -369,13 +369,13 @@ extension Mandoc {
       case "Em":
         thisCommand = try await restMacro(enders: enders) { self.span("bold italic", $0, self.lineNo) }
 
-          /*
-        if let j = try await macro(flag: true) {
- //       let j = await rest()
-          thisCommand = "<em>\(j.value)</em>"
-          thisDelim = j.closingDelimiter
-       }
-        */
+        /*
+         if let j = try await macro(flag: true) {
+         //       let j = await rest()
+         thisCommand = "<em>\(j.value)</em>"
+         thisDelim = j.closingDelimiter
+         }
+         */
       case "Er":
         if let j = try await macro(enders: enders) {
           thisCommand = span("error", j.value, lineNo)
@@ -391,7 +391,7 @@ extension Mandoc {
         let _ = await next() // should equal "-std"
         let j = await next()?.value ?? Substring(name ?? "??")
         thisCommand = "The \(span("utility",j, lineNo)) utility exits 0 on success, and >0 if an error occurs."
-        
+
         // Function argument
       case "Fa":
         //        let sep = parseState.wasFa ? ", " : ""
@@ -409,7 +409,7 @@ extension Mandoc {
         let j = await rest()
         thisCommand = await span("directive", Tokenizer.shared.escaped(j.value), lineNo) + "<br/>"
         thisDelim = j.closingDelimiter
-        
+
       case "Fl":
         // This was upended by "ctags" and "ssh"
         repeat {
@@ -431,7 +431,7 @@ extension Mandoc {
         if thisCommand.isEmpty {
           thisCommand = span("flag", "-", lineNo)
         }
-        
+
       case "Fn":
         // for compat(5)
         let jj = await next()
@@ -455,15 +455,15 @@ extension Mandoc {
         let (k, _) = await macroBlock( enders + ["Fc"], bs)
         thisCommand.append(contentsOf: k.dropLast(faDelim.count+1) )
         thisCommand.append(");")
-        
+
       case "Ft":
         let j = await rest()
-          thisCommand = "<br/>" + span("function-type", j.value, lineNo)
-          if inSynopsis {
-            thisDelim = "<br>"
-          } else {
-            thisDelim = j.closingDelimiter
-          }
+        thisCommand = "<br/>" + span("function-type", j.value, lineNo)
+        if inSynopsis {
+          thisDelim = "<br>"
+        } else {
+          thisDelim = j.closingDelimiter
+        }
 
       case "Fx":
         if let j = await next() {
@@ -509,12 +509,12 @@ extension Mandoc {
           case .unfilled:  fallthrough
           case .centered:  fallthrough
           case .ragged:    fallthrough
-          case .literal: 
+          case .literal:
             thisCommand = taggedBlock(currentTag, currentDescription, lineNo) // "</div></div>"
           default:
             thisCommand = span("unimplemented", "BLError", lineNo)
         }
-        
+
       case "Lb": // library
         let j = await rest()
         if let kl = knownLibraries[String(j.value)] {
@@ -544,10 +544,10 @@ extension Mandoc {
           thisCommand = "<a href=\"mailto:\(j.value)\">\(j.value)</a>"
           thisDelim = j.closingDelimiter
         }
-        
+
       case "No": // revert to normal text.  Should not need to do anything?
         break
-        
+
       case "Nd":
         thisCommand = " - \(await rest().value)" // removed a <br/> because it mucked up "ctags"
 
@@ -579,7 +579,7 @@ extension Mandoc {
           thisCommand = span("os", "NetBSD "+j.value, lineNo)
           thisDelim = j.closingDelimiter
         }
-        
+
       case "Oc":
         // let _ = rest()
         thisCommand = ""
@@ -594,7 +594,7 @@ extension Mandoc {
           thisCommand.append(contentsOf: j.value)
           thisDelim = j.closingDelimiter
         }
-        
+
         thisCommand = "[" + thisCommand
 
       case "Op":
@@ -618,7 +618,7 @@ extension Mandoc {
       case "Ox":
         let j = await rest()
         thisCommand = span("os", "OpenBSD\(j.value)", lineNo)
-        
+
       case "Pa":
         while let j = try await nextArg(enders: enders) {
           thisCommand.append(thisDelim)
@@ -628,12 +628,12 @@ extension Mandoc {
       case "Pc":
         thisCommand = ")"
         thisDelim = thisToken.closingDelimiter
-        
+
       case "Pf":
         if let j = await next() {
           thisCommand.append(contentsOf: j.value)
         }
-        
+
       case "Po":
         thisCommand = "("
         thisDelim = thisToken.closingDelimiter
@@ -642,13 +642,13 @@ extension Mandoc {
         thisCommand = "<p>"
       case "Pq":
         thisCommand = try await restMacro(enders: enders) { self.span("pq", $0, self.lineNo) } // wrap in parens
-/*
- //        if let j = try await macro() {
-        let j = await rest()
-          thisCommand = "(\(j.value))"
-          thisDelim = j.closingDelimiter
-//        }
-*/
+        /*
+         //        if let j = try await macro() {
+         let j = await rest()
+         thisCommand = "(\(j.value))"
+         thisDelim = j.closingDelimiter
+         //        }
+         */
 
       case "Ql":
         if let j = try await macro(enders: enders) {
@@ -656,7 +656,7 @@ extension Mandoc {
           thisCommand.append( span("literal", j.value, lineNo) )
           thisDelim = j.closingDelimiter
         }
-        
+
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
         thisCommand = try await "<q>\(parseLine(enders: enders, flag: true))</q>"
@@ -687,16 +687,16 @@ extension Mandoc {
 
       case "Sh", "SH": // can be used to end a tagged paragraph
                        // FIXME: need to handle tagged paragraph
-        
+
         let j = await rest()
         thisCommand = "<a id=\"\(j.value)\"><h4>" + span(nil, j.value, lineNo) + "</h4></a>"
         inSynopsis = j.value == "SYNOPSIS"
-/*        if inSynopsis {
-          let (j, _) = await macroBlock( enders + ["Sh", "SH"])
-          thisCommand.append("<div class=synopsis>\(j)</div>")
-        }
-*/
-        
+        /*        if inSynopsis {
+         let (j, _) = await macroBlock( enders + ["Sh", "SH"])
+         thisCommand.append("<div class=synopsis>\(j)</div>")
+         }
+         */
+
       case "Sm": // spacing mode
         let j = await rest().value
         await Tokenizer.shared.setSpacingMode ( j.lowercased() != "off" )
@@ -743,28 +743,28 @@ extension Mandoc {
           }
         }
         thisCommand = span("serious", thisCommand, lineNo)
-        
+
       case "Ta":
         //        thisCommand = "\t"
         thisCommand = "</td><td>"
-        
+
       case "Tn":
         let j = try await parseLine(enders: enders, flag: true)
         thisCommand = span("small-caps", j, lineNo)
       case "Ux":
         thisCommand = span("os", "UNIX", lineNo)
-        
+
       case "Va":
         let j = try await parseLine(enders: enders, flag: true) // rest()
         thisCommand = span("variable", j, lineNo)
-        
+
       case "Vb":
         let _ = await rest()
         thisCommand = "<code>"
       case "Ve":
         let _ = await rest()
         thisCommand = "</code>"
-        
+
       case "Vt": // global variable in the SYNOPSIS section, else variable type
         if let j = await next() {
           //        parseLine(tknz)
@@ -776,7 +776,7 @@ extension Mandoc {
             thisDelim = j.closingDelimiter
           }
         }
-        
+
       case "Xc":
         let _ = await rest()
 
@@ -797,12 +797,12 @@ extension Mandoc {
             dsp.append("(\(k.value))")
             thisDelim = k.closingDelimiter
           }
-          
+
           thisCommand = "<a class=\"manref\" href=\"\(sch)\">\(dsp)</a>" // + parseState.closingDelimiter
         }
 
 
-        
+
       default:
         if !flag {
           // =================================================================================
@@ -833,7 +833,7 @@ extension Mandoc {
                 //          let a = rest()
                 let val = definitionBlock() // skip over the definition
                 await Tokenizer.shared.setDefinedMacro(String(nam.value), val)
-//                print("defined macro: \(nam.value)")
+                //                print("defined macro: \(nam.value)")
               }
 
               // FIXME: these are like .de but append to a macro, instead of defining it
@@ -930,7 +930,7 @@ extension Mandoc {
               thisCommand = pageHeader(name, section, h ) // + "<br>"
 
             case "HP": // Hanging paragraph.  Argument specifies amount of hang
-              // FIXME: I see things like \w'abcdef'u -- which computes the length of 'abcdef' for the size of the hanging indent
+                       // FIXME: I see things like \w'abcdef'u -- which computes the length of 'abcdef' for the size of the hanging indent
               let _ = await rest()  // just not implemented
 
               let (kk, _) = await macroBlock( enders + ["PP", "IP", "TP", "HP", "LP"])
@@ -940,8 +940,8 @@ extension Mandoc {
 
             case "na": // no alignment -- disables justification until .ad
               let (j, _) = await macroBlock( enders + ["ad", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
-              // FIXME: did I need this?
-//              if j.hasSuffix("\n.") { j.removeLast(2) }
+                                                                    // FIXME: did I need this?
+              //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
               if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 thisCommand = "<div class=na>\(j)</div>"
@@ -955,12 +955,12 @@ extension Mandoc {
             case "nh": // disable hypenation until .hy
               let _ = await rest()
               break // not implemented
-              
+
             case "hy": // re-enable hyphenation
               let _ = await rest()
               break   // not implemented
-              
-             case "so":
+
+            case "so":
               /*
                let link = next()?.value ?? "??"
                if let file = manpath.link(String(link) ),
@@ -973,15 +973,15 @@ extension Mandoc {
               let _ = await rest()
               // FIXME: this changes the line length (roff)
               // for now, I will ignore this macro
-              
+
             case "PD": // Psragraph distance.  Not implemented
               let _ = await next()
-              
+
             case "IX": // ignore -- POD uses it to create an index entry
               let _ = await rest()
 
             case "ds": // define string
-              // FIXME: should be a nextPlain() -- which gets the next word but does not run escaped on it
+                       // FIXME: should be a nextPlain() -- which gets the next word but does not run escaped on it
               let nam = await next()?.unsafeValue ?? "??"
               let val = String(await rest().value)
               await Tokenizer.shared.setDefinedString(String(nam), val)
@@ -1004,7 +1004,7 @@ extension Mandoc {
 
             case "in":
               let inx = await rest()
-//              print(inx)
+              //              print(inx)
               let (j, _) = await macroBlock(enders+["in"])
               var iny = "0"
               if inx.value.first == "+" {
@@ -1019,7 +1019,7 @@ extension Mandoc {
 
             case "ta":  // sets tab stops.  For now, just ignore it.
               let _ = await rest()
-              
+
             case "ti":
               // This wants to indent for a single line -- but there is not a good way to detect when "a single line" ends.
               let inx = await rest()
@@ -1033,12 +1033,12 @@ extension Mandoc {
                 nextLine()
               }
               thisCommand = "<div style=\"margin-left: \(iny)\">\(z)</div>"
-              
+
               // FIXME: this was the old way -- didn't handle use case in tcpdump
-/*              let jx = lines.removeFirst()
-              let j = try await handleLine(jx, enders: enders)
-              thisCommand = "<div style=\"margin-left: \(iny)\">\(j)</div>"
-*/
+              /*              let jx = lines.removeFirst()
+               let j = try await handleLine(jx, enders: enders)
+               thisCommand = "<div style=\"margin-left: \(iny)\">\(j)</div>"
+               */
 
             case "tr": // replace characters -- ignored for now
               let _ = await rest()
@@ -1059,32 +1059,39 @@ extension Mandoc {
 
             case "IP":
               let kkk = await next()
-              let k = span("tag", kkk?.value ?? "", lineNo)
+            let kj = kkk?.value ?? ""
+            let k = kj.isEmpty ? "" : span("tag", kj, lineNo)
               var ind = 3
               if let dd = await next() {
                 if let i = Int(dd.value) { ind = i }
               }
-              
+
               let _ = await rest()
 
               let (kk, _) = await macroBlock(enders + ["IP", "LP", "PP", "TP", "SH", "Sh"])
 
-              if ind > 0 {
-//                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
-                thisCommand = "<div class=hanging style=\"margin-left: \(ind)em; --hang: \(Double(ind)/2.0)em\">" + 
+              if ind > 0 && !k.isEmpty {
+                //                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
+                thisCommand = "<div class=hanging style=\"margin-left: \(ind)em; --hang: \(Double(ind)/2.0)em\">" +
                 k + " " +
                 span("hanging", kk, lineNo) +
                 "</div>"
+              } else {
+                thisCommand = "<div style=\"margin-left: \(ind)em;\">" + kk + "</div>"
               }
-              
+
+
               // thisCommand = "<p style=\"margin-left: \(ind)em;\">\(k?.value ?? "")"
-              
+
+            case "ns": // suppress vertical space -- ignored for now
+              let _ = await rest()
+
             case "nf":
 
               // FIXME: macroBlocks must be nested.  A macroBlock terminates when any of its enders hit -- or any of its parent macroBlocks enders hit
               let (j, _) = await macroBlock( enders +  ["fi", "Sh", "SH"]) // in postfix, there is no trailing .fi  in SEE ALSO
-              // FIXME: did I need this?
-//              if j.hasSuffix("\n.") { j.removeLast(2) }
+                                                                           // FIXME: did I need this?
+              //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
               if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 thisCommand = "<div class=nf style=\"margin-top: 0.5em\";>\(j)</div>"
@@ -1096,28 +1103,28 @@ extension Mandoc {
             case "SS":
               let j = await rest().value
               thisCommand = "<h5>" + span(nil, j, lineNo) + "</h5>"
-              
+
             case "SM":
               let _ = await rest() // eat the line
               if !atEnd {
                 let k = peekLine
                 nextLine()
-                
+
                 let j = try await handleLine(k, enders: enders)
                 let ln = lineNo
                 thisCommand = "<span style=\"font-size: 80%;\" x-source=\(ln)>\(j)</span>"
               }
-            
+
             case "TE":
               let _ = await rest()
 
             case "TS": // define table start
               let _ = await rest()
               (thisCommand, _) = await macroBlock( enders + ["TE"])
-//              print(thisCommand)
+              //              print(thisCommand)
             default:
               // FIXME: if the token is not recognized as a macro, then it must be regular text
-             if macroList.contains(thisToken.value) {
+              if macroList.contains(thisToken.value) {
                 thisCommand = span("unimplemented", thisToken.value, lineNo)
               } else {
                 thisCommand = span(nil, String(thisToken.value), lineNo)
@@ -1128,8 +1135,8 @@ extension Mandoc {
           if macroList.contains(thisToken.value) {
             thisCommand = span("unimplemented", thisToken.value, lineNo)
           } else {
-                        thisCommand = span(nil, String(thisToken.value), lineNo)
-//            thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
+            thisCommand = span(nil, String(thisToken.value), lineNo)
+            //            thisCommand = span(nil, String(escaped(thisToken.value)), lineNo)
             thisDelim = thisToken.closingDelimiter
           }
         }
@@ -1142,13 +1149,14 @@ extension Mandoc {
 
   func fontAlternate(_ thisCommand : inout String, _ f1 : String, _ f2: String) async {
     var toggle = true
-    while let j = await next()?.value {
-      if toggle {
-        thisCommand.append( span(f1, j, lineNo) )
-      } else {
-        thisCommand.append( span(f2, j, lineNo))
-      }
+    // FIXME: alternating fonts don't respect "closing delimiters"
+    while let j = await next() {
+      thisCommand.append( span(toggle ? f1 : f2, j.value, lineNo) )
       toggle.toggle()
+      if (j.closingDelimiter.contains { !$0.isWhitespace }) {
+        thisCommand.append( span( toggle ? f1 : f2, j.closingDelimiter, lineNo))
+        toggle.toggle()
+      }
     }
   }
 
