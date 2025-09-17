@@ -6,6 +6,8 @@
 
 # BUGS
 
+- invalid man pages no longer display the error message (this is a reversion)
+
 - man page for awk  looks fixed -- but there is too much whitespace near the beginning of DESCRIPTION
 
 - man page for c++ does not render properly -- .TP right justifying sometimes.
@@ -72,10 +74,6 @@
 - man binhex.pl fails because it misparses: ds C' ""  -- which has a carriage return and continues onto the next line.  This is a standard
    prefix for perl documentaion -- and so I expect it will cause all Perl docs to fail.
    Also, the definition for Vb seems to have worked -- but the substitution does not process the .tm and the .ft as macros.
-
-- man config_data, corelist, cpan, dbicadmin, dbilogstrip, dbiprof, dbiproxy, debinhex.pl ... fail because they are perl docs
-
-- man enc2xs, encguess, eyapp, findrule, h2ph, h2xs, htmltree, instmodsh, ip2cc, jsonpp, json_xs fail to render properly (they are perldoc))
 
 - man libnetcfg, lsm, lwp-download, lwp-dump, lwp-mirror, lwp-request, macerror, net-server fail to render properly (they are perldoc))
 
