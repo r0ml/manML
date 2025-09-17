@@ -46,13 +46,11 @@
 
 - man 1 tclsh, tkcon, wish  is also a mess -- but it looks like a perl type mess
 
-- man 1 torque has a bunch of /" visible -- which should not be?
-
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
 
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
 
-- man 1 zipinfo : environment option weirdness, and EXAMPLES don't reset to left margin.
+- man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc)
 
 
 
@@ -71,20 +69,10 @@
 
 ============> perl man pages
 
-- man binhex.pl fails because it misparses: ds C' ""  -- which has a carriage return and continues onto the next line.  This is a standard
-   prefix for perl documentaion -- and so I expect it will cause all Perl docs to fail.
-   Also, the definition for Vb seems to have worked -- but the substitution does not process the .tm and the .ft as macros.
+- man lsm, net-server fail to render properly
 
-- man libnetcfg, lsm, lwp-download, lwp-dump, lwp-mirror, lwp-request, macerror, net-server fail to render properly (they are perldoc))
-
-- man package-stack-conflicts, par.pl, parl, perl fail to render properly (they are perldoc))
-
-- all the perl\* (and there are many) fail to render properly (they are perldoc))
-
-- man piconv, pl2pm fail to render properly (they are perldoc))
-
-- all the pod\* ( and there are many) fail to render properly (they are perldoc)
+- perlutil (maybe other perl\*), pod2readme (options are missing), pod2usage (why so much indent)
  
-- more perldoc mans:  pp, prove, ptar, say, scandeps, shasum, spfd, spfquery, splain, streamzip, tidy_changelog, tkpp, treereg, xgettext.pl, xpath, xsubpp, yapp, zipdetails
+- more perldoc mans:  streamzip, xgettext.pl, zipdetails
 
 

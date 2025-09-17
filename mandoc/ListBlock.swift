@@ -254,7 +254,7 @@ extension Mandoc {
         continue
       }
 
-      if line.hasPrefix(".\\\"") {
+      if line.hasPrefix(".\\\"") || line.hasPrefix("./\"") {
         output.append(commentBlock())
         if lines.isEmpty { return (output, nil) }
         line = peekLine
@@ -312,7 +312,7 @@ extension Mandoc {
     
     while !lines.isEmpty {
       let line = lines.first!
-      if line.hasPrefix(".\\\"") {
+      if line.hasPrefix(".\\\"") || line.hasPrefix("./\"") {
         lines.removeFirst()
         output.append( contentsOf: line.dropFirst(3) )
         output.append("\n")

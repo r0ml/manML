@@ -66,7 +66,7 @@ class Mandoc : @unchecked Sendable {
        }
        */
 
-      if line.hasPrefix(".\\\"") {
+      if line.hasPrefix(".\\\"") || line.hasPrefix("./\"") {
         output.append(commentBlock())
         if lines.isEmpty { return output }
         line = String(lines.first!)
