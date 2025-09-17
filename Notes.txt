@@ -1,0 +1,23 @@
+
+In macro conditionals, there registers are special (and ignored by mandoc?):
+
+Register
+Meaning (in man(7) macros)
+^b
+Bullet / block flag — indicates whether a block (like .IP, .TP, .HP) is open. Used to control spacing before/after.
+^t
+Temporary indent flag — nonzero if a temporary indent is active (e.g., .TP).
+^p
+Paragraph flag — tracks whether the last request opened a new paragraph (suppresses double spacing).
+^l
+Line spacing state — used to restore or check if extra line spacing was applied.
+^c
+Centering flag — nonzero if inside a .CE block (centering environment).
+^d
+Display flag — nonzero if inside a .DS / .DE block.
+^f
+Font state — sometimes used to remember current font.
+^i
+Indent state — tracks current indent level (esp. .RS/.RE).
+^x
+Escape / special state — used in older macro packages for testing nested constructs

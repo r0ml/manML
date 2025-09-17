@@ -606,7 +606,7 @@ extension Mandoc {
           thisDelim = j.closingDelimiter
         }
         thisCommand = "[" + thisCommand + "]"
-        
+
         // this needs to be parsed
       case "Os":
         let j = await rest()
@@ -614,6 +614,7 @@ extension Mandoc {
         else {
           let v = ProcessInfo.processInfo.operatingSystemVersion
           os = "macOS \(v.majorVersion).\(v.minorVersion)"  }
+
       case "Ox":
         let j = await rest()
         thisCommand = span("os", "OpenBSD\(j.value)", lineNo)
@@ -808,6 +809,11 @@ extension Mandoc {
           // roff stuff
           // =================================================================================
           switch(thisToken.value) {
+            case "UC": // Obsolete -- equivalent to .Os -- kept for compatibility
+              let j = await rest()
+              os = "BSD " + j.value
+
+
             case "br":
               thisCommand = "<br/>"
               let _ = await rest()
@@ -1003,6 +1009,9 @@ extension Mandoc {
               } else {
                 thisCommand = j
               }
+
+            case "mk": // groff mark position -- but mandoc ignores
+              let _ = await rest()
 
             case "ta":  // sets tab stops.  For now, just ignore it.
               let _ = await rest()

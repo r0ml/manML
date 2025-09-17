@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		E7AEBD842CF108A100E468CF /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD832CF1089D00E468CF /* README.md */; };
 		E7AEBD892CF1264200E468CF /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD882CF1264200E468CF /* TODO.md */; };
+		E7CC1E112E7AEAE50099ABF0 /* Notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = E7CC1E102E7AEAE50099ABF0 /* Notes.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		E71176602CE0411C00236F4A /* manML.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = manML.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E7AEBD832CF1089D00E468CF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E7AEBD882CF1264200E468CF /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
+		E7CC1E102E7AEAE50099ABF0 /* Notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Notes.txt; sourceTree = "<group>"; };
 		F487F4AB141EADEF0093D633 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F487F4AE141EADEF0093D633 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		F487F4B0141EADEF0093D633 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -68,6 +70,7 @@
 			children = (
 				E7AEBD832CF1089D00E468CF /* README.md */,
 				E7AEBD882CF1264200E468CF /* TODO.md */,
+				E7CC1E102E7AEAE50099ABF0 /* Notes.txt */,
 				E770A03E2E5BA08000181886 /* Resources */,
 				E770A09E2E5CB3FB00181886 /* mandoc */,
 				E770A0592E5BA08400181886 /* manML */,
@@ -162,6 +165,7 @@
 			files = (
 				E7AEBD892CF1264200E468CF /* TODO.md in Resources */,
 				E7AEBD842CF108A100E468CF /* README.md in Resources */,
+				E7CC1E112E7AEAE50099ABF0 /* Notes.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

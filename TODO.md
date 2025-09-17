@@ -4,6 +4,12 @@
 - clear the last man search, and restore it after it has finished rendering successfully
 - for all those weird special casings for existing man pages -- have a mode to produce a list of warnings and suggestions to improve quality of man pages.
 
+* the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
+
+# Bad man source
+
+* man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
+
 # BUGS
 
 - invalid man pages no longer display the error message (this is a reversion)
@@ -14,37 +20,24 @@
 
 - legacy display always displays error: no manual entry for /
 
-* man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
-
 - man captoinfo fails because it uses .TS -- the tbl processor
-
-- man dig has a problem with  .if  macro.
 
 - man dyld-usage defines macros INDENT and UNIDENT -- then processes them wrong in the OPTIONS section
 
-- man funzip renders the Example section improperly -- it defines macros  EE  and    EX -- performs the substitution when invoked -- but fails to evaluate the substituted macros.
+- man funzip (excessive whitespace in EXAMPLES)
 
-* the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
 
 - LEGACY mode fails on man jq -- it terminates reading the stdout too soon -- borrow the code from ShellTesting .  Noticed because the BUGS section has an extra final dot in the render.
 
-- man ksh doen't handle the roff prelude definitions properly -- looks like a mess.
+- man ksh (contents of NAME missing)
 
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
 
-- man nslookup    ARGUMENTS render incorrectly (the use of .ie  and \h )
-
-- man plockstat renders improperly (Options list descriptions not aligned)  Highlights that TP should be handled like .Bl to align columns. 
-
-- man 5 postconf -- weird indents in SEE ALSO and AUTHORS
-
-- man 1 screen -- .ds shmutz at the beginning
-
-- man 1 snmp-bridge-mib  fails to parse  .RS 4 
+- man nslookup    (conditionals make everything disappear)
 
 - man 1 ssh-copy-id  uses a .ig macro which is not implemented.
 
-- man 1 tclsh, tkcon, wish  is also a mess -- but it looks like a perl type mess
+- man 1 tclsh, tkcon, (just that one weird } hanging out in SYNOPSIS -- plus too much white space) wish (options are super way indented)
 
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
 
