@@ -883,15 +883,17 @@ extension Mandoc {
             case "ft": // set font
               let f = await next()?.value ?? "R"
               let _ = await rest()
-              let (j, _) = await macroBlock( enders + ["ft"])
+              let (j, _) = await macroBlock( enders + ["ft", "nf"])
               switch f {
-                case "R":
+                case "R", "1":
                   thisCommand = span("", j, lineNo) // no font
-                case "I":
+                case "I", "2":
                   thisCommand = span("italic", j, lineNo)
-                case "B":
+                case "B", "3":
                   thisCommand = span("bold", j, lineNo)
-                case "C":
+                case "4":
+                  thisCommand = span("bold italic", j, lineNo)
+                case "C", "CW":
                   thisCommand = span("pre", j, lineNo)
                 case "P":
                   thisCommand = span("", j, lineNo)
@@ -1077,11 +1079,19 @@ extension Mandoc {
                 span("hanging", kk, lineNo) +
                 "</div>"
               } else {
-                thisCommand = "<div style=\"margin-left: \(ind)em;\">" + kk + "</div>"
+                thisCommand = "<div style=\"margin-left: \(ind)em; margin-top: 0.5em;\">" + kk + "</div>"
               }
 
 
               // thisCommand = "<p style=\"margin-left: \(ind)em;\">\(k?.value ?? "")"
+
+            case "EE":
+              let _ = await rest()
+            case "EX":
+              let _ = await rest()
+              let j = await macroBlock(enders + ["EE"])
+
+              thisCommand = "div class=nf style = \"margin-top: 0.5em\">\(j.0)</div>"
 
             case "ns": // suppress vertical space -- ignored for now
               let _ = await rest()
@@ -1094,7 +1104,7 @@ extension Mandoc {
               //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
               if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                thisCommand = "<div class=nf style=\"margin-top: 0.5em\";>\(j)</div>"
+                thisCommand = "<div class=nf style=\"margin-top: 0.6em;\";>\(j)</div>"
               }
 
             case "fi":

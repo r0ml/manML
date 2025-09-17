@@ -287,7 +287,7 @@ extension Mandoc {
         if let pl = try? await parseLine(bs, enders: enders) {
           output.append( pl )
         }
-        output.append("\n")
+//        output.append("\n")
       } else {
         nextLine()
         await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))

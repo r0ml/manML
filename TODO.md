@@ -14,8 +14,6 @@
 
 - invalid man pages no longer display the error message (this is a reversion)
 
-- man page for awk  looks fixed -- but there is too much whitespace near the beginning of DESCRIPTION -- and indentation near "expression matchop regular-expression" is off
-
 - man page for c++ does not render properly -- .TP right justifying sometimes.
 
 - legacy display always displays error: no manual entry for /
