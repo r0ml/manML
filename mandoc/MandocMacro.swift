@@ -813,6 +813,10 @@ extension Mandoc {
               let j = await rest()
               os = "BSD " + j.value
 
+            case "ig":
+              let k = await next() // the terminator -- currently not implemented
+              let _ = await rest()
+              let _ = definitionBlock() // and ignore it
 
             case "br":
               thisCommand = "<br/>"
