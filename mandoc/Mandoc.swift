@@ -93,10 +93,10 @@ class Mandoc : @unchecked Sendable {
       try await output.append(handleLine(Substring(line), enders: []))
 
       if let cc {
-        output.append( "<!-- \(cc) -->\n")
-      } else {
-        output.append("\n")
+        // FIXME: took this out for debuggery
+//        output.append( "<!-- \(cc) -->")
       }
+      output.append("\n")
 
     }
     return output

@@ -255,7 +255,8 @@ extension Mandoc {
       }
 
       if line.hasPrefix(".\\\"") || line.hasPrefix("./\"") {
-        output.append(commentBlock())
+        // FIXME: took this out for debuggery
+        // output.append(commentBlock())
         if lines.isEmpty { return (output, nil) }
         line = peekLine
       }
@@ -266,7 +267,10 @@ extension Mandoc {
         line = line.prefix(upTo: k.startIndex)
         await setz(String(line.dropFirst()))
       }
-      if let cc { output.append(contentsOf: "<!-- \(cc) -->") }
+      if let cc {
+        // FIXME: took this out for debuggery
+//        output.append(contentsOf: "<!-- \(cc) -->")
+      }
 
       
       if line.hasPrefix(".") || line.hasPrefix("'") {

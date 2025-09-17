@@ -67,7 +67,7 @@ extension Mandoc {
     //    parseState.isFa = false
     //    parseState.previousClosingDelimiter = ""
 
-    if let m = await Tokenizer.shared.getDefinedMacro(String(thisToken.value)) {
+    if var m = await Tokenizer.shared.getDefinedMacro(String(thisToken.value)) {
       // FIXME: because of this catenation, the line numbering must be adjusted.
       // either need to maintain a list of line numbers with the source macro line repeated --
       // or a list of line numbers with the target macro text associated
@@ -75,7 +75,18 @@ extension Mandoc {
       //      let pp = getLines()
       //      let mm = ArraySlice(m+pp)
 
-      let _ = await rest()
+      var argn = 1
+      while true {
+        let rx = try! Regex("\\\\\\\\\\$\(argn)")
+        let k = (m.map { $0.contains(rx) } ).contains(true)
+        if k {
+          let arg = await next()?.value ?? ""
+          m = m.map { $0.replacing(rx, with: arg) }
+        } else {
+          let _ = await rest()
+          break
+        }
+      }
 
       lines.replaceSubrange(lines.startIndex..<lines.startIndex, with: m) // + (lines.isEmpty ? [] : [lines.first!] ))
 
@@ -823,7 +834,7 @@ extension Mandoc {
               let _ = await rest()
 
             case "sp":
-              thisCommand = "<br/>"
+              thisCommand = "<p/>"
 
               // "de" defines a macro -- and the macro definition goes until a line consisting of ".."
             case "de", "de1":
@@ -856,9 +867,12 @@ extension Mandoc {
               nextLine()
               let currentTag = try await handleLine(line, enders: enders)
 
-              let (k, _) = await macroBlock( enders + ["TP", "PP", "SH"] ) // "TP", "PP", "SH"])
-              thisCommand = span("", taggedParagraph(currentTag, k, lineNo), lineNo)
-
+              let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH"] ) // "TP", "PP", "SH"])
+//              print(nn)
+              thisCommand = span("", taggedBlock(currentTag, k, lineNo), lineNo)
+              if nn != "TP" {
+                thisCommand.append("<div style=\"clear: both;\"></div>")
+              }
             case "P", "PP", "LP":
               thisCommand = "<p>"
 
@@ -866,12 +880,17 @@ extension Mandoc {
               let tw = await next()?.value ?? "10"
               let _ = await rest() // eat the rest of the line
 
-              let (k, _) = await macroBlock( enders + ["RE"], bs)
-              thisCommand = "<div style=\"padding-left: 2em; margin-top: 0.3em; --tag-width: \(tw)em\">\(k)</div>"
+//              let (k, _) = await macroBlock( enders + ["RE"], bs)
+
+              break
+              // FIXME: this is causing problems for dyld_usage?
+              thisCommand = "<div style=\"padding-left: 2em; margin-top: 0.3em; --tag-width: \(tw)em\">"
 
             case "RE":
               let _ = await rest() // already handled in RS
-
+              break
+              // FIXME: this is causing problems for dyld_usage?
+              thisCommand = "</div>"
 
             case "B":
               thisCommand = span("bold", await rest().value, lineNo)
@@ -1007,6 +1026,9 @@ extension Mandoc {
             case "in":
               let inx = await rest()
               //              print(inx)
+              break
+
+              // FIXME: this mucks up dyld_usage;   Should I have a state variable holding the current desired indent level and apply it to divs?
               let (j, _) = await macroBlock(enders+["in"])
               var iny = "0"
               if inx.value.first == "+" {
@@ -1015,7 +1037,6 @@ extension Mandoc {
               } else {
                 thisCommand = j
               }
-
             case "mk": // groff mark position -- but mandoc ignores
               let _ = await rest()
 
