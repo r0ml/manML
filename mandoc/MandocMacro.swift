@@ -75,6 +75,8 @@ extension Mandoc {
       //      let pp = getLines()
       //      let mm = ArraySlice(m+pp)
 
+      let _ = await rest()
+
       lines.replaceSubrange(lines.startIndex..<lines.startIndex, with: m) // + (lines.isEmpty ? [] : [lines.first!] ))
 
       sourceWrapper.manSource.insert(contentsOf: m, at: lines.startIndex)
@@ -821,7 +823,7 @@ extension Mandoc {
                 //          let a = rest()
                 let val = definitionBlock() // skip over the definition
                 await Tokenizer.shared.setDefinedMacro(String(nam.value), val)
-                print("defined macro: \(nam.value)")
+//                print("defined macro: \(nam.value)")
               }
 
               // FIXME: these are like .de but append to a macro, instead of defining it
@@ -860,13 +862,6 @@ extension Mandoc {
             case "RE":
               let _ = await rest() // already handled in RS
 
-            case "RI": // alternating roman / italic -- seems to handle white spaces and ignore delimiters
-              while let j = await Tokenizer.shared.xNextWord() {
-                thisCommand.append(span("", j, lineNo))
-                if let k = await Tokenizer.shared.popWord() {
-                  thisCommand.append(span("italic", k, lineNo))
-                }
-              }
 
             case "B":
               thisCommand = span("bold", await rest().value, lineNo)
@@ -898,46 +893,23 @@ extension Mandoc {
               let _ = await rest()
 
             case "BI":
-              var f = true
-              while let j = await next() {
-                thisCommand.append(thisDelim)
-                thisCommand.append(span( f ? "bold" : "italic", j.value, lineNo ))
-                thisDelim = j.closingDelimiter
-                f.toggle()
-              }
+              await fontAlternate(&thisCommand, "bold", "italic")
 
             case "DT":   // reset tab stops -- just a noop
               let _ = await rest()
 
             case "IB":
-              var f = false
-              while let j = await next() {
-                thisCommand.append(thisDelim)
-                thisCommand.append(span( f ? "bold" : "italic", j.value, lineNo ))
-                thisDelim = j.closingDelimiter
-                f.toggle()
-              }
+              await fontAlternate(&thisCommand, "italic", "bold")
 
             case "BR":
-              var f = true
-              while let j = await next() {
-                thisCommand.append(thisDelim)
-                thisCommand.append(span( f ? "bold" : "", j.value, lineNo ))
-                thisDelim = j.closingDelimiter
-                f.toggle()
-              }
+              await fontAlternate(&thisCommand, "bold", "regular")
 
             case "IR":
-              var toggle = true
-              while let j = await next()?.value {
-                if toggle {
-                  thisCommand.append( span("italic", j, lineNo) )
-                } else {
-                  thisCommand.append( span("regular", j, lineNo))
-                }
-                toggle.toggle()
-              }
-              
+              await fontAlternate(&thisCommand, "italic", "regular")
+
+            case "RI": // alternating roman / italic -- seems to handle white spaces and ignore delimiters
+              await fontAlternate(&thisCommand, "regular", "italic")
+
             case "TH":
               let name = await next()?.value ?? "??"
               let section = await next()?.value ?? " "
@@ -999,7 +971,8 @@ extension Mandoc {
               let _ = await rest()
 
             case "ds": // define string
-              let nam = await next()?.value ?? "??"
+              // FIXME: should be a nextPlain() -- which gets the next word but does not run escaped on it
+              let nam = await next()?.unsafeValue ?? "??"
               let val = String(await rest().value)
               await Tokenizer.shared.setDefinedString(String(nam), val)
 
@@ -1148,9 +1121,23 @@ extension Mandoc {
           }
         }
     }
-    return Token(value: Substring(thisCommand), closingDelimiter: thisDelim, isMacro: false)
+
+    // FIXME: At this point I can't back out the unsafe string -- this kind of token is a higher level than the Tokenizer token
+    // should I have two kinds of tokens?
+    return Token(value: Substring(thisCommand), unsafeValue: Substring(thisCommand), closingDelimiter: thisDelim, isMacro: false)
   }
 
+  func fontAlternate(_ thisCommand : inout String, _ f1 : String, _ f2: String) async {
+    var toggle = true
+    while let j = await next()?.value {
+      if toggle {
+        thisCommand.append( span(f1, j, lineNo) )
+      } else {
+        thisCommand.append( span(f2, j, lineNo))
+      }
+      toggle.toggle()
+    }
+  }
 
 // in fact, I should never throw the redirect
   func restMacro(enders: [String], _ f : @escaping (String) -> String) async throws(ThrowRedirect) -> String {

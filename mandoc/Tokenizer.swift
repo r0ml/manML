@@ -7,6 +7,7 @@ import Foundation
 
 struct Token {
   let value : Substring
+  let unsafeValue : Substring
   let closingDelimiter : String
   let isMacro : Bool
 }
@@ -39,7 +40,9 @@ actor Tokenizer {
 
   var definedString : [String:String]
   var definedMacro = [String: [Substring] ]()
-  var nextWord : Substring?
+
+  // build up the next word both as a "safified" word and as a "not-safified" word -- since I could be inserting formatting characters along the way
+  var nextWord : (Substring, Substring)?
   var nextToken : Token?
   var openingDelimiter : String?
   var spacingMode = true
@@ -274,71 +277,64 @@ actor Tokenizer {
     fontSizing = false
   }
 
-  func popScriptLine() -> Substring? {
-    var res = string
-    return Substring(res)
-  }
-
-  func popWord() -> Substring? {
+  // return both a safe and unsafe version (unsafe meaning containing HTML special characters in text)
+  func popWord() -> (Substring, Substring)? {
     while let c = string.first,
           c == " " || c == "\t" { string.removeFirst() }
     guard !string.isEmpty else { return nil }
-    var res = Substring("")
+    var res = (Substring(""), Substring("") )
     if string.first == "\"" {
       string.removeFirst()
       while let s = string.first {
         if s == "\"" { break }
         else if s == "\\" {
-          res.append("\\")
+          res.0.append("\\")
+          res.1.append("\\")
           string.removeFirst()
           if string.isEmpty {
             break
           } else {
-            res.append(string.removeFirst())
+            let n = string.removeFirst()
+            res.0.append(n)
+            res.1.append(n)
           }
         } else {
-          res.append(s)
+          res.0.append(s)
+          res.1.append(s)
           string.removeFirst()
         }
       }
       if string.first == "\"" { string.removeFirst() }
       // FIXME: need to deal with escaped closing quote
-      return escaped(res)
+      return (escaped(res.0), res.1)
     } else {
       // for that weird construction: "el\\{\\"
       var k : Substring
         while !string.isEmpty {
           if string.hasPrefix("\\{") {
-            if res.isEmpty {
+            if res.0.isEmpty {
               string.removeFirst(2)
-              return "{"
+              // FIXME: maybe unsafe is
+              return ("{", "{")
             } else {
               return res
             }
           }
           if string.first == "\\" {
             (k, string) = popEscapedChar(string)
-            res.append(contentsOf: k)
+            res.0.append(contentsOf: k)
+// FIXME: need to have popEscapedChar return both kinds
           } else {
             k = string.prefix(1)
             if k == " " || k == "\t" { break }
             string.removeFirst()
-            res.append(contentsOf: safify(k) )
+            res.0.append(contentsOf: safify(k) )
+            res.1.append(contentsOf: k)
           }
         }
         return res
       }
   }
-
-  func xNextWord() -> Substring? {
-    if let t = nextWord {
-      nextWord = nil
-      return t
-    } else {
-      return popWord()
-    }
-  }
-
 
   func safify(_ s : any StringProtocol) -> String {
     return CFXMLCreateStringByEscapingEntities(nil, String(s) as CFString, nil) as String
@@ -350,7 +346,16 @@ actor Tokenizer {
       nextToken = nil
       return t
     }
+
     return popToken()
+    /*
+    guard var ll = popToken() else { return nil }
+    if ss {
+      return Token(value: Substring(safify(ll.value)), closingDelimiter: ll.closingDelimiter, isMacro: ll.isMacro)
+    } else {
+      return ll
+    }
+     */
   }
 
   func peekToken() -> Token? {
@@ -378,7 +383,7 @@ actor Tokenizer {
     }
 
 
-    var k : Substring?
+    var k : (Substring, Substring)?
     if nextWord != nil {
       k = nextWord
     } else {
@@ -406,12 +411,13 @@ actor Tokenizer {
     nextWord = popWord()
 
     // If this token is a macro token, do NOT consume a closing delimiter
-    if let k, macroList.contains(k) {
+    if let k, macroList.contains(k.0) {
     } else {
       // here is where I set the closing delimiter
       if nextWord != nil,
-         nextWord!.count == 1,
-         let cdx = nextWord!.first {
+         // use the unsafe version for closing delimiter
+         nextWord!.1.count == 1,
+         let cdx = nextWord!.1.first {
 /*        if Self.openingDelimiters.contains(cdx) {
           openingDelimiter = String(cdx)
           nextWord = popWord()
@@ -428,14 +434,17 @@ actor Tokenizer {
       }
     }
 
-    if nextWord == "Ns" || nextWord == "Ap" || !spacingMode { cd = String(cd.dropLast()) }
+    if nextWord?.0 == "Ns" || nextWord?.0 == "Ap" || !spacingMode { cd = String(cd.dropLast()) }
 
     if var k {
-      let isMacro = macroList.contains(k)
-      if k.hasPrefix("\\&") {
-        k = k.dropFirst(2)
+      let isMacro = macroList.contains(k.0)
+      if k.0.hasPrefix("\\&") {
+        k.0 = k.0.dropFirst(2)
       }
-      return Token(value: k, closingDelimiter: cd, isMacro: isMacro)
+      if k.1.hasPrefix("\\&") {
+        k.1 = k.1.dropFirst(2)
+      }
+      return Token(value: k.0, unsafeValue: k.1, closingDelimiter: cd, isMacro: isMacro)
     } else {
       return nil
     }
@@ -445,7 +454,7 @@ actor Tokenizer {
 
   func peekMacro() -> Bool {
     if let nextWord {
-      return macroList.contains(nextWord)
+      return macroList.contains(nextWord.0)
     } else {
       return false
     }
@@ -455,15 +464,19 @@ actor Tokenizer {
 
   func rest() -> Token {
     var output = ""
+    var unsafeOutput = ""
     var cd = ""
     while let t = next() {
       if t.value != "Ns" {
         output.append(cd)
         output.append(contentsOf: t.value)
+
+        unsafeOutput.append(cd)
+        unsafeOutput.append(contentsOf: t.unsafeValue)
       }
       cd = t.closingDelimiter
     }
-    return Token(value: Substring(output), closingDelimiter: cd, isMacro: false)
+    return Token(value: Substring(output), unsafeValue: Substring(unsafeOutput), closingDelimiter: cd, isMacro: false)
   }
 
 

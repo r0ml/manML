@@ -281,7 +281,7 @@ extension Mandoc {
 
   func evalCondition(_ s : any StringProtocol) -> Bool {
     // FIXME: need to actually parse this, for now: punt
-    print("condition: \(s)")
+//    print("condition: \(s)")
     return false
   }
 
@@ -292,13 +292,13 @@ extension Mandoc {
       // FIXME: doesnt handle { embedded in strings
       ifNest += k.count { $0 == "{" }
       ifNest -= k.count { $0 == "}" }
-      print("skip: \(k)")
+//      print("skip: \(k)")
           // FIXME: instead of using lines.first and nextLine -- need a parser function to read/advance through source
           while ifNest > 0,
                 let j = lines.first {
             ifNest += j.count { $0 == "{" }
             ifNest -= j.count { $0 == "}" }
-            print("skip: \(lines.first!)")
+//            print("skip: \(lines.first!)")
             nextLine()
           }
     } else {
@@ -309,17 +309,17 @@ extension Mandoc {
         ifNest = 1
         if j.hasSuffix("\\}") { j.removeLast(2); ifNest -= 1}
         if j.hasSuffix("}") { j.removeLast(); ifNest -= 1 }
-        print("eval: \(j)")
+//        print("eval: \(j)")
         try await handleLine(j, enders: [])
         while ifNest > 0, !lines.isEmpty {
           let k = lines.removeFirst()
           ifNest += k.count { $0 == "{" }
           ifNest -= k.count { $0 == "}" }
-          print("eval: \(k)")
+//          print("eval: \(k)")
           try await handleLine(k, enders: [])
         }
       } else {
-        print("eval: \(k)")
+//        print("eval: \(k)")
         try await handleLine(k, enders: [])
       }
     }
