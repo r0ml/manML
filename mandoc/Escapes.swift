@@ -464,6 +464,6 @@ let escapeSequences = [
    "/" : "&thinsp;", // italic correction
    "~" : "&nbsp;",
    "^" : "&thinsp;", // another thin space
-   "%" : "&#8209;", // non-breaking hyphen
+   "%" : "&#8203;", // non-breaking space
 
 ]

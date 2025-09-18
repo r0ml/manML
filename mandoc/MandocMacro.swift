@@ -874,9 +874,13 @@ extension Mandoc {
               if atEnd {
                 break
               }
-              let line = peekLine
-              nextLine()
-              let currentTag = try await handleLine(line, enders: enders)
+
+              var currentTag = ""
+              while currentTag.isEmpty {
+                let line = peekLine
+                nextLine()
+                currentTag = try await handleLine(line, enders: enders)
+              }
 
               let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH", "SS", "HP", "LP"] ) // "TP", "PP", "SH"])
                                                                                               //              print(nn)

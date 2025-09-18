@@ -144,12 +144,20 @@ class Mandoc : @unchecked Sendable {
     }
   }
 
-  static func getTheHTML(_ man : URL, _ manpath : Manpath) -> (String, String) {
+  static func getTheHTML(_ man : URL, _ manpath : Manpath) async -> (String, String) {
     var error = ""
     let m = man.pathComponents
-    let mm = "\(m[1]) \(m[0])"
+    var mm = ""
+    if m.count == 2 {
+      mm = m[1]
+    } else if m.count > 2 {
+      mm = "\(m[2]) \(m[1])"
+    }
     do {
-      let (_, o, e) = try captureStdoutLaunch("mandoc -T html `man -w \(mm)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
+      let p = try ShellProcess.init("/bin/sh", "-c", "mandoc -T html `man -w \(mm)`", env: ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
+      let (_ , o, e) = try await p.run()
+
+//     let (_, o, e) = captureStdoutLaunch("mandoc -T html `man -w \(mm)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
 
       error = e!
       return (e!, o!)

@@ -29,8 +29,6 @@
 
 - man nslookup    (conditionals make everything disappear)
 
-- man 1 tkcon, (just that one weird } hanging out in SYNOPSIS -- plus too much white space) wish (options are super way indented)
-
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
 
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?

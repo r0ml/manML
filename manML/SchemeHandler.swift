@@ -34,7 +34,7 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
   @MainActor func htmlForMan(_ u : URL) async -> Data {
     state.sourceLine = nil
     if state.legacy {
-      let (error, html) = Mandoc.getTheHTML(u, state.manpath)
+      let (error, html) = await Mandoc.getTheHTML(u, state.manpath)
         state.error = error
         return html.data(using: .utf8 ) ?? Data()
     } else {

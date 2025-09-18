@@ -16,6 +16,7 @@ struct Token {
 // Designed to be a singleton reused tokenizer
 actor Tokenizer {
   var fontStyling : [String] = []
+  var colorStyling: [String] = []
   var fontSizing = false
   let initialDefinedString = [
     "`": "&lsquo;",
@@ -60,6 +61,7 @@ actor Tokenizer {
   private func reinit() {
     mandoc = Mandoc()
     fontStyling = []
+    colorStyling = []
     fontSizing = false
     definedString = initialDefinedString
     definedMacro = [:]
@@ -121,6 +123,7 @@ actor Tokenizer {
     if fontSizing { res.append(contentsOf: "</span>") }
     // This gets called and wrapped in a <span> -- so if I try to leave the span open for fonting, it gets closed by the invoking handleLine()
     for _ in fontStyling { res.append(contentsOf: "</span>") }
+    for _ in colorStyling { res.append(contentsOf: "</span>") }
     return res
   }
 
@@ -153,12 +156,10 @@ actor Tokenizer {
   private func holdovers() -> String {
     var res = ""
     for i in fontStyling {
-      switch i {
-        case "B": res.append("<span class=bold>")
-        case "I": res.append("<span class=italic")
-        case "C": res.append("<span class=pre")
-        default: break
-      }
+      res.append("<span \(i)>")
+    }
+    for i in colorStyling {
+      res.append("span style=\"color: \(i);\">")
     }
     return res
   }
@@ -168,15 +169,34 @@ actor Tokenizer {
     var res = ""
     let k = s.removeFirst()
     switch k {
+      case "m":
+        guard s.hasPrefix("[") else { return ("\\m", s) }
+        var cc = s.prefix { $0 != "]" }
+        s = String(s.dropFirst(cc.count + 1))
+        cc.removeFirst() // cc is now the color
+        if cc.isEmpty {
+          colorStyling.removeLast()
+          res.append("</span>")
+        } else {
+          // FIXME: should this be append or replace?
+          if colorStyling.isEmpty {
+            colorStyling.append(String(cc))
+          } else {
+            res.append("</span>")
+            colorStyling.removeLast()
+            colorStyling.append(String(cc))
+          }
+          res.append("<span style=\"color: \(cc);\">")
+        }
       case "f":   // font style
         let m = s.isEmpty ? nil : s.removeFirst()
         switch m {
           case "B":
             res.append( #"<span class="bold">"# )
-            fontStyling.append("B")
+            fontStyling.append("bold")
           case "I":
             res = #"<span class="italic">"#
-            fontStyling.append("I")
+            fontStyling.append("italic")
           case "R": // regular font
             while fontStyling.count > 0 {
               res.append("</span>")
@@ -193,7 +213,7 @@ actor Tokenizer {
             s.removeFirst(j.count + 1)
             switch j.dropFirst() {
               case "B":
-                fontStyling.append("B")
+                fontStyling.append("bold")
                 res.append( #"<span class="bold">"# )
               case "R":
                 while fontStyling.count > 0 {
@@ -202,7 +222,7 @@ actor Tokenizer {
                 }
               case "I":
                 res.append( #"<span class="italic">"# )
-                fontStyling.append("I")
+                fontStyling.append("italic")
               case "P", "":
                 if fontStyling.count > 0 {
                   fontStyling.removeLast()
@@ -214,7 +234,7 @@ actor Tokenizer {
 
           case "(": // changes to courier if followed by CW
             if s.hasPrefix("CW") { s.removeFirst(2) }
-            fontStyling.append("C")
+            fontStyling.append("pre")
             res.append("<span class=pre>" )
 
           default:
