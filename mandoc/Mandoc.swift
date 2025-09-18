@@ -118,7 +118,10 @@ class Mandoc : @unchecked Sendable {
 
   func handleLine( _ line : Substring, enders: [String]) async throws(ThrowRedirect) -> String {
     if line.isEmpty {
+      // FIXME: perhaps this should just be return "" ?
       return "<p>\n"
+    } else if line.hasPrefix(".\\\"") || line.hasPrefix("'/\"") {
+      return "<!-- \(line.dropFirst(3)) -->"
     } else if line.first != "." && line.first != "'" {
       return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)
     } else {
@@ -314,7 +317,7 @@ extension Mandoc {
         if j.hasSuffix("}") { j.removeLast(); ifNest -= 1 }
         j = Substring(j.trimmingCharacters(in: .whitespaces))
 //        print("eval: \(j)")
-        try await output.append(handleLine(j, enders: []))
+        if !j.isEmpty { try await output.append(handleLine(j, enders: [])) }
         while ifNest > 0, !lines.isEmpty {
           var k = lines.removeFirst()
           ifNest += k.count { $0 == "{" }

@@ -29,7 +29,7 @@
 
 - man nslookup    (conditionals make everything disappear)
 
-- man 1 tclsh, tkcon, (just that one weird } hanging out in SYNOPSIS -- plus too much white space) wish (options are super way indented)
+- man 1 tkcon, (just that one weird } hanging out in SYNOPSIS -- plus too much white space) wish (options are super way indented)
 
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
 

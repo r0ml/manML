@@ -60,12 +60,19 @@ extension Mandoc {
      } else if inLine.contains(String(thisToken.value)) {
 
      } else {
-
+     
      }
      */
 
     //    parseState.isFa = false
     //    parseState.previousClosingDelimiter = ""
+
+    // FIXME: massive kludge to sidestep Tck/Tk man page problems with the malformed prelude they use:
+    if thisToken.value == "BS" || thisToken.value == "BE" || thisToken.value == "VE" || thisToken.value == "VS" {
+      // FIXME: BS/BE should enclose the intervening in a box
+      // FIXME: VS/VE should draw a vertical bar along the left side of the intervening content
+      return nil
+    }
 
     if var m = await Tokenizer.shared.getDefinedMacro(String(thisToken.value)) {
       // FIXME: because of this catenation, the line numbering must be adjusted.
@@ -829,6 +836,9 @@ extension Mandoc {
               let _ = await rest()
               let _ = definitionBlock() // and ignore it
 
+            case "wh": // ignored by mandoc
+              let _ = await rest()
+
             case "br":
               thisCommand = "<br/>"
               let _ = await rest()
@@ -1042,6 +1052,9 @@ extension Mandoc {
             case "mk": // groff mark position -- but mandoc ignores
               let _ = await rest()
 
+            case "ev": // set an "environment" for font/indentation/formatting
+              let _ = await rest() // ignored by mandoc
+
             case "ta":  // sets tab stops.  For now, just ignore it.
               let _ = await rest()
 
@@ -1086,9 +1099,9 @@ extension Mandoc {
               let kkk = await next()
               let kj = kkk?.value ?? ""
               let k = kj.isEmpty ? "" : span("tag", kj, lineNo)
-              var ind = 3
+              var ind : Double = 3
               if let dd = await next() {
-                if let i = Int(dd.value) { ind = i }
+                if let i = Int(dd.value) { ind = Double(i)/16.0 }
               }
 
               let _ = await rest()
@@ -1097,7 +1110,7 @@ extension Mandoc {
 
               if ind > 0 && !k.isEmpty {
                 //                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
-                thisCommand = "<div class=hanging style=\"margin-left: \(ind)em; --hang: \(Double(ind)/2.0)em\">" +
+                thisCommand = "<div class=hanging style=\"margin-left: \(ind)em; --hang: \(ind)em\">" +
                 k + " " +
                 span("hanging", kk, lineNo) +
                 "</div>"
@@ -1127,10 +1140,13 @@ extension Mandoc {
               //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
               if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                thisCommand = "<div class=nf style=\"margin-top: 0.6em;\";>\(j)</div>"
+                thisCommand = "<div class=nf style=\"margin-top: 0.6em; margin-bottom: 0.6em;\">\(j)</div>"
               }
 
             case "fi":
+              let _ = await rest()
+
+            case "BS", "BE": // Ignore -- wrap the SYNOPSIS section?
               let _ = await rest()
 
             case "SS":
