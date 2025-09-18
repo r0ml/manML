@@ -276,7 +276,8 @@ extension Mandoc {
       if line.hasPrefix(".") || line.hasPrefix("'") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken() {
-          if (enders.isEmpty && (pt.isMacro || additionalMacroList.contains(pt.value) )) || enders.contains( String(pt.value) ) {
+          // FIXME: the "}" business should only be needed during conditional evaluation
+          if (enders.isEmpty && (pt.isMacro || additionalMacroList.contains(pt.value) )) || enders.contains( String(pt.value))    {
             await setz("")
             return (output, pt.value)
           }
@@ -327,4 +328,34 @@ extension Mandoc {
     }
     return "<!--" + output + "-->"
   }
+
+  // coalesce lines which end with a "\\"
+  func popNextLine() -> Substring {
+    var k = lines.removeFirst()
+    while k.hasSuffix("\\") {
+      k.removeLast()
+      if lines.isEmpty { break }
+      k.append(contentsOf: lines.removeFirst())
+    }
+    return k
+  }
+
 }
+
+
+func coalesceLines(_ a : Array<Substring>) -> ArraySlice<Substring> {
+  var res = ArraySlice<Substring>()
+  var ll = Substring("")
+  for i in a {
+    if i.hasSuffix("\\") {
+      ll.append(contentsOf: i.dropLast())
+      continue
+    } else {
+      ll.append(contentsOf: i)
+      res.append(ll)
+      ll = ""
+    }
+  }
+  return res
+}
+

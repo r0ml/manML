@@ -53,6 +53,7 @@ let escapeSequences = [
    "(sh": "#", //  hash (pound)
    "(CR": "↵", //  carriage return
    "(OK": "✓", //  check mark
+
    "(CL": "♣", //  club suit
    "(SP": "♠", //  spade suit
    "(HE": "♥", //  heart suit
@@ -430,6 +431,10 @@ let escapeSequences = [
    "*(ga":  "`", //  grave
    "*(Px":  "POSIX", //  POSIX standard name
    "*(Ai":  "ANSI", //  ANSI standard name
+
+   "*(OK": "[",
+   "*(CK": "]",
+
 
    "(/"  : "÷",
 

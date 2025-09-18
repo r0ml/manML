@@ -37,9 +37,11 @@ class Mandoc : @unchecked Sendable {
 
   func setSourceWrapper(_ sw : SourceWrapper) async {
     sourceWrapper = sw
-    origInput = sw.manSource
+    let ll = coalesceLines(sw.manSource)
+    sw.manSource = Array(ll)
+    origInput = Array(ll)
     //    origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
-    lines = ArraySlice(origInput)
+    lines = ll
   }
 
   func macroPrefix(_ lin : Substring) -> (String, String)? {
@@ -79,16 +81,6 @@ class Mandoc : @unchecked Sendable {
       }
 
       lines.removeFirst()
-
-      // FIXME: possibly this loop goes before the comment handling?
-      while line.last == "\\" {
-        if lines.isEmpty {
-          line.removeLast()
-        } else {
-          let nl = String(lines.removeFirst())
-          line = line.dropLast()+nl
-        }
-      }
 
       try await output.append(handleLine(Substring(line), enders: []))
 
@@ -282,11 +274,22 @@ extension Mandoc {
   func evalCondition(_ s : any StringProtocol) -> Bool {
     // FIXME: need to actually parse this, for now: punt
 //    print("condition: \(s)")
+    if s.hasPrefix("n") {
+      if let r = s.dropFirst().first {
+        let rv = definedRegisters[String(r)]
+        var ss = s.dropFirst(2)
+        if ss.first == "=" {
+          ss = ss.dropFirst()
+          return String(ss) == rv
+        }
+      }
+    }
     return false
   }
 
-  func doIf(_ b : Bool) async throws(ThrowRedirect) {
+  func doIf(_ b : Bool, enders: [String]) async throws(ThrowRedirect) -> String {
     var ifNest = 0
+    var output = ""
     if b != ifCondition {
       let k = await rest().value
       // FIXME: doesnt handle { embedded in strings
@@ -309,20 +312,24 @@ extension Mandoc {
         ifNest = 1
         if j.hasSuffix("\\}") { j.removeLast(2); ifNest -= 1}
         if j.hasSuffix("}") { j.removeLast(); ifNest -= 1 }
+        j = Substring(j.trimmingCharacters(in: .whitespaces))
 //        print("eval: \(j)")
-        try await handleLine(j, enders: [])
+        try await output.append(handleLine(j, enders: []))
         while ifNest > 0, !lines.isEmpty {
-          let k = lines.removeFirst()
+          var k = lines.removeFirst()
           ifNest += k.count { $0 == "{" }
           ifNest -= k.count { $0 == "}" }
 //          print("eval: \(k)")
-          try await handleLine(k, enders: [])
+          if k.hasSuffix("\\}") { k.removeLast(2) }
+          else if k.hasSuffix("}") { k.removeLast() }
+          try await output.append(handleLine(k, enders: enders))
         }
       } else {
 //        print("eval: \(k)")
-        try await handleLine(k, enders: [])
+        try await output.append(handleLine(k, enders: enders))
       }
     }
+    return output
   }
 
 }

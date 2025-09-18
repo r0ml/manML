@@ -20,14 +20,10 @@
 
 - man captoinfo fails because it uses .TS -- the tbl processor
 
-- man dyld-usage defines macros INDENT and UNIDENT -- then processes them wrong in the OPTIONS section
-
 - man funzip (excessive whitespace in EXAMPLES)
 
 
 - LEGACY mode fails on man jq -- it terminates reading the stdout too soon -- borrow the code from ShellTesting .  Noticed because the BUGS section has an extra final dot in the render.
-
-- man ksh (contents of NAME missing)
 
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
 

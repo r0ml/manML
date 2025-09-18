@@ -88,8 +88,8 @@ extension Mandoc {
         }
       }
 
+      m = Array(coalesceLines(m))
       lines.replaceSubrange(lines.startIndex..<lines.startIndex, with: m) // + (lines.isEmpty ? [] : [lines.first!] ))
-
       sourceWrapper.manSource.insert(contentsOf: m, at: lines.startIndex)
 
       // FIXME: this modifies the lines being parsed, breaks the line numbering -- and should ideally be done in a way
@@ -834,6 +834,7 @@ extension Mandoc {
               let _ = await rest()
 
             case "sp":
+              let _ = await rest()
               thisCommand = "<p/>"
 
               // "de" defines a macro -- and the macro definition goes until a line consisting of ".."
@@ -867,8 +868,8 @@ extension Mandoc {
               nextLine()
               let currentTag = try await handleLine(line, enders: enders)
 
-              let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH"] ) // "TP", "PP", "SH"])
-//              print(nn)
+              let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH", "SS", "HP", "LP"] ) // "TP", "PP", "SH"])
+                                                                                              //              print(nn)
               thisCommand = span("", taggedBlock(currentTag, k, lineNo), lineNo)
               if nn != "TP" {
                 thisCommand.append("<div style=\"clear: both;\"></div>")
@@ -880,7 +881,7 @@ extension Mandoc {
               let tw = await next()?.value ?? "10"
               let _ = await rest() // eat the rest of the line
 
-//              let (k, _) = await macroBlock( enders + ["RE"], bs)
+              //              let (k, _) = await macroBlock( enders + ["RE"], bs)
 
               break
               // FIXME: this is causing problems for dyld_usage?
@@ -954,7 +955,7 @@ extension Mandoc {
                        // FIXME: I see things like \w'abcdef'u -- which computes the length of 'abcdef' for the size of the hanging indent
               let _ = await rest()  // just not implemented
 
-              let (kk, _) = await macroBlock( enders + ["PP", "IP", "TP", "HP", "LP"])
+              let (kk, _) = await macroBlock( enders + ["PP", "IP", "TP", "SS", "HP", "LP"])
 
               let width = "3em"
               thisCommand = "<div class=hang style=\"text-indent: -\(width); padding-left: \(width);>"+span("", kk, lineNo)+"</div>"
@@ -1012,13 +1013,14 @@ extension Mandoc {
 
             case "if":
               await doConditional()
-              try? await doIf(true)
+              thisCommand = try await doIf(true, enders: enders)
+
             case "ie":
               await doConditional()
-              try? await doIf(true)
+              thisCommand = try await doIf(true, enders: enders)
 
             case "el":
-              try? await doIf(false)
+              thisCommand = try await doIf(false, enders: enders)
 
             case "ne": // need this much space left on the page.  For an HTML page, just ignore it.
               let _ = await rest()
@@ -1082,8 +1084,8 @@ extension Mandoc {
 
             case "IP":
               let kkk = await next()
-            let kj = kkk?.value ?? ""
-            let k = kj.isEmpty ? "" : span("tag", kj, lineNo)
+              let kj = kkk?.value ?? ""
+              let k = kj.isEmpty ? "" : span("tag", kj, lineNo)
               var ind = 3
               if let dd = await next() {
                 if let i = Int(dd.value) { ind = i }
@@ -1091,7 +1093,7 @@ extension Mandoc {
 
               let _ = await rest()
 
-              let (kk, _) = await macroBlock(enders + ["IP", "LP", "PP", "TP", "SH", "Sh"])
+              let (kk, _) = await macroBlock(enders + ["IP", "LP", "PP", "HP", "TP", "SH", "Sh", "SS"])
 
               if ind > 0 && !k.isEmpty {
                 //                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
@@ -1191,7 +1193,7 @@ extension Mandoc {
     }
   }
 
-// in fact, I should never throw the redirect
+  // in fact, I should never throw the redirect
   func restMacro(enders: [String], _ f : @escaping (String) -> String) async throws(ThrowRedirect) -> String {
     var ended = true
     var thisCommand = ""
@@ -1219,4 +1221,4 @@ extension Mandoc {
     return thisCommand
   }
 
- }
+}
