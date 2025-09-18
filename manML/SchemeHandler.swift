@@ -46,6 +46,10 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
       } else {
         var m : String
         (state.error, m) = await Mandoc.readManFile(u, state.manpath)
+        if !state.error.isEmpty && m.isEmpty {
+          state.manSource.manSource = []
+          return Data()
+        }
         state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
       }
       if state.manSource.manSource.isEmpty { return Data() }

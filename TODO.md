@@ -38,12 +38,7 @@
 
 
 ==========> zsh man pages
-- man 1 zshbuiltins : indentation and list handling seems wrong -- is the problem ".PD" ??
-
-- man 1 zshcompsys : that first list has a bullet in totally the wrong place.
-
-- man 1 zshcompwid : list bullet placement 
-
+-
 - the zxh functions often have the first element of a list misformatted -- but that may be due to the source 
 
 - man 1 zshmisc -- the indentation seems wonky
