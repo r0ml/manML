@@ -317,7 +317,7 @@ extension Mandoc {
           }
     } else {
       // FIXME: I need to evaluate command lines until end.
-      let k = await rest().value
+      let k = await Tokenizer.shared.rawRest()
       if k.hasPrefix("{") {
         var j = k.dropFirst()
         ifNest = 1

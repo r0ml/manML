@@ -35,19 +35,7 @@
 
 - man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc)
 
-
-
-==========> zsh man pages
--
-- the zxh functions often have the first element of a list misformatted -- but that may be due to the source 
-
-- man 1 zshmisc -- the indentation seems wonky
-
-- man 1 zshmodules -- the first element of most lists seems wrong. just all the zsh\* man pages have this problem.
-
 ============> perl man pages
-
-- man lsm, net-server fail to render properly
 
 - perlutil (maybe other perl\*), pod2readme (options are missing), pod2usage (why so much indent)
  

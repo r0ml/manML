@@ -1019,7 +1019,7 @@ extension Mandoc {
             case "ds": // define string
                        // FIXME: should be a nextPlain() -- which gets the next word but does not run escaped on it
               let nam = await next()?.unsafeValue ?? "??"
-              let val = String(await rest().value)
+              let val = String(await Tokenizer.shared.rawRest() )
               await Tokenizer.shared.setDefinedString(String(nam), val)
 
             case "rm": // remove macro definition -- ignored for now
@@ -1105,19 +1105,24 @@ extension Mandoc {
               let k = kj.isEmpty ? "" : span("tag", kj, lineNo)
               var ind : Double = 3
               if let dd = await next() {
-                if let i = Int(dd.value) { ind = Double(i)/16.0 }
+                // FIXME: somehow I'm seeing a \n here
+                let dx = dd.value.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let i = Int(dx) { ind = Double(i)/16.0 }
               }
 
               let _ = await rest()
 
-              let (kk, _) = await macroBlock(enders + ["IP", "LP", "PP", "HP", "TP", "SH", "Sh", "SS"])
+              let (kk, _) = await macroBlock(enders + ["IP", "LP", "PP", "HP", "TP", "SH", "Sh", "SS", "ie", "el", "if"])
 
               if ind > 0 && !k.isEmpty {
-                //                thisCommand = "<div class=hanging style=\"margin-left: \(ind/2)em; text-indent: -1.7em; margin-top: 0.5em; margin-bottom: 0.5em;\">" +
+/*
                 thisCommand = "<div class=hanging style=\"margin-left: \(ind)em; --hang: \(ind)em\">" +
                 k + " " +
                 span("hanging", kk, lineNo) +
                 "</div>"
+ */
+
+                thisCommand = taggedParagraph(k, kk, lineNo)
               } else {
                 thisCommand = "<div style=\"margin-left: \(ind)em; margin-top: 0.5em;\">" + kk + "</div>"
               }

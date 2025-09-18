@@ -156,7 +156,7 @@ actor Tokenizer {
   private func holdovers() -> String {
     var res = ""
     for i in fontStyling {
-      res.append("<span \(i)>")
+      res.append("<span class=\"\(i)\">")
     }
     for i in colorStyling {
       res.append("span style=\"color: \(i);\">")
@@ -250,7 +250,7 @@ actor Tokenizer {
             let baseline : Double = 11
             if kk > 0 { fs = (baseline + fs ) / baseline }
             else { fs = (baseline - fs ) / baseline }
-            res = "<span style=\"font-size: \(fs)em\">"
+            res = "<span style=\"font-size: \(fs)em;\">"
           } else {
             fontSizing = false
             res = "</span>"
@@ -481,6 +481,13 @@ actor Tokenizer {
   }
 
 
+  func rawRest() -> Substring {
+    let res = (nextToken?.unsafeValue ?? nextWord?.1 ?? "") + string
+    string = ""
+    nextWord = nil
+    nextToken = nil
+    return res
+  }
 
   func rest() -> Token {
     var output = ""
