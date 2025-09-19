@@ -34,11 +34,3 @@
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
 
 - man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc)
-
-============> perl man pages
-
-- perlutil (maybe other perl\*), pod2readme (options are missing), pod2usage (why so much indent)
- 
-- more perldoc mans:  streamzip, xgettext.pl, zipdetails
-
-

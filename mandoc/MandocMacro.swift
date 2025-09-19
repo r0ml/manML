@@ -74,6 +74,12 @@ extension Mandoc {
       return nil
     }
 
+    // FIXME: another massive kludge for dyld_usage -- the RS / RE pair straddle the .TP macro
+    // The solution may be to have RS/RE set a state variable indicating indentation -- and then have
+    // various tags use that 
+    if thisToken.value == "INDENT" || thisToken.value == "UNINDENT" {
+      return nil
+    }
     if var m = await Tokenizer.shared.getDefinedMacro(String(thisToken.value)) {
       // FIXME: because of this catenation, the line numbering must be adjusted.
       // either need to maintain a list of line numbers with the source macro line repeated --
@@ -897,14 +903,15 @@ extension Mandoc {
 
               //              let (k, _) = await macroBlock( enders + ["RE"], bs)
 
-              break
-              // FIXME: this is causing problems for dyld_usage?
+              // FIXME: this is causing problems for dyld_usage vs nslookup
+//              if enders.contains("TP") { break }
               thisCommand = "<div style=\"padding-left: 2em; margin-top: 0.3em; --tag-width: \(tw)em\">"
 
             case "RE":
               let _ = await rest() // already handled in RS
-              break
-              // FIXME: this is causing problems for dyld_usage?
+
+//              if enders.contains("TP") { break }
+              // FIXME: this is causing problems for dyld_usage vs nslookup
               thisCommand = "</div>"
 
             case "B":
