@@ -22,26 +22,25 @@ class Mandoc : @unchecked Sendable {
 
   var rsState : RsState?
 
+  var relativeStart : [Int] = []
+
   // ============================
   var inSynopsis = false
 
   var authorSplit = false
 
   // ============================
-
-  // ============================
   var sourceWrapper : SourceWrapper!
-  var ifCondition : Bool = true
-  var ifNestingDepth = 0
-  var definedRegisters = [String : String]()
 
-  func setSourceWrapper(_ sw : SourceWrapper) async {
-    sourceWrapper = sw
-    let ll = coalesceLines(sw.manSource)
-    sw.manSource = Array(ll)
-    origInput = Array(ll)
-    //    origInput = input.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
-    lines = ll
+  func setSourceWrapper(_ ap : AppState) async {
+    sourceWrapper = ap.manSource
+    let mp = MacroProcessor(ap, sourceWrapper.manSource)
+//    let ll = coalesceLines(sw.manSource)
+
+      let ll = await mp.preprocess()
+      sourceWrapper.manSource = Array(ll)
+      origInput = Array(ll)
+      lines = ArraySlice(ll)
   }
 
   func macroPrefix(_ lin : Substring) -> (String, String)? {
@@ -53,7 +52,7 @@ class Mandoc : @unchecked Sendable {
     else { return nil }
   }
 
-  func generateBody() async throws(ThrowRedirect) -> String {
+  func generateBody() async -> String {
 
     var output = ""
 
@@ -82,7 +81,7 @@ class Mandoc : @unchecked Sendable {
 
       lines.removeFirst()
 
-      try await output.append(handleLine(Substring(line), enders: []))
+      await output.append(handleLine(Substring(line), enders: []))
 
       if let cc {
         // FIXME: took this out for debuggery
@@ -94,13 +93,13 @@ class Mandoc : @unchecked Sendable {
     return output
   }
 
-  func toHTML() async throws(ThrowRedirect) -> String {
+  func toHTML() async -> String {
 
     let tt = Bundle.main.url(forResource: "Mandoc", withExtension: "css")!
     let kk = try! String(contentsOf: tt, encoding: .utf8)
     let header = "<!DOCTYPE html>\n<html><head><meta charset=\"UTF-8\"><title>Mandoc</title><style>\(kk)</style></head><body>"
 
-    let output = try await generateBody()
+    let output = await generateBody()
 
     return """
 \(header)
@@ -116,7 +115,7 @@ class Mandoc : @unchecked Sendable {
   }
 
 
-  func handleLine( _ line : Substring, enders: [String]) async throws(ThrowRedirect) -> String {
+  func handleLine( _ line : Substring, enders: [String]) async -> String {
     if line.isEmpty {
       // FIXME: perhaps this should just be return "" ?
       return "<p>\n"
@@ -126,7 +125,7 @@ class Mandoc : @unchecked Sendable {
       return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)
     } else {
       await setz(String(line.dropFirst()))
-      return try await parseLine(enders: enders)
+      return await parseLine(enders: enders)
     }
   }
 
@@ -154,7 +153,7 @@ class Mandoc : @unchecked Sendable {
       mm = "\(m[2]) \(m[1])"
     }
     do {
-      let p = try ShellProcess.init("/bin/sh", "-c", "mandoc -T html `man -w \(mm)`", env: ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
+      let p = ShellProcess.init("/bin/sh", "-c", "mandoc -T html `man -w \(mm)`", env: ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
       let (_ , o, e) = try await p.run()
 
 //     let (_, o, e) = captureStdoutLaunch("mandoc -T html `man -w \(mm)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
@@ -171,35 +170,9 @@ class Mandoc : @unchecked Sendable {
   static func newParse(_ ap : AppState) async -> (String, String, [Substring]) {
     // Now, in theory, for handling a .so, I can throw an error from toHTML(), catch the error, load a new source text, parse it, and return it.
     //    var mx = ap.manSource
-    var n = 0
-    while n < 2 {
-      await Tokenizer.shared.setMandoc(ap.manSource )
-      do {
-        let h = try await Tokenizer.shared.toHTML()
-        return ("", h, ap.manSource.manSource)
-      } catch let e {
-        n += 1
-        switch e {
-          case .to(let z):
-            let k = z.split(separator: "/").last ?? ""
-            let j = (k.split(separator: ".").map { String($0) })+["", ""]
-
-            if let u = URL(string: "\(scheme)://\(j[1])/\(j[0])") {
-              let (e, mm) = await readManFile( u, ap.manpath)
-              let m = mm.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
-              if !e.isEmpty { return (e, "", m) }
-              // FIXME: infinite loops can happen here.
-              // if mx == m it is a tight loop.  In theory, it can alternate.  Needs to be fixed.
-              if ap.manSource.manSource == m { return ("indirection loop detected", "", []) }
-              ap.manSource.manSource = m
-              continue
-            } else {
-              return ("invalid redirection: \(z)", "", [])
-            }
-        }
-      }
-    }
-    return ("repeated redirects", "", [])
+      await Tokenizer.shared.setMandoc(ap)
+      let h = await Tokenizer.shared.toHTML()
+      return ("", h, ap.manSource.manSource)
   }
 
   static func canonicalize(_ man : String) -> URL? {
@@ -253,95 +226,16 @@ extension Mandoc {
   /// parse the remainder of a line contained by the Tokenizer.  This assumes the line needs to be parsed for macro evaluation.
   /// Returns the HTML output as a result of the parsing.
   /// The blockstate is primarily used for lists (to determine if I'm starting a new list item or not -- for example)
-  func parseLine(_ bs : BlockState? = nil, enders: [String], flag: Bool = false) async throws(ThrowRedirect) -> String {
+  func parseLine(_ bs : BlockState? = nil, enders: [String], flag: Bool = false) async -> String {
     var output = Substring("")
-    while let thisCommand = try await macro(bs, enders: enders, flag: flag) {
+    while let thisCommand = await macro(bs, enders: enders, flag: flag) {
       output.append(contentsOf: thisCommand.value)
       output.append(contentsOf: thisCommand.closingDelimiter)
     }
     return String(output)
   }
 
-  func doConditional() async {
-    if let j = await next()  {
-      switch j.value {
-        case "n": // terminal output -- skip this
-          ifCondition = false
-        case "t": // typeset output -- skip this
-          ifCondition = true
-        case "o": // current page is odd -- not going to implement this
-          ifCondition = true
-        case "e": // current page is even -- not going to implement this
-          ifCondition = false
-        default: // some other test case -- not yet implemented
-          let z = evalCondition(j.value)
-          ifCondition = z
-      }
-    } else {
-      ifCondition = false
-    }
-  }
 
-  func evalCondition(_ s : any StringProtocol) -> Bool {
-    // FIXME: need to actually parse this, for now: punt
-//    print("condition: \(s)")
-    if s.hasPrefix("n") {
-      if let r = s.dropFirst().first {
-        let rv = definedRegisters[String(r)]
-        var ss = s.dropFirst(2)
-        if ss.first == "=" {
-          ss = ss.dropFirst()
-          return String(ss) == rv
-        }
-      }
-    }
-    return false
-  }
-
-  func doIf(_ b : Bool, enders: [String]) async throws(ThrowRedirect) -> String {
-    var ifNest = 0
-    var output = ""
-    if b != ifCondition {
-      let k = await rest().value
-      // FIXME: doesnt handle { embedded in strings
-      ifNest += k.count { $0 == "{" }
-      ifNest -= k.count { $0 == "}" }
-//      print("skip: \(k)")
-          // FIXME: instead of using lines.first and nextLine -- need a parser function to read/advance through source
-          while ifNest > 0,
-                let j = lines.first {
-            ifNest += j.count { $0 == "{" }
-            ifNest -= j.count { $0 == "}" }
-//            print("skip: \(lines.first!)")
-            nextLine()
-          }
-    } else {
-      // FIXME: I need to evaluate command lines until end.
-      let k = await Tokenizer.shared.rawRest()
-      if k.hasPrefix("{") {
-        var j = k.dropFirst()
-        ifNest = 1
-        if j.hasSuffix("\\}") { j.removeLast(2); ifNest -= 1}
-        if j.hasSuffix("}") { j.removeLast(); ifNest -= 1 }
-        j = Substring(j.trimmingCharacters(in: .whitespaces))
-//        print("eval: \(j)")
-        if !j.isEmpty { try await output.append(handleLine(j, enders: [])) }
-        while ifNest > 0, !lines.isEmpty {
-          var k = lines.removeFirst()
-          ifNest += k.count { $0 == "{" }
-          ifNest -= k.count { $0 == "}" }
-//          print("eval: \(k)")
-          if k.hasSuffix("\\}") { k.removeLast(2) }
-          else if k.hasSuffix("}") { k.removeLast() }
-          try await output.append(handleLine(k, enders: enders))
-        }
-      } else {
-//        print("eval: \(k)")
-        try await output.append(handleLine(k, enders: enders))
-      }
-    }
-    return output
-  }
 
 }
 

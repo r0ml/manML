@@ -289,10 +289,9 @@ extension Mandoc {
 
         nextLine()
         
-        if let pl = try? await parseLine(bs, enders: enders) {
-          output.append( pl )
-        }
-//        output.append("\n")
+        let pl = await parseLine(bs, enders: enders)
+        output.append( pl )
+      //        output.append("\n")
       } else {
         nextLine()
         await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))
@@ -302,16 +301,6 @@ extension Mandoc {
     return (output, nil)
   }
     
-  func definitionBlock() -> [Substring] {
-    var k = [Substring]()
-    while !lines.isEmpty {
-      let line = lines.removeFirst()
-      if line == ".." { break }
-      k.append(line)
-    }
-    return k
-  }
-
   func commentBlock() -> String {
     var output = ""
     

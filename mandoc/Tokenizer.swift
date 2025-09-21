@@ -72,13 +72,13 @@ actor Tokenizer {
     spacingMode = true
   }
 
-  func setMandoc(_ s : SourceWrapper) async {
+  func setMandoc(_ ap : AppState) async {
     reinit()
-    await mandoc.setSourceWrapper(s)
+    await mandoc.setSourceWrapper(ap)
   }
 
-  func toHTML() async throws(ThrowRedirect) -> String {
-    return try await mandoc.toHTML()
+  func toHTML() async -> String {
+    return await mandoc.toHTML()
   }
 
   func setSpacingMode(_ b : Bool) {
@@ -507,7 +507,7 @@ actor Tokenizer {
   }
 
 
-  func nextArg(enders: [String]) async throws(ThrowRedirect) -> Token? {
+  func nextArg(enders: [String]) async -> Token? {
     guard let k = peekToken() else { return nil }
 
     if k.isMacro {
@@ -516,7 +516,7 @@ actor Tokenizer {
       } else {
         // FIXME: when I'm here, I don't need to read subsequence lines?
         //      var aa = ArraySlice<Substring>()
-        return try await mandoc.macro(enders: enders)
+        return await mandoc.macro(enders: enders)
       }
     }
 

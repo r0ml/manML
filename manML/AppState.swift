@@ -25,7 +25,7 @@ final class ExternalLinkDecider: WebPage.NavigationDeciding {
     }
 }
 
-final class SourceWrapper : @unchecked Sendable {
+final class SourceWrapper {
   var manSource : [Substring]
 
   init(_ x : [Substring] = []) {
@@ -33,7 +33,7 @@ final class SourceWrapper : @unchecked Sendable {
   }
 }
 
-@Observable final class AppState {
+@Observable public final class AppState : @unchecked Sendable {
   var error : String = " "
   var legacy : Bool = false
   var manpath : Manpath = Manpath()
