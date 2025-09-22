@@ -424,7 +424,11 @@ extension Mandoc {
             sep = ", "
           }
           thisCommand.append(")")
-          thisCommand.append(jj!.closingDelimiter)
+          if inSynopsis {
+            thisCommand.append("<br/>")
+          } else {
+            thisCommand.append(jj?.closingDelimiter ?? "")
+          }
         }
       case "Fo":
         let j = await rest()
@@ -656,13 +660,16 @@ extension Mandoc {
         rsState = RsState()
 
       case "Rv":
-        let j = await rest()
-        if j.value == "-std" {
-          thisCommand = span(nil, "The function returns the value 0 if successful; otherwise the value -1 is returned and errno is set to indicate the error.", lineNo)
+        let j = await next()
+        let k = await next()
+        let _ = await rest()
+        if j?.value == "-std" {
+          let fn = k == nil ? "" : span("function-name", k!.value + "()", lineNo)
+          thisCommand = span(nil, "The \(fn) function returns the value 0 if successful; otherwise the value -1 is returned and the global variable " + span("defined-variable", "errno", lineNo) + " is set to indicate the error.", lineNo)
         } else {
-          thisCommand = span(nil, "-->Rv<--\(j.value)", lineNo)
+          thisCommand = span(nil, span("unimplemented","-->Rv<--", lineNo) + (j?.value ?? ""), lineNo)
         }
-        thisDelim = j.closingDelimiter
+        thisDelim = j?.closingDelimiter ?? ""
 
       case "Sh", "SH": // can be used to end a tagged paragraph
                        // FIXME: need to handle tagged paragraph

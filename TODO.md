@@ -34,3 +34,7 @@
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
 
 - man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc)
+
+====================================
+
+- man 2 chown : too many "<br> s" in SYNOPSIS?
