@@ -44,8 +44,6 @@ struct SettingsView : View {
         } label: {
           Text("Additional manual directories")
         }
-//    }.onChange(of: manpath.addedManpath) {
-//      print("manpath changed")
     }
     
   }

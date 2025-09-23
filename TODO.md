@@ -43,4 +43,5 @@
 
 - 2 fsetattrlist : does the EXAMPLe need more whitespace to start at the Bd -literal
 
+- 2 settimeofday : .Ao Pa sys/time.h Ac -- the closing angle bracket is colored, and there is an extra blank after .h
 

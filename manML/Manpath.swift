@@ -24,7 +24,7 @@ import Foundation
     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/man",
     "~/man",
     "~/share/man"
-    ]
+  ]
 
   // only adjust manpath if already set
 
@@ -34,7 +34,7 @@ import Foundation
 
   public init() {
     addedManpath = retrieveSecurityScopedBookmarks()
-    
+
   }
 
   func remove(path: String?) {
@@ -51,43 +51,44 @@ import Foundation
 
     }
   }
-  
+
   func retrieveSecurityScopedBookmarks() -> [URL] {
-      var retrievedURLs: [URL] = []
-      
-      // Retrieve the saved bookmarks dictionary from UserDefaults
-      guard var bookmarks = UserDefaults.standard.dictionary(forKey: key) as? [String: Data] else {
-          return []
-      }
-      
+    var retrievedURLs: [URL] = []
+
+    // Retrieve the saved bookmarks dictionary from UserDefaults
+    guard var bookmarks = UserDefaults.standard.dictionary(forKey: key) as? [String: Data] else {
+      return []
+    }
+
     var stale : [String] = []
-      for (urlString, bookmarkData) in bookmarks {
-          do {
-              var isStale = false
-              
-              // Resolve the bookmark to a URL
-              let resolvedURL = try URL(
-                  resolvingBookmarkData: bookmarkData,
-                  options: .withSecurityScope,
-                  relativeTo: nil,
-                  bookmarkDataIsStale: &isStale
-              )
-              
-            if isStale || defaultManpath.contains(resolvedURL.relativePath) {
-                stale.append(urlString)
-//                  print("Bookmark for URL \(urlString) is stale.")
-              } else {
-                retrievedURLs.append(resolvedURL)
-              }
-          } catch {
-              print("Failed to resolve bookmark for \(urlString): \(error.localizedDescription)")
-          }
+    for (urlString, bookmarkData) in bookmarks {
+      do {
+        var isStale = false
+
+        // Resolve the bookmark to a URL
+        let resolvedURL = try URL(
+          resolvingBookmarkData: bookmarkData,
+          options: .withSecurityScope,
+          relativeTo: nil,
+          bookmarkDataIsStale: &isStale
+        )
+
+        if isStale /* || defaultManpath.contains(resolvedURL.relativePath) */ {
+          print("stale: \(urlString)")
+          stale.append(urlString)
+          //                  print("Bookmark for URL \(urlString) is stale.")
+        } else {
+          retrievedURLs.append(resolvedURL)
+        }
+      } catch {
+        print("Failed to resolve bookmark for \(urlString): \(error.localizedDescription)")
       }
+    }
     if !stale.isEmpty {
       stale.forEach { bookmarks.removeValue(forKey: $0) }
       UserDefaults.standard.set(bookmarks, forKey: key)
     }
-    
+
     return retrievedURLs
   }
 
@@ -101,26 +102,26 @@ import Foundation
         var q = u.deletingLastPathComponent().appendingPathComponent("man")
         if FileManager.default.fileExists(atPath: q.path) {
           if !res.contains(q) { res.append(q) }
-          }
-      q = u.deletingLastPathComponent().appendingPathComponent("share").appendingPathComponent("man")
+        }
+        q = u.deletingLastPathComponent().appendingPathComponent("share").appendingPathComponent("man")
         if FileManager.default.fileExists(atPath: q.path ) {
           if !res.contains(q) { res.append(q) }
         }
       }
-      }
+    }
 
     let j = try! await captureStdout( URL(fileURLWithPath: "/usr/bin/xcode-select"), ["--show-manpaths"])
-      let (_,b,_) = j
-      if let b {
-        let n = b.split(whereSeparator: (\.isNewline))
-        for i in n {
-          let q = URL(fileURLWithPath: String(i))
-          if !res.contains(q) { res.append(q) }
-        }
+    let (_,b,_) = j
+    if let b {
+      let n = b.split(whereSeparator: (\.isNewline))
+      for i in n {
+        let q = URL(fileURLWithPath: String(i))
+        if !res.contains(q) { res.append(q) }
       }
-    return res
     }
-    
+    return res
+  }
+
 
   // returning the URLs found which are the man contents, and the URLs of the manpaths using security scope which need to be stopped
   func find(_ name : String, _ section : String?) -> ([URL],[URL]) {
@@ -132,17 +133,21 @@ import Foundation
     } else {
       sect = mansect ?? []
     }
-    
-    for p in manpath {
+
+
+    for p in manpath { 
       let z = p.startAccessingSecurityScopedResource()
 
-  //    if !z { continue }
+      //    if !z { continue }
       if z { defered.append(p) }
+      else {
+        print("failedToStartAccessingSecurityScopedResource \(p.path)")
+      }
 
       // FIXME: I start but dont stop security scope
-  //        defer { p.stopAccessingSecurityScopedResource() }
+      //        defer { p.stopAccessingSecurityScopedResource() }
       if let s = section {
-        
+
         //        for s in sect {
         let p2 = p.appendingPathComponent("man\(s.first!)")
         let pp = p2.appendingPathComponent(name).appendingPathExtension(s)
@@ -198,42 +203,42 @@ import Foundation
         } catch {
           // ignore the error
         }
-        
+
       }
-  }
+    }
     return (res, defered)
   }
-  
-  
+
+
   func link(_ link : String) -> URL? {
     for p in manpath {
       let pg = URL(fileURLWithPath: link, relativeTo: p)
-//      let pp = "\(p)/\(link)"
+      //      let pp = "\(p)/\(link)"
       if FileManager.default.fileExists(atPath: pg.path) {
         return pg
       }
     }
     return nil
   }
-  
+
   /*
-  func manConf() -> ([URL],[String]) {
-    let k = try! String(contentsOf: URL(fileURLWithPath: "/etc/man.conf"), encoding: .utf8)
-    let l = k.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-    let s = l.filter { !$0.hasPrefix("#") }
-    
-    var res = [URL]()
-    var ms = defaultMansect
-    
-    for a in s {
-      if a.hasPrefix("MANPATH") {
-        res.append( URL(fileURLWithPath: String(a.dropFirst("MANPATH".count).trimmingCharacters(in: .whitespaces)) ) )
-      }
-      if a.hasPrefix("MANSECT") {
-        ms = String(a.dropFirst("MANSECT".count).trimmingCharacters(in: .whitespaces))
-      }
-    }
-    return (res, ms.components(separatedBy: ":"))
-  }
+   func manConf() -> ([URL],[String]) {
+   let k = try! 	tentsOf: URL(fileURLWithPath: "/etc/man.conf"), encoding: .utf8)
+   let l = k.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+   let s = l.filter { !$0.hasPrefix("#") }
+
+   var res = [URL]()
+   var ms = defaultMansect
+
+   for a in s {
+   if a.hasPrefix("MANPATH") {
+   res.append( URL(fileURLWithPath: String(a.dropFirst("MANPATH".count).trimmingCharacters(in: .whitespaces)) ) )
+   }
+   if a.hasPrefix("MANSECT") {
+   ms = String(a.dropFirst("MANSECT".count).trimmingCharacters(in: .whitespaces))
+   }
+   }
+   return (res, ms.components(separatedBy: ":"))
+   }
    */
 }

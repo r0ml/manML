@@ -68,7 +68,7 @@ struct ContentView: View {
 
               let ok = url.startAccessingSecurityScopedResource()
                                  defer { if ok { url.stopAccessingSecurityScopedResource() } }
-              let k = try? String(contentsOf: url, encoding: .utf8)
+              let k = try? String(decoding: Data(contentsOf: url), as: UTF8.self)
 
               state.handler?.cache(url.path, k ?? "")
               let fu = URL(string: scheme+"://?"+url.path)!

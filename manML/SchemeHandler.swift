@@ -19,27 +19,27 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
 
   func reply(for request: URLRequest) -> some AsyncSequence<URLSchemeTaskResult, any Error> {
     let k = request.url
-      return AsyncThrowingStream { c in
-        Task {
-          if let k {
-            let d = await htmlForMan(k)
-            c.yield(.response(URLResponse(url: k, mimeType: "text/html", expectedContentLength: d.count, textEncodingName: "utf-8")))
-            c.yield(.data(d))
-          }
-          c.finish()
+    return AsyncThrowingStream { c in
+      Task {
+        if let k {
+          let d = await htmlForMan(k)
+          c.yield(.response(URLResponse(url: k, mimeType: "text/html", expectedContentLength: d.count, textEncodingName: "utf-8")))
+          c.yield(.data(d))
         }
+        c.finish()
       }
+    }
   }
 
   @MainActor func htmlForMan(_ u : URL) async -> Data {
     state.sourceLine = nil
     if state.legacy {
       let (error, html) = await Mandoc.getTheHTML(u, state.manpath)
-        state.error = error
-        return html.data(using: .utf8 ) ?? Data()
+      state.error = error
+      return html.data(using: .utf8 ) ?? Data()
     } else {
       if u.path.isEmpty {
-          let m = SchemeHandler.fileData[u.query() ?? ""] ?? ""
+        let m = SchemeHandler.fileData[u.query() ?? ""] ?? ""
         state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
         // FIXME: when I read the data, I can store the error as well as the contents
         state.error = ""
@@ -53,10 +53,9 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
         state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
       }
       if state.manSource.manSource.isEmpty { return Data() }
-        var html : String = ""
-      (state.error, html, state.manSource.manSource) = await Mandoc.newParse(state)
-        return html.data(using: .utf8 ) ?? Data()
-      }
+      var html = await Mandoc.newParse(state)
+      return html.data(using: .utf8 ) ?? Data()
+    }
   }
 
 

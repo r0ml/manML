@@ -167,12 +167,15 @@ class Mandoc : @unchecked Sendable {
     return (error, "")
   }
 
-  static func newParse(_ ap : AppState) async -> (String, String, [Substring]) {
+  static func newParse(_ ap : AppState) async -> String {
     // Now, in theory, for handling a .so, I can throw an error from toHTML(), catch the error, load a new source text, parse it, and return it.
     //    var mx = ap.manSource
       await Tokenizer.shared.setMandoc(ap)
-      let h = await Tokenizer.shared.toHTML()
-      return ("", h, ap.manSource.manSource)
+    if ap.manSource.manSource.isEmpty {
+      return ""
+    } else {
+      return await Tokenizer.shared.toHTML()
+    }
   }
 
   static func canonicalize(_ man : String) -> URL? {
@@ -206,16 +209,26 @@ class Mandoc : @unchecked Sendable {
        error = "multiple found"
        let a = makeMenu(pp)
        a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
-       */    } else if pp.count >= 1 {
+       */
+    } else if pp.count >= 1 {
          error = ""
          do {
-           return try (error, String(contentsOf: pp[0], encoding: .utf8))
+           return try (error,readTextSafely(at: pp[0]))
          } catch(let e) {
            return (e.localizedDescription, "")
          }
        }
     return ("not found: \(manx)", "")
   }
+
+
+  static func readTextSafely(at url: URL) throws -> String {
+      let handle = try FileHandle(forReadingFrom: url)
+      defer { try? handle.close() }
+      let data = try handle.readToEnd() ?? Data()
+    return String(decoding: data, as: UTF8.self)
+  }
+
 
 }
 

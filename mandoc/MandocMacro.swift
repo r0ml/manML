@@ -353,7 +353,7 @@ extension Mandoc {
          //       let j = await rest()
          thisCommand = "<em>\(j.value)</em>"
          thisDelim = j.closingDelimiter
-         }
+         },
          */
 
       case "Eo":
