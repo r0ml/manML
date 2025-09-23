@@ -38,3 +38,9 @@
 ====================================
 
 - man 2 chown : too many "<br> s" in SYNOPSIS?
+
+- 2 FD_CLR  (. Fc ;  fas a carriage return)
+
+- 2 fsetattrlist : does the EXAMPLe need more whitespace to start at the Bd -literal
+
+

@@ -122,11 +122,6 @@ public class MacroProcessor {
         continue
       }
 
-
-
-
-
-
       switch command {
         case "ds":
           let nam = popName(&line)
@@ -162,7 +157,7 @@ public class MacroProcessor {
             return []
           }
 
-          if let u = URL(string: "\(scheme)://\(j[1])/\(j[0])") {
+          if let u = URL(string: "\(scheme):///\(j[0])/\(j[1])") {
             let (e, mm) = await Mandoc.readManFile( u, appState.manpath)
             appState.error = e
             if !e.isEmpty {

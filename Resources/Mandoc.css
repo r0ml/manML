@@ -36,6 +36,7 @@ a.manref:hover { text-decoration: underline; }
 .command { font-weight: bold; color: purple; }
 .defined-variable { color: green; font-weight: bold; font-style: italic; }
 .directive { color: black; font-weight: bold; font-family: "Courier"; }
+.enc { white-space: nowrap; }
 .environment { font: fixedwidth; color: orangered; }
 .error { color: red; font-weight: bold; }
 .flag { font-weight: bold; color: purple; }

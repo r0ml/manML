@@ -355,6 +355,15 @@ extension Mandoc {
          thisDelim = j.closingDelimiter
          }
          */
+
+      case "Eo":
+        let j = await macroBlock(["Ec"])
+        thisCommand = span("enc", j.0, lineNo)
+
+      case "Ec":
+        break
+
+
       case "Er":
         if let j = await macro(enders: enders) {
           thisCommand = span("error", j.value, lineNo)
@@ -380,9 +389,10 @@ extension Mandoc {
           thisDelim = bs?.functionDef == true ? faDelim : j.closingDelimiter
         }
       case "Fc":
-        thisCommand = "<br/>"
+        let j = await next()
+//        thisCommand = "<br/>"
         if inSynopsis {
-          thisDelim = "<br/>"
+          thisDelim = (j?.closingDelimiter ?? "") + "<br/>"
         }
       case "Fd":
         let j = await rest()
@@ -441,7 +451,8 @@ extension Mandoc {
 
       case "Ft":
         let j = await rest()
-        thisCommand = "<br/>" + span("function-type", j.value, lineNo)
+        thisCommand = // "<br/>" +
+        span("function-type", j.value, lineNo)
         if inSynopsis {
           thisDelim = "<br/>"
         } else {
@@ -461,7 +472,7 @@ extension Mandoc {
       case "In": // include
         let j = await rest()
         if inSynopsis {
-          thisCommand = "<br>"+span("include", "#include &lt;\(j.value)&gt;", lineNo)
+          thisCommand = "<div>"+span("include", "#include &lt;\(j.value)&gt;", lineNo) + "</div>"
         } else {
           thisCommand = span("include", "&lt;\(j.value)&gt;", lineNo)
         }
