@@ -633,7 +633,7 @@ extension Mandoc {
         thisDelim = thisToken.closingDelimiter
 
       case "Lp", "Pp":
-        thisCommand = "<p>"
+        thisCommand = "<p/>"
       case "Pq":
         thisCommand = await restMacro(enders: enders) { self.span("pq", $0, self.lineNo) } // wrap in parens
         /*
@@ -842,7 +842,7 @@ extension Mandoc {
                 thisCommand.append("<div style=\"clear: both;\"></div>")
               }
             case "P", "PP", "LP":
-              thisCommand = "<p>"
+              thisCommand = "<p/>"
 
             case "RS":
               let tw = await next()?.value ?? "10"
@@ -1052,8 +1052,10 @@ extension Mandoc {
                                                                            // FIXME: did I need this?
               //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
+              let jj = j.replacing(/\n?<br\/?>\n?/, with: "<p style=\"margin-block-start: 0.2em; margin-block-end: 0.2em;\"/>")
+
               if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                thisCommand = "<div class=nf style=\"margin-top: 0.6em; margin-bottom: 0.6em;\">\(j)</div>"
+                thisCommand = "<div class=nf style=\"margin-top: 0.6em; margin-bottom: 0.6em;\">\(jj)</div>"
               }
 
             case "fi":

@@ -118,7 +118,7 @@ class Mandoc : @unchecked Sendable {
   func handleLine( _ line : Substring, enders: [String]) async -> String {
     if line.isEmpty {
       // FIXME: perhaps this should just be return "" ?
-      return "<p>\n"
+      return "<p/>\n"
     } else if line.hasPrefix(".\\\"") || line.hasPrefix("'/\"") {
       return "<!-- \(line.dropFirst(3)) -->\n"
     } else if line.first != "." && line.first != "'" {

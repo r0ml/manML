@@ -11,6 +11,17 @@ body {
 br { display: block; margin-top: 0.3em; margin-bottom: 0.3em;}
 pre { margin-top: 0.2em; margin-bottom: 0.2em; }
 
+.nf br {
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.nf p {
+  margin-block-start: 0;
+  margin-block-end: 0;
+
+}
 q { quotes: "“" "”" "‘" "’" }
 q.single { quotes: "‘" "’" }
 
