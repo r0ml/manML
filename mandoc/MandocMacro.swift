@@ -819,6 +819,10 @@ extension Mandoc {
               thisCommand = "<p/>"
 
 
+            case "tm":
+              let m = await Tokenizer.shared.rawRest()
+              var se = FileHandle.standardError
+              print(m, to: &se)
 
             case "TP":
               // FIXME: get the indentation from the argument
@@ -1052,7 +1056,7 @@ extension Mandoc {
                                                                            // FIXME: did I need this?
               //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
-              let jj = j.replacing(/\n?<br\/?>\n?/, with: "<p style=\"margin-block-start: 0.2em; margin-block-end: 0.2em;\"/>")
+              let jj = j.replacing(/\n?<br\/?>\n?/, with: "<p style=\"margin-block-start: 0.2em; margin-block-end: 0.2  em;\"/>")
 
               if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 thisCommand = "<div class=nf style=\"margin-top: 0.6em; margin-bottom: 0.6em;\">\(jj)</div>"

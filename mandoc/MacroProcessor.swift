@@ -66,26 +66,31 @@ public class MacroProcessor {
         }
       }
 
-      // This replaces defined registers
-      let drm = /\\\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
-      while true {
-        let mx = line.matches(of: drm)
+      // FIXME: don't replace defined registers here -- should not be done for .ds -- but then should be done later
+      if false {
+        // This replaces defined registers
+        let drm = /\\\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
+        while true {
+          let mx = line.matches(of: drm)
 
-        if let m = mx.last {
-          if let mm = m.output.multi ?? m.output.double ?? m.output.single {
-             let v = definedRegisters[String(mm)] ?? "0"
-            if let _ = m.output.multi {
-              line.replace(/\\\\n\[(?<multi>[^\]]+)\]/ , with: v )
-            } else if let _ = m.output.double {
-              line.replace(/\\\\n\[(?<double>..)/, with: v)
-            } else if let _ = m.output.single {
-              line.replace(/\\\\n(?<single>[^\(\[])/, with: v)
+          if let m = mx.last {
+            if let mm = m.output.multi ?? m.output.double ?? m.output.single {
+              let v = definedRegisters[String(mm)] ?? "0"
+              if let _ = m.output.multi {
+                line.replace(/\\\\n\[(?<multi>[^\]]+)\]/ , with: v )
+              } else if let _ = m.output.double {
+                line.replace(/\\\\n\[(?<double>..)/, with: v)
+              } else if let _ = m.output.single {
+                line.replace(/\\\\n(?<single>[^\(\[])/, with: v)
+              }
             }
+          } else {
+            break
           }
-        } else {
-          break
         }
+
       }
+      
       guard line.hasPrefix(".") || line.hasPrefix("'") else {
         res.append(line)  // not a macro line
         continue
@@ -225,7 +230,7 @@ public class MacroProcessor {
   }
 
   func popName(_ line : inout Substring) -> String {
-    let nam = String(line.prefix { $0.isWhitespace == false })
+    let nam = String(line.prefix { $0.isWhitespace == false && $0 != "\\" && $0 != "{" && $0 != "}" } )
     line = line.dropFirst(nam.count).drop { $0.isWhitespace }
     return nam
   }
@@ -266,7 +271,7 @@ public class MacroProcessor {
   func doIf(_ b : Bool, _ line : Substring) -> [Substring] {
     var ifNest = 0
     var output : [Substring] = []
-    if b {
+    if !b {
       let k = line
       // FIXME: doesnt handle { embedded in strings
       ifNest += k.count { $0 == "{" }

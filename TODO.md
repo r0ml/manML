@@ -49,3 +49,5 @@
 
 - 3 add_module_replacement : ENVIRONMENT VARIABLES indent too much (.IP problem)
 - 3 add_wch : uses tbl processor
+- 3 Algorithm::Annotate -- Perl documentation
+- 3 aliased -- tricky Perl  -- the definition .ds #H ...  was the problem
