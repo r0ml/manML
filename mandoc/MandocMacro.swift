@@ -1028,7 +1028,7 @@ extension Mandoc {
 
                 thisCommand = taggedParagraph(k, kk, lineNo)
               } else {
-                thisCommand = "<div style=\"margin-left: \(ind)em; margin-top: 0.5em;\">" + kk + "</div>"
+                thisCommand = "<div style=\"margin-left: \(ind)ch; margin-top: 0.5em;\">" + kk + "</div>"
               }
 
 
@@ -1082,8 +1082,9 @@ extension Mandoc {
 
             case "TS": // define table start
               let _ = await rest()
-              (thisCommand, _) = await macroBlock( enders + ["TE"])
-              //              print(thisCommand)
+
+              thisCommand = await tblBlock()
+
             default:
               // FIXME: if the token is not recognized as a macro, then it must be regular text
               if macroList.contains(thisToken.value) {

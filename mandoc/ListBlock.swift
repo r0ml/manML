@@ -245,7 +245,6 @@ extension Mandoc {
   func macroBlock(_ enders : [String], _ bs : BlockState? = nil) async -> (String, Substring?) {
     var output = ""
     while !atEnd {
-
       var line = peekLine
       if line.isEmpty {
         nextLine();

@@ -45,3 +45,7 @@
 
 - 2 settimeofday : .Ao Pa sys/time.h Ac -- the closing angle bracket is colored, and there is an extra blank after .h
 
+=====================================
+
+- 3 add_module_replacement : ENVIRONMENT VARIABLES indent too much (.IP problem)
+- 3 add_wch : uses tbl processor

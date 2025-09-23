@@ -120,9 +120,9 @@ class Mandoc : @unchecked Sendable {
       // FIXME: perhaps this should just be return "" ?
       return "<p>\n"
     } else if line.hasPrefix(".\\\"") || line.hasPrefix("'/\"") {
-      return "<!-- \(line.dropFirst(3)) -->"
+      return "<!-- \(line.dropFirst(3)) -->\n"
     } else if line.first != "." && line.first != "'" {
-      return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)
+      return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)+"\n"
     } else {
       await setz(String(line.dropFirst()))
       return await parseLine(enders: enders)
@@ -245,6 +245,7 @@ extension Mandoc {
       output.append(contentsOf: thisCommand.value)
       output.append(contentsOf: thisCommand.closingDelimiter)
     }
+    output.append("\n")
     return String(output)
   }
 
