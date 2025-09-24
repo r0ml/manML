@@ -105,6 +105,8 @@ a.manref:hover { text-decoration: underline; }
 }
 
 .roman { }
+.courier { font-family: "Courier"; }
+
 .regular { }
 .serious { font-weight: bold; }
 .small-caps { font-variant-caps: small-caps; }

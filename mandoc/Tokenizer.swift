@@ -240,6 +240,10 @@ actor Tokenizer {
               s.removeFirst(2)
               fontStyling.append("bold italic")
               res.append("<span class=\"bold italic\">" )
+            } else if s.hasPrefix("CI") {
+              s.removeFirst(2)
+              fontStyling.append("courier italic")
+              res.append("<span class=\"courier italic\">")
             }
 
 
