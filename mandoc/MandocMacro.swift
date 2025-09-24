@@ -1030,7 +1030,7 @@ extension Mandoc {
                 "</div>"
  */
 
-                thisCommand = taggedParagraph(k, kk, lineNo)
+                thisCommand = "<div style=\"margin-top: 0.4em; margin-bottom: 0.4em;\">" + taggedParagraph(k, kk, lineNo) + "</div>"
               } else {
                 thisCommand = "<div style=\"margin-left: \(ind)ch; margin-top: 0.5em;\">" + kk + "</div>"
               }

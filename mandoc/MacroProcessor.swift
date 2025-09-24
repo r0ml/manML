@@ -90,16 +90,20 @@ public class MacroProcessor {
         }
 
       }
-      
+
+      print(line)
+
       guard line.hasPrefix(".") || line.hasPrefix("'") else {
         res.append(line)  // not a macro line
         continue
       }
 
+
       line.removeFirst() // drop the '.'
       line = line.drop { $0.isWhitespace }
 
-      let command = popName(&line)
+      let command = popName(&line, true)
+      if command.isEmpty { continue }
 
       // FIXME: massive kludge to sidestep Tck/Tk man page problems with the malformed prelude they use:
       if bannedMacros.contains(command) {
@@ -229,8 +233,8 @@ public class MacroProcessor {
     return k
   }
 
-  func popName(_ line : inout Substring) -> String {
-    let nam = String(line.prefix { $0.isWhitespace == false && $0 != "\\" && $0 != "{" && $0 != "}" } )
+  func popName(_ line : inout Substring, _ b : Bool = false) -> String {
+    let nam = String(line.prefix { !($0.isWhitespace || (b && $0 == "\\") ) } )
     line = line.dropFirst(nam.count).drop { $0.isWhitespace }
     return nam
   }
@@ -272,14 +276,15 @@ public class MacroProcessor {
     var ifNest = 0
     var output : [Substring] = []
     if !b {
-      let k = line
+      var k = line
       // FIXME: doesnt handle { embedded in strings
       ifNest += k.count { $0 == "{" }
       ifNest -= k.count { $0 == "}" }
 //      print("skip: \(k)")
           // FIXME: instead of using lines.first and nextLine -- need a parser function to read/advance through source
-          while ifNest > 0,
+      while ifNest > 0 || k.last == "\\",
                 let j = source.first {
+        k = j
             ifNest += j.count { $0 == "{" }
             ifNest -= j.count { $0 == "}" }
 //            print("skip: \(lines.first!)")

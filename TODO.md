@@ -51,3 +51,6 @@
 - 3 add_wch : uses tbl processor
 - 3 Algorithm::Annotate -- Perl documentation
 - 3 aliased -- tricky Perl  -- the definition .ds #H ...  was the problem
+- 3 Apache2::Access -- Perl prelude
+- 3 Apache2::CmdParms, Apache2::Command
+

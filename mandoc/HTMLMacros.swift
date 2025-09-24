@@ -28,12 +28,24 @@ extension Mandoc {
     } else {
       tit = String(title)
     }
+    /*
     return """
 <div style="margin-left: -40px">
 <div style="float: left">\(mm)</div>
 <div style="float: right">\(mm)</div>
 <div style="margin: 0 auto; width: 100%; text-align: center;">\(tit)</div>
 </div>
+"""
+*/
+
+    return """
+<table style="width: calc(100% + 40px); margin-left: -40px; margin-right: 0;">
+<tr>
+<td>\(mm)</td>
+<td style="text-align: center;">\(tit)</td>
+<td style="text-align: right">\(mm)</td>
+</tr>
+</table>
 """
   }
   
