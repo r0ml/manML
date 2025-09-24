@@ -233,9 +233,15 @@ actor Tokenizer {
             }
 
           case "(": // changes to courier if followed by CW
-            if s.hasPrefix("CW") { s.removeFirst(2) }
-            fontStyling.append("pre")
-            res.append("<span class=pre>" )
+            if s.hasPrefix("CW") { s.removeFirst(2)
+              fontStyling.append("pre")
+              res.append("<span class=pre>" )
+            } else if s.hasPrefix("BI") {
+              s.removeFirst(2)
+              fontStyling.append("bold italic")
+              res.append("<span class=\"bold italic\">" )
+            }
+
 
           default:
             break
