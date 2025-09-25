@@ -250,10 +250,18 @@ actor Tokenizer {
           default:
             break
         }
+
+      case "u": // superscript -- until \d
+        return ("<sup>", s)
+      case "d":
+        return ("</sup>", s)
+
       case "s": // font size
         if fontSizing { res.append(contentsOf: "</span>"); fontSizing = false }
-        if let k = s.prefixMatch(of: /[-+]?\d+/),
-           let kk = Int(String(k.output) ) {
+        // FIXME: technically, should use all digits -- but the typesetting for 3 atan2 is badly formed
+        // this kludge makes it work
+        if let k = s.prefixMatch(of: /[-+]?(1\d|\d)/),
+           let kk = Int(String(k.output.0) ) {
           if kk != 0 {
             fontSizing = true
             var fs = 1.0
@@ -265,7 +273,7 @@ actor Tokenizer {
             fontSizing = false
             res = "</span>"
           }
-          s.removeFirst(k.output.count)
+          s.removeFirst(k.output.0.count)
         }
       default:
         res = String(k)

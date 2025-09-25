@@ -91,7 +91,7 @@ public class MacroProcessor {
 
       }
 
-      print(line)
+//      print(line)
 
       guard line.hasPrefix(".") || line.hasPrefix("'") else {
         res.append(line)  // not a macro line

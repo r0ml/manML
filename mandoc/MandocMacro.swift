@@ -262,6 +262,9 @@ extension Mandoc {
             thisCommand.append(thisDelim + span("command", j.value, lineNo) )
           }
           thisDelim = j.closingDelimiter
+          if thisDelim == " " {
+            break
+          }
         }
 
       case "Db": // obsolete and ignored

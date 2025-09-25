@@ -38,19 +38,19 @@ extension Mandoc {
     switch j {
       case "-centered":
         bs.bl = .centered
-        thisCommand = "<blockquote>"
+        thisCommand = "<blockquote class=\"bd-centered\">"
       case "-filled":
         bs.bl = .filled
-        thisCommand = "<blockquote>"
+        thisCommand = "<blockquote class=\"bd-filled\">"
       case "-literal":
         bs.bl = .literal
-        thisCommand = "<blockquote style=\"margin-left: \(width)\">"
+        thisCommand = "<blockquote class=\"bd-literal\" style=\"margin-left: \(width)\">"
       case "-ragged":
         bs.bl = .ragged
-        thisCommand = "<blockquote>"
+        thisCommand = "<blockquote class=\"bd-ragged\">"
       case "-unfilled":
         bs.bl = .unfilled
-        thisCommand = "<blockquote>"
+        thisCommand = "<blockquote class=\"bd-unfilled\">"
       default:
         thisCommand = span("unimplemented", "Bd \(j ?? "")", lineNo)
     }
