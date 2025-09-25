@@ -289,7 +289,8 @@ extension Mandoc {
         nextLine()
         
         let pl = await parseLine(bs, enders: enders)
-        output.append( pl )
+        output.append(contentsOf: pl.value )
+        output.append(contentsOf: pl.closingDelimiter)
       //        output.append("\n")
       } else {
         nextLine()

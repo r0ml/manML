@@ -122,8 +122,10 @@ extension Mandoc {
         let z = await peekToken()
         if z?.value == "-split" { authorSplit = true; let _ = await rest(); break }
         else if z?.value == "-nosplit" { authorSplit = false; let _ = await rest(); break }
+        // FIXME: would be better if the ending delimiter here were outside the span of authorx
         let k = await parseLine(enders: enders, flag: true)
-        thisCommand = span("author", k , lineNo)
+        thisCommand = span("author", k.value , lineNo)
+        thisDelim = k.closingDelimiter
 
       case "Ao": // enclose in angle bracketrs
         thisCommand = "<"
@@ -290,8 +292,8 @@ extension Mandoc {
       case "D1", "Dl": // single indented line
                        //        if let j = macro(&linesSlice, tknz) {
         let j = await parseLine(enders: enders, flag: true)
-        thisCommand = "<blockquote>"+span("", j, lineNo )+"</blockquote>"
-        thisDelim = "\n"
+        thisCommand = "<blockquote>"+span("", j.value, lineNo )+"</blockquote>"
+        thisDelim = j.closingDelimiter
         //        }
 
       case "Do": // enclose block in quotes
@@ -483,7 +485,7 @@ extension Mandoc {
         thisDelim = j.closingDelimiter
 
       case "It":
-        let currentTag = await parseLine(bs, enders: enders, flag: true)
+        let currentTag = await String(parseLine(bs, enders: enders, flag: true).value)
         let (currentDescription, _) = await macroBlock( enders + ["It", "El", "Ed"], bs)
 
         switch bs?.bl {
@@ -493,7 +495,7 @@ extension Mandoc {
             thisCommand.append(#"</div><div style="clear: both;"></div>"#)
 
           case .tag:
-            thisCommand = taggedParagraph(currentTag, currentDescription, lineNo) // "</div></div>"
+            thisCommand = taggedParagraph(String(currentTag), currentDescription, lineNo) // "</div></div>"
           case .item, ._enum, .bullet, .dash:
             thisCommand = "<li>" + currentDescription + "</li>"
           case .hang:
@@ -657,7 +659,9 @@ extension Mandoc {
 
         // Note: technically this should use normal quotes, not typographic quotes
       case "Qq":
-        thisCommand = await "<q>\(parseLine(enders: enders, flag: true))</q>"
+        let j = await parseLine(enders: enders, flag: true)
+        thisCommand = "<q>\(j.value)</q>"
+        thisDelim = j.closingDelimiter
 
       case "Qc":
         let _ = await rest()
@@ -691,7 +695,7 @@ extension Mandoc {
 
         let j = await rest()
         thisCommand = "<a id=\"\(j.value)\"><h4>" + span(nil, j.value, lineNo) + "</h4></a>"
-        inSynopsis = j.value == "SYNOPSIS"
+        inSynopsis = j.value.hasPrefix("SYNOPSIS")
         /*        if inSynopsis {
          let (j, _) = await macroBlock( enders + ["Sh", "SH"])
          thisCommand.append("<div class=synopsis>\(j)</div>")
@@ -751,13 +755,16 @@ extension Mandoc {
 
       case "Tn":
         let j = await parseLine(enders: enders, flag: true)
-        thisCommand = span("small-caps", j, lineNo)
+        thisCommand = span("small-caps", j.value, lineNo)
+        thisDelim = j.closingDelimiter
+
       case "Ux":
         thisCommand = span("os", "UNIX", lineNo)
 
       case "Va":
         let j = await parseLine(enders: enders, flag: true) // rest()
-        thisCommand = span("variable", j, lineNo)
+        thisCommand = span("variable", j.value, lineNo)
+        thisDelim = j.closingDelimiter
 
       case "Vb":
         let _ = await rest()
@@ -768,7 +775,6 @@ extension Mandoc {
 
       case "Vt": // global variable in the SYNOPSIS section, else variable type
         if let j = await next() {
-          //        parseLine(tknz)
           if inSynopsis {
             thisCommand = "<br>"+span("variable", j.value, lineNo)
             thisDelim = "\n"

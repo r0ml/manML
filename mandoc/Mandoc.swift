@@ -125,7 +125,8 @@ class Mandoc : @unchecked Sendable {
       return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)+"\n"
     } else {
       await setz(String(line.dropFirst()))
-      return await parseLine(enders: enders)
+      let j = await parseLine(enders: enders)
+      return j.value + j.closingDelimiter 
     }
   }
 
@@ -239,14 +240,16 @@ extension Mandoc {
   /// parse the remainder of a line contained by the Tokenizer.  This assumes the line needs to be parsed for macro evaluation.
   /// Returns the HTML output as a result of the parsing.
   /// The blockstate is primarily used for lists (to determine if I'm starting a new list item or not -- for example)
-  func parseLine(_ bs : BlockState? = nil, enders: [String], flag: Bool = false) async -> String {
+  func parseLine(_ bs : BlockState? = nil, enders: [String], flag: Bool = false) async -> Token {
     var output = Substring("")
+    var thisDelim = ""
     while let thisCommand = await macro(bs, enders: enders, flag: flag) {
+      output.append(contentsOf: thisDelim)
       output.append(contentsOf: thisCommand.value)
-      output.append(contentsOf: thisCommand.closingDelimiter)
+      thisDelim = thisCommand.closingDelimiter
     }
-    output.append("\n")
-    return String(output)
+//    output.append("\n")
+    return Token(value: output, unsafeValue: output, closingDelimiter: thisDelim+"\n", isMacro: true)
   }
 
 
