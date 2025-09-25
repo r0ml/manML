@@ -35,7 +35,7 @@ h5 { margin-left: -1.5em; margin-bottom: 3px; }
 td { vertical-align: top; }
 code { white-space: pre; }
 blockquote { white-space: pre; margin-top: 0em; margin-bottom: 0em; font-family: "Courier"; margin-left: 2em}
-a.manref { color: darkviolet; background: lightpink; text-decoration: none; }
+a.manref { color: darkviolet; background: lightyellow; text-decoration: none; }
 a.manref:hover { text-decoration: underline; }
 
 .angles::before { content: "<"; }
@@ -44,6 +44,15 @@ a.manref:hover { text-decoration: underline; }
 .author { background-color: lightgray; color: black; font-style: bold; font-family: "Baskerville"; }
 
 .bd-literal { margin-top: 0.5em; margin-bottom: 0.5em; }
+.bd-ragged {
+    text-align: left;     /* ragged-right */
+    text-wrap: pretty;    /* nicer breaks (optional; modern browsers) */
+    hyphens: auto;        /* enable hyphenation if desired */
+    -webkit-hyphens: auto;
+    white-space: normal;
+    -ms-hyphens: auto;
+    font-family: "Times Roman"
+  }
 
 .bibliographic { margin-top: 0.5em; }
 .bold { font-weight: bold; }

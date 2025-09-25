@@ -437,11 +437,11 @@ extension Mandoc {
             sep = ", "
           }
           thisCommand.append(")")
-          if inSynopsis {
-            thisCommand.append("<br/>")
-          } else {
+//          if inSynopsis {
+//            thisDelim = "<br/>"
+//          } else {
             thisCommand.append(jj?.closingDelimiter ?? "")
-          }
+//          }
         }
       case "Fo":
         let j = await rest()
@@ -457,6 +457,7 @@ extension Mandoc {
         thisCommand = // "<br/>" +
         span("function-type", j.value, lineNo)
         if inSynopsis {
+          thisCommand = "<br/>"+thisCommand
           thisDelim = "<br/>"
         } else {
           thisDelim = j.closingDelimiter

@@ -29,6 +29,9 @@ public class MacroProcessor {
     "Ket" : "]",
     "Lq" : "&ldquo;",
     "Rq" : "&rdquo;",
+    "Fn-font": "\\c[function-name]",
+    "No-font": "\\c[]",
+
 //    "Aq" : "&lt;...&rt;",  // The value of Aq alternates between < and > -- so I don't know that I can implement this one.
   ]
 

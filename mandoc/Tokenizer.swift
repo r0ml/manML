@@ -188,6 +188,17 @@ actor Tokenizer {
           }
           res.append("<span style=\"color: \(cc);\">")
         }
+      case "c":
+        if s.first == "[" {
+          let j = s.prefix { $0 != "]" }
+          s.removeFirst(j.count + 1)
+          if j.isEmpty {
+            res.append( "</span>")
+          } else {
+            res.append("<span class=\"(j)\">")
+          }
+        }
+
       case "f":   // font style
         let m = s.isEmpty ? nil : s.removeFirst()
         switch m {
