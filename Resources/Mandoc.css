@@ -41,7 +41,7 @@ a.manref:hover { text-decoration: underline; }
 .angles::before { content: "<"; }
 .angles::after { content: ">"; }
 .argument { font-style: italic; color: purple; }
-.author { background-color: lightgray; color: black; font-style: bold; font-family: "Baskerville"; }
+.author { background-color: #ececec; color: black; font-style: bold; font-family: "Baskerville"; }
 
 .bd-literal { margin-top: 0.5em; margin-bottom: 0.5em; }
 .bd-ragged {
@@ -62,6 +62,9 @@ a.manref:hover { text-decoration: underline; }
 .enc { white-space: nowrap; }
 .environment { font: fixedwidth; color: orangered; }
 .error { color: red; font-weight: bold; }
+
+.example { white-space: pre-line; line-height: 0.6em;}
+
 .flag { font-weight: bold; color: purple; }
 .function-arg { font-weight: bold; color: darksalmon; }
 .function-name { font-weight: bold; color: black; }

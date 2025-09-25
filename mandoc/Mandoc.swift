@@ -26,7 +26,8 @@ class Mandoc : @unchecked Sendable {
 
   // ============================
   var inSynopsis = false
-
+  var inExample = false
+  
   var authorSplit = false
 
   // ============================

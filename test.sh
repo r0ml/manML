@@ -4,7 +4,7 @@ cd /Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/share/man/
 cd "man$1"
 
 # for file in "$@"; do
-for file in *; do
+for file in $2*; do
   # Remove the extension (handles filenames with multiple dots by removing only the last part)
   base="${file%.*}"
 

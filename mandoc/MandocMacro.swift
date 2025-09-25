@@ -5,7 +5,8 @@
 import Foundation
 
 let knownLibraries = ["libc" : "Standard C Library",
-                      "libm" : "Math Library"
+                      "libm" : "Math Library",
+                      "libbsm": "Basic Security Module Library",
 ]
 let faDelim = ",&ensp;"
 
@@ -638,8 +639,6 @@ extension Mandoc {
         thisCommand = "("
         thisDelim = thisToken.closingDelimiter
 
-      case "Lp", "Pp":
-        thisCommand = "<p/>"
       case "Pq":
         thisCommand = await restMacro(enders: enders) { self.span("pq", $0, self.lineNo) } // wrap in parens
         /*
@@ -696,6 +695,7 @@ extension Mandoc {
         let j = await rest()
         thisCommand = "<a id=\"\(j.value)\"><h4>" + span(nil, j.value, lineNo) + "</h4></a>"
         inSynopsis = j.value.hasPrefix("SYNOPSIS")
+        inExample = j.value == "EXAMPLE"
         /*        if inSynopsis {
          let (j, _) = await macroBlock( enders + ["Sh", "SH"])
          thisCommand.append("<div class=synopsis>\(j)</div>")
@@ -855,8 +855,12 @@ extension Mandoc {
               if nn != "TP" {
                 thisCommand.append("<div style=\"clear: both;\"></div>")
               }
-            case "P", "PP", "LP":
-              thisCommand = "<p/>"
+            case "P", "PP", "LP", "Pp", "Lp":
+              if inExample {
+                thisCommand = "<p class=\"example\">"
+              } else {
+                thisCommand = "<p/>"
+              }
 
             case "RS":
               let tw = await next()?.value ?? "10"
