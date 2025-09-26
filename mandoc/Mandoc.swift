@@ -32,7 +32,8 @@ class Mandoc : @unchecked Sendable {
 
   // ============================
   var sourceWrapper : SourceWrapper!
-
+  var tagOffset : String = "2ch"
+  
   func setSourceWrapper(_ ap : AppState) async {
     sourceWrapper = ap.manSource
     let mp = MacroProcessor(ap, sourceWrapper.manSource)
@@ -215,7 +216,10 @@ class Mandoc : @unchecked Sendable {
     } else if pp.count >= 1 {
          error = ""
          do {
-           return try (error,readTextSafely(at: pp[0]))
+           let d = try Data(contentsOf: pp[0])
+           // FIXME: this is a kludge for old man files that use LATIN1 without saying so
+           let dd = d.replacing([0xB1], with: [0xC2, 0xB1])
+           return (error, String(decoding: dd, as: UTF8.self))
          } catch(let e) {
            return (e.localizedDescription, "")
          }
@@ -250,7 +254,8 @@ extension Mandoc {
       thisDelim = thisCommand.closingDelimiter
     }
 //    output.append("\n")
-    return Token(value: output, unsafeValue: output, closingDelimiter: thisDelim+"\n", isMacro: true)
+    // FIXME: should thisDelim have \n appended?
+    return Token(value: output, unsafeValue: output, closingDelimiter: thisDelim /* .+"\n" */, isMacro: true)
   }
 
 

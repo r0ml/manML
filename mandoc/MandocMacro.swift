@@ -402,7 +402,8 @@ extension Mandoc {
         }
       case "Fd":
         let j = await rest()
-        thisCommand = await span("directive", Tokenizer.shared.escaped(j.value), lineNo) + "<br/>"
+        thisCommand = await span("directive", Tokenizer.shared.escaped(j.value), lineNo)
+        thisCommand = "<div>"+thisCommand+"</div>"
         thisDelim = j.closingDelimiter
 
       case "Fl":
@@ -460,8 +461,8 @@ extension Mandoc {
         thisCommand = // "<br/>" +
         span("function-type", j.value, lineNo)
         if inSynopsis {
-          thisCommand = "<br/>"+thisCommand
-          thisDelim = "<br/>"
+          thisCommand = "<div>"+thisCommand+"</div>"
+          thisDelim = j.closingDelimiter
         } else {
           thisDelim = j.closingDelimiter
         }
@@ -511,7 +512,7 @@ extension Mandoc {
           case .centered:  fallthrough
           case .ragged:    fallthrough
           case .literal:
-            thisCommand = taggedBlock(currentTag, currentDescription, lineNo) // "</div></div>"
+            thisCommand = taggedBlock(currentTag, currentDescription, lineNo, "3em") // "</div></div>"
           default:
             thisCommand = span("unimplemented", "BLError", lineNo)
         }
@@ -836,7 +837,11 @@ extension Mandoc {
 
             case "TP":
               // FIXME: get the indentation from the argument
-              //        let ind = next()?.value ?? "10"
+              var ind = await next()?.value
+              ind?.append(contentsOf: "ch")
+              if let ind {
+                tagOffset = String(ind)
+              }
 
               if atEnd {
                 break
@@ -850,11 +855,14 @@ extension Mandoc {
               }
 
               let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH", "SS", "HP", "LP"] ) // "TP", "PP", "SH"])
-                                                                                              //              print(nn)
-              thisCommand = span("", taggedBlock(currentTag, k, lineNo), lineNo)
+
+              
+              thisCommand = span("", taggedBlock(currentTag, k, lineNo, ind ?? tagOffset), lineNo)
+
               if nn != "TP" {
                 thisCommand.append("<div style=\"clear: both;\"></div>")
               }
+
             case "P", "PP", "LP", "Pp", "Lp":
               if inExample {
                 thisCommand = "<p class=\"example\">"

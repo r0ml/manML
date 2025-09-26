@@ -68,12 +68,15 @@ struct ContentView: View {
 
               let ok = url.startAccessingSecurityScopedResource()
                                  defer { if ok { url.stopAccessingSecurityScopedResource() } }
-              let k = try? String(decoding: Data(contentsOf: url), as: UTF8.self)
-
-              state.handler?.cache(url.path, k ?? "")
-              let fu = URL(string: scheme+"://?"+url.path)!
-              state.doTheLoad(fu)
-              return true
+              if let dd = try? Data(contentsOf: url) {
+                // FIXME: this is a kludge for old man files which use LATIN1 without saying so.
+                let ddd = dd.replacing([0xB1], with: [0xC2, 0xB1])
+                let k = String(decoding: ddd, as: UTF8.self)
+                state.handler?.cache(url.path, k)
+                let fu = URL(string: scheme+"://?"+url.path)!
+                state.doTheLoad(fu)
+                return true
+              }
             }
             return false
           } isTargeted: {

@@ -61,6 +61,7 @@ public class MacroProcessor {
       }
 
       // This replaces defined string
+      // FIXME: change this to look for "\\*" strings and substitute the ones I find, if any.
       for (k,v) in definedString {
         switch k.count {
           case 1: line = Substring(line.replacingOccurrences(of: "\\*\(k)", with: v))
@@ -69,32 +70,7 @@ public class MacroProcessor {
         }
       }
 
-      // FIXME: don't replace defined registers here -- should not be done for .ds -- but then should be done later
-      if false {
-        // This replaces defined registers
-        let drm = /\\\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
-        while true {
-          let mx = line.matches(of: drm)
-
-          if let m = mx.last {
-            if let mm = m.output.multi ?? m.output.double ?? m.output.single {
-              let v = definedRegisters[String(mm)] ?? "0"
-              if let _ = m.output.multi {
-                line.replace(/\\\\n\[(?<multi>[^\]]+)\]/ , with: v )
-              } else if let _ = m.output.double {
-                line.replace(/\\\\n\[(?<double>..)/, with: v)
-              } else if let _ = m.output.single {
-                line.replace(/\\\\n(?<single>[^\(\[])/, with: v)
-              }
-            }
-          } else {
-            break
-          }
-        }
-
-      }
-
-//      print(line)
+ //     print(line)
 
       guard line.hasPrefix(".") || line.hasPrefix("'") else {
         res.append(line)  // not a macro line
@@ -133,6 +109,9 @@ public class MacroProcessor {
         source.replaceSubrange(source.startIndex..<source.startIndex, with: m)
         continue
       }
+
+      replaceRegisters(&line)
+
 
       switch command {
         case "ds":
@@ -237,9 +216,18 @@ public class MacroProcessor {
   }
 
   func popName(_ line : inout Substring, _ b : Bool = false) -> String {
-    let nam = String(line.prefix { !($0.isWhitespace || (b && $0 == "\\") ) } )
-    line = line.dropFirst(nam.count).drop { $0.isWhitespace }
-    return nam
+    if line.starts(with: "\"") {
+      line.removeFirst()
+      let nam = String(line.prefix { $0 != "\"" } )
+      line = line.dropFirst(nam.count + 1)
+      line = line.drop { $0.isWhitespace }
+      return nam
+    } else {
+      let nam = String(line.prefix { !($0.isWhitespace || (b && $0 == "\\") ) } )
+      line = line.dropFirst(nam.count)
+      line = line.drop { $0.isWhitespace }
+      return nam
+    }
   }
 
   func doConditional(_ s : inout Substring) -> Bool {
@@ -320,8 +308,8 @@ public class MacroProcessor {
           ifNest += k.count { $0 == "{" }
           ifNest -= k.count { $0 == "}" }
 //          print("eval: \(k)")
-          if k.hasSuffix("\\}") { k.removeLast(2) }
-          else if k.hasSuffix("}") { k.removeLast() }
+          if ifNest == 0 && k.hasSuffix("\\}") { k.removeLast(2) }
+          else if ifNest == 0 && k.hasSuffix("}") { k.removeLast() }
           output.append(k)
         }
       } else {
@@ -330,4 +318,28 @@ public class MacroProcessor {
     }
     return output
   }
+
+  func replaceRegisters(_ line : inout Substring) {
+      // This replaces defined registers
+      let drm = /\\\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
+      while true {
+        let mx = line.matches(of: drm)
+
+        if let m = mx.last {
+          if let mm = m.output.multi ?? m.output.double ?? m.output.single {
+            let v = definedRegisters[String(mm)] ?? "0"
+            if let _ = m.output.multi {
+              line.replace(/\\\\n\[(?<multi>[^\]]+)\]/ , with: v )
+            } else if let _ = m.output.double {
+              line.replace(/\\\\n\((?<double>..)/, with: v)
+            } else if let _ = m.output.single {
+              line.replace(/\\\\n(?<single>[^\(\[])/, with: v)
+            }
+          }
+        } else {
+          break
+        }
+      }
+
+    }
 }

@@ -13,8 +13,16 @@ extension Mandoc {
     return m
   }
 
-  func taggedBlock(_ tag : String, _ description : any StringProtocol, _ lno : Int) -> String {
-    var m = #"<div class="list-item">"# + span("tag", tag + "&nbsp;", lno)
+  func taggedBlock(_ tag : String, _ description : any StringProtocol, _ lno : Int, _ indx : (any StringProtocol)?) -> String {
+    var ind : String
+    if let indx {
+      ind = String(indx)
+    } else {
+      ind = tagOffset
+    }
+    var m = "<div style=\"--tag-width:\(ind);\" class=\"list-item\">"
+
+    m += span("tag", tag + "&nbsp;", lno)
     m.append(#"<div class="tag-description">"# + description + "</div>")
     m.append(#"</div>"#)
     return m
