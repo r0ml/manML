@@ -1095,8 +1095,8 @@ extension Mandoc {
               thisCommand = "<h5>" + span(nil, j, lineNo) + "</h5>"
 
             case "SM":
-              let _ = await rest() // eat the line
-              if !atEnd {
+              let sm = await Tokenizer.shared.rawRest() // eat the line
+ /*             if !atEnd {
                 let k = peekLine
                 nextLine()
 
@@ -1104,6 +1104,9 @@ extension Mandoc {
                 let ln = lineNo
                 thisCommand = "<span style=\"font-size: 80%;\" x-source=\(ln)>\(j)</span>"
               }
+*/
+              thisCommand = span("small", sm, lineNo)
+              thisDelim = " "
 
             case "TE":
               let _ = await rest()
