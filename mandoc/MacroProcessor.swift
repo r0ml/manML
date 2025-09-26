@@ -316,10 +316,12 @@ public class MacroProcessor {
         j = j.dropFirst(1)
         sk = true
       }
+      if j.hasSuffix("\\") { j.removeLast() }
       if sk {
         ifNest = 1
         if j.hasSuffix("\\}") { j.removeLast(2); ifNest -= 1}
         if j.hasSuffix("}") { j.removeLast(); ifNest -= 1 }
+
         j = Substring(j.trimmingCharacters(in: .whitespaces))
 //        print("eval: \(j)")
         if !j.isEmpty { output.append(j) }

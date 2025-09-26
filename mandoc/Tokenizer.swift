@@ -116,6 +116,9 @@ actor Tokenizer {
       } else if c == ">" {
         res.append(contentsOf: "&gt;")
         s.removeFirst()
+      } else if c == "\"" && s.dropFirst().first == "\"" {
+        res.append(c)
+        s.removeFirst(2)
       } else {
         res.append(c)
         s.removeFirst()
@@ -435,7 +438,7 @@ actor Tokenizer {
     guard !s.isEmpty else { return ("", s) }
     
     if !s.isEmpty {
-      let (res, s) = parseFontControl(s)
+      let (res, s) = parseFontControl(String(ss))
       return (Substring(res), s)
     } else {
       // keep the trailing backslash?
@@ -518,10 +521,16 @@ actor Tokenizer {
               return res
             }
           }
+          if string.hasPrefix("\"\"") {
+            res.0.append("\"")
+            res.1.append("\"")
+            string.removeFirst(2)
+          }
           if string.first == "\\" {
             (k, string) = popEscapedChar(string)
             res.0.append(contentsOf: k)
 // FIXME: need to have popEscapedChar return both kinds
+            res.1.append(contentsOf: k)
           } else {
             k = string.prefix(1)
             if k == " " || k == "\t" { break }
