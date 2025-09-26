@@ -287,6 +287,33 @@ actor Tokenizer {
           return ("<span style=\"margin-left: -0.5em;\">\(j)</span>", s)
         }
 
+      case "h": // move horizontally
+        if s.first == "'" {
+          let arg = popQuote(&s)
+          res = "<span class=backslash-h></span>"
+          return (res, s)
+        } else {
+          fatalError("what to do with \\h not followed by '")
+        }
+      case "L": // draw verticsl line
+        if s.first == "'" {
+          let arg = popQuote(&s)
+          res = "<span class=backslash-L></span>"
+          return (res, s)
+        } else {
+          fatalError("what to do with \\L not followed by '")
+        }
+      case "l":  // draw horizontal line
+        if s.first == "'" {
+          let arg = popQuote(&s)
+          res = "<span class=backslash-l></span>"
+          return (res, s)
+        } else {
+          fatalError("what to do with \\l not followed by '")
+        }
+
+
+
       case "s": // font size
         if fontSizing { res.append(contentsOf: "</span>"); fontSizing = false }
         // FIXME: technically, should use all digits -- but the typesetting for 3 atan2 is badly formed
@@ -345,6 +372,33 @@ actor Tokenizer {
     fontStyling = []
     fontSizing = false
   }
+
+  func popQuote(_ line : inout String) -> String {
+    if line.starts(with: "'") {
+      line.removeFirst()
+      let nam = String(line.prefix { $0 != "'" } )
+      line = String(line.dropFirst(nam.count + 1))
+      return nam
+    } else {
+      fatalError("what to do if popQuote is called with no quote?")
+    }
+  }
+
+  func popName(_ line : inout Substring, _ b : Bool = false) -> String {
+    if line.starts(with: "\"") {
+      line.removeFirst()
+      let nam = String(line.prefix { $0 != "\"" } )
+      line = line.dropFirst(nam.count + 1)
+      line = line.drop { $0.isWhitespace }
+      return nam
+    } else {
+      let nam = String(line.prefix { !($0.isWhitespace || (b && $0 == "\\") ) } )
+      line = line.dropFirst(nam.count)
+      line = line.drop { $0.isWhitespace }
+      return nam
+    }
+  }
+
 
   // return both a safe and unsafe version (unsafe meaning containing HTML special characters in text)
   func popWord() -> (Substring, Substring)? {

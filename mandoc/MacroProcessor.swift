@@ -70,7 +70,7 @@ public class MacroProcessor {
         }
       }
 
- //     print(line)
+      print(line)
 
       guard line.hasPrefix(".") || line.hasPrefix("'") else {
         res.append(line)  // not a macro line
@@ -104,6 +104,7 @@ public class MacroProcessor {
         }
 
         m = Array(coalesceLines(m))
+        m = m.map { $0.replacing("\\\\", with: "\\") }
 
         // Feed the macro replacement back into the source stream
         source.replaceSubrange(source.startIndex..<source.startIndex, with: m)
@@ -172,13 +173,15 @@ public class MacroProcessor {
           }
 
         case "if":
-          let b = doConditional(&line)
+          let j = popName(&line)
+          let b = doConditional(j)
           let m = doIf(b, line)
           source.replaceSubrange(source.startIndex..<source.startIndex, with: m)
           continue
 
         case "ie":
-          let b = doConditional(&line)
+          let j = popName(&line)
+          let b = doConditional(j)
           conditions.append(b)
           let m = doIf(b, line)
           source.replaceSubrange(source.startIndex..<source.startIndex, with: m)
@@ -230,9 +233,17 @@ public class MacroProcessor {
     }
   }
 
-  func doConditional(_ s : inout Substring) -> Bool {
-     let j = popName(&s)
-      switch j {
+  func doConditional(_ s : String) -> Bool {
+    if s.hasPrefix("!") {
+      // FIXME: I presume v is empty after this -- since it was already popped
+      let k = doConditional(String(s.dropFirst()))
+      return !k
+    }
+    if s == "\"\"\"" { return true }
+    if s.hasPrefix("\"") && s.hasSuffix("\"\"") { return false }
+
+
+    switch s.first {
         case "n": // terminal output -- skip this
           return false
         case "t": // typeset output -- skip this
@@ -242,7 +253,7 @@ public class MacroProcessor {
         case "e": // current page is even -- not going to implement this
           return false
         default: // some other test case -- not yet implemented
-          let z = evalCondition(j)
+          let z = evalCondition(s)
           return  z
       }
   }
@@ -286,10 +297,7 @@ public class MacroProcessor {
       let k = line
       var j = k
       var sk = false
-      if k.hasPrefix("\\{\\") {
-        j = j.dropFirst(3)
-        sk = true
-      } else if k.hasPrefix("\\{") {
+      if k.hasPrefix("\\{") {
         j = j.dropFirst(2)
         sk = true
       } else if k.hasPrefix("{") {

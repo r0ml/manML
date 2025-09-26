@@ -251,6 +251,7 @@ extension Mandoc {
       output.append(contentsOf: thisCommand.value)
       thisDelim = thisCommand.closingDelimiter
     }
+    thisDelim.append(" ") // maybe "\n"
     // FIXME: should thisDelim have \n appended?
     return Token(value: output, unsafeValue: output, closingDelimiter: thisDelim, isMacro: true)
   }
