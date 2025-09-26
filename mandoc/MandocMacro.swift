@@ -278,7 +278,7 @@ extension Mandoc {
         thisDelim = thisToken.closingDelimiter
 
       case "Dd": // document date
-        var d = String(await rest().value)
+        var d = await String(Tokenizer.shared.rawRest())
         // This weirdness is for ssh(1)
         let k = "$Mdocdate:"
         if d.hasPrefix(k) {

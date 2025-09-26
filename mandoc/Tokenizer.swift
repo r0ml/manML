@@ -533,6 +533,11 @@ actor Tokenizer {
             res.1.append(contentsOf: k)
           } else {
             k = string.prefix(1)
+
+            if Tokenizer.closingDelimiters.contains(k) && !res.0.isEmpty && !res.1.isEmpty {
+//              print(k)
+              break
+            }
             if k == " " || k == "\t" { break }
             string.removeFirst()
             res.0.append(contentsOf: safify(k) )
