@@ -196,7 +196,7 @@ public class MacroProcessor {
         case "nr": // set number register -- ignored for now
           let j = popName(&line)
           let k = popName(&line)
-          definedRegisters[String(j)] = String(k)
+          definedRegisters[String(j)] = String(evaluateRegisterValue(String(k)))
 
         case "rr": // remove register -- ignored for now because set register is ignored
           let j = popName(&line)
@@ -207,7 +207,17 @@ public class MacroProcessor {
     }
     return res
   }
-  
+
+  func evaluateRegisterValue(_ sx : String) -> Double {
+    var s = Substring(sx)
+    replaceRegisters(&s)
+    if let k = Tokenizer.troffCalcUnits(String(s)) {
+      return k
+    }
+    print(s)
+    return 10
+  }
+
   func definitionBlock() -> [Substring] {
     var k = [Substring]()
     while !source.isEmpty {
@@ -244,18 +254,20 @@ public class MacroProcessor {
 
 
     switch s.first {
-        case "n": // terminal output -- skip this
-          return false
-        case "t": // typeset output -- skip this
-          return true
-        case "o": // current page is odd -- not going to implement this
-          return true
-        case "e": // current page is even -- not going to implement this
-          return false
-        default: // some other test case -- not yet implemented
-          let z = evalCondition(s)
-          return  z
-      }
+      case "n": // terminal output
+        return true
+      case "t": // typeset output
+        return false
+      case "o": // current page is odd -- not going to implement this
+        return false
+      case "g": // groff mode -- not going to implement this
+        return false
+      case "e": // current page is even -- not going to implement this
+        return false
+      default: // some other test case -- not yet implemented
+        let z = evalCondition(s)
+        return  z
+    }
   }
 
   func evalCondition(_ s : any StringProtocol) -> Bool {
@@ -329,7 +341,7 @@ public class MacroProcessor {
 
   func replaceRegisters(_ line : inout Substring) {
       // This replaces defined registers
-      let drm = /\\\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
+      let drm = /\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
       while true {
         let mx = line.matches(of: drm)
 
@@ -337,11 +349,11 @@ public class MacroProcessor {
           if let mm = m.output.multi ?? m.output.double ?? m.output.single {
             let v = definedRegisters[String(mm)] ?? "0"
             if let _ = m.output.multi {
-              line.replace(/\\\\n\[(?<multi>[^\]]+)\]/ , with: v )
+              line.replace(/\\n\[(?<multi>[^\]]+)\]/ , with: v )
             } else if let _ = m.output.double {
-              line.replace(/\\\\n\((?<double>..)/, with: v)
+              line.replace(/\\n\((?<double>..)/, with: v)
             } else if let _ = m.output.single {
-              line.replace(/\\\\n(?<single>[^\(\[])/, with: v)
+              line.replace(/\\n(?<single>[^\(\[])/, with: v)
             }
           }
         } else {
@@ -351,3 +363,49 @@ public class MacroProcessor {
 
     }
 }
+
+
+/*
+ Prefdefined registers:
+
+ Line & Page Geometry
+   •  \n(.l → line length (current maximum line width).
+   •  \n(.i → indent (left margin / how much text is shifted in).
+   •  \n(.o → output line offset (distance from physical left margin of device).
+   •  \n(.p → page length (how tall the page is, in vertical units).
+   •  \n(.v → vertical spacing (current line spacing, usually 1v = baseline skip).
+   •  \n(.d → current vertical place (distance down the page; like “cursor y”).
+
+ ⸻
+
+ Fonts & Size
+   •  \n(.f → current font number.
+   •  \n(.s → current point size (scaled point).
+   •  \n(.u → 1 if spacing is “unitwidth” (constant character width, e.g. CW font).
+
+ ⸻
+
+ Environment state
+   •  \n(.h → current horizontal position (relative to left margin).
+   •  \n(.c → number of characters on current output line so far.
+   •  \n(.k → current output line length in units.
+   •  \n(.n → length of the text stored in register .s (point size).
+
+ ⸻
+
+ Page control
+   •  \n(.t → current page number.
+   •  \n(.b → current vertical base line (used with diversions).
+   •  \n(.z → current font family.
+   •  \n(.y → last vertical line spacing value used.
+
+ ⸻
+
+ Special / less common
+   •  \n(.C → count of lines since last centered line request.
+   •  \n(.P → current page length in machine units.
+   •  \n(.L → line spacing in machine units.
+   •  \n(.H → current horizontal resolution.
+   •  \n(.V → current vertical resolution.
+
+ */

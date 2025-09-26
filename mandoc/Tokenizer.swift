@@ -169,6 +169,7 @@ actor Tokenizer {
   private func parseFontControl(_ sx : String ) -> (String, String) {
     var s = sx
     var res = ""
+
     let k = s.removeFirst()
     switch k {
       case "m":
@@ -287,6 +288,7 @@ actor Tokenizer {
           return ("<span style=\"margin-left: -0.5em;\">\(j)</span>", s)
         }
 
+        // FIXME: can I do all this stuff with an SVG element?
       case "h": // move horizontally
         if s.first == "'" {
           let arg = popQuote(&s)
@@ -339,6 +341,74 @@ actor Tokenizer {
     return (res, s)
   }
 
+  /// Convert a troff unit into CSS pixels (approximate).
+/*  func troffToPx(_ value: Double, unit: String) -> Double {
+      switch unit {
+      case "i": return value * 96.0        // inches → px
+      case "p": return value * (96.0 / 72) // points → px
+      case "n": return value * 8.0         // en, rough
+      case "m": return value * 16.0        // em, rough
+      case "u": return value * 0.22        // basic unit
+      default:  return value               // assume px if no unit
+      }
+  }
+*/
+
+  static func troffCalcUnits(_ s : String) -> Double? {
+    let k = s.last
+    var unit : Double = 1
+    var val = s.dropLast()
+
+    switch k {
+      case "i": unit = 96.0        // inches → px
+      case "p": unit = (96.0 / 72) // points → px
+      case "n": unit = 8.0         // en, rough
+      case "m": unit = 16.0        // em, rough
+      case "u": unit = 0.22        // basic unit
+      default:                // assume px if no unit
+        val = Substring(s)
+    }
+    if let k = Double(val) { return k * unit }
+    // FIXME: what do I do here?
+    return nil
+  }
+
+  /// Convert troff motion/line escapes into an SVG path string.
+  func troffToSvgPath(_ troff: inout String) -> String {
+      var path = ""
+
+
+    // Do I need to do "path = "M0 0" "?
+    
+      // Regex: matches \h'20p' etc.
+      let pattern = /\\([hvHlL])'([^']*)'/
+
+    while let match = troff.prefixMatch(of: pattern) {
+
+      let cmd = match.output.1
+      
+      if let val = Tokenizer.troffCalcUnits(String(match.output.2)) {
+
+        switch cmd {
+          case "h": path += " h\(val)"     // horizontal motion
+          case "v": path += " v\(val)"     // vertical motion
+          case "l": path += " h\(val)"     // horizontal line
+          case "L": path += " v\(val)"     // vertical line
+          case "H": path += " h\(val)"
+          default: break
+        }
+      }
+      troff = String(troff.dropFirst(match.output.0.count))
+    }
+    if path.isEmpty { return "" }
+      return "<svg style=\"position: absolute;\"><path d=\"M0 0 \(path)\" stroke=black fill=none/></svg>"
+  }
+
+//      let path = troffToSvgPath(troff)
+//        <svg width="\(width)" height="\(height)" style="border:1px solid #ccc;">
+//          <path d="\(path)" stroke="black" fill="none"/>
+//        </svg>
+
   private func popEscapedChar(_ sx : String) -> (Substring, String) {
     var s = sx
     let ss = s.dropFirst()
@@ -357,8 +427,13 @@ actor Tokenizer {
       return (Substring(res), s)
     }
 
+
+    var res = troffToSvgPath(&s)
+    if !res.isEmpty { return (Substring(res),s)}
+
     // if it is a font control sequence, parse that
-    s.removeFirst()
+    guard !s.isEmpty else { return ("", s) }
+    
     if !s.isEmpty {
       let (res, s) = parseFontControl(s)
       return (Substring(res), s)
