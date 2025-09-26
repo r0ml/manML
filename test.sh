@@ -10,6 +10,8 @@ for file in $2*; do
 
   open "manml:/$base/$1"
 
+  osascript -e 'tell application "System Events" to key code 48 using command down'
+
   # Wait for any key (or Enter)
   read -k1 -s -r "?."
 done

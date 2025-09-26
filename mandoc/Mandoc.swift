@@ -32,8 +32,8 @@ class Mandoc : @unchecked Sendable {
 
   // ============================
   var sourceWrapper : SourceWrapper!
-  var tagOffset : String = "2ch"
-  
+  var tagOffset : String = "3ch"
+
   func setSourceWrapper(_ ap : AppState) async {
     sourceWrapper = ap.manSource
     let mp = MacroProcessor(ap, sourceWrapper.manSource)
@@ -156,10 +156,8 @@ class Mandoc : @unchecked Sendable {
       mm = "\(m[2]) \(m[1])"
     }
     do {
-      let p = ShellProcess.init("/bin/sh", "-c", "mandoc -T html `man -w \(mm)`", env: ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
+      let p = ShellProcess.init("/bin/sh", "-c", "mandoc -T html `man -w \(mm)`", env: ["MANPATH": (manpath.manpath.map { $0.path }).joined(separator: ":") ])
       let (_ , o, e) = try await p.run()
-
-//     let (_, o, e) = captureStdoutLaunch("mandoc -T html `man -w \(mm)`", "", ["MANPATH": manpath.defaultManpath.joined(separator: ":") ])
 
       error = e!
       return (e!, o!)
@@ -253,9 +251,8 @@ extension Mandoc {
       output.append(contentsOf: thisCommand.value)
       thisDelim = thisCommand.closingDelimiter
     }
-//    output.append("\n")
     // FIXME: should thisDelim have \n appended?
-    return Token(value: output, unsafeValue: output, closingDelimiter: thisDelim /* .+"\n" */, isMacro: true)
+    return Token(value: output, unsafeValue: output, closingDelimiter: thisDelim, isMacro: true)
   }
 
 

@@ -1,11 +1,11 @@
 
 @property --tag-width {
-  initial-value: 2ch;
+  initial-value: 3ch;
   inherits: true;
 }
 
 body {
-  color: darkblue; margin-left: 3em; font: serif; --tag-width: 2ch;
+  color: darkblue; margin-left: 3em; font: serif; --tag-width: 3ch;
 }
 
 br { display: block; margin-top: 0.3em; margin-bottom: 0.3em;}

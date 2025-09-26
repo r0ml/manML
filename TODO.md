@@ -50,3 +50,5 @@
 - 3 add_module_replacement : ENVIRONMENT VARIABLES indent too much (.IP problem)
 - 3 aliased -- tricky Perl  -- the definition .ds #H ...  was the problem
 - 3 ckalloc -- tricky Tcl -- typesetting of ARGUMENTS is wrong.
+
+- 3 endwin -- the 'IP \(bu 4'  should indent the bullets by 4ch

@@ -248,7 +248,7 @@ extension Mandoc {
       var line = peekLine
       if line.isEmpty {
         nextLine();
-//        output.append("<br class=br/>")
+        //        output.append("<br class=br/>")
         output.append("<p/>")
         continue
       }
@@ -268,10 +268,10 @@ extension Mandoc {
       }
       if let cc {
         // FIXME: took this out for debuggery
-//        output.append(contentsOf: "<!-- \(cc) -->")
+        //        output.append(contentsOf: "<!-- \(cc) -->")
       }
 
-      
+
       if line.hasPrefix(".") || line.hasPrefix("'") {
         await setz(String(line.dropFirst()))
         if let pt = await peekToken() {
@@ -283,11 +283,11 @@ extension Mandoc {
         } else {
           await setz("")
           // FIXME: maybe I need this return when enders are empty?
-//          return (output, nil)
+          //          return (output, nil)
         } // if enders.contains("") { break}
 
         nextLine()
-        
+
         let pl = await parseLine(bs, enders: enders)
         output.append(contentsOf: pl.value )
         output.append(contentsOf: pl.closingDelimiter)
@@ -295,7 +295,9 @@ extension Mandoc {
         nextLine()
         await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))
       }
-      if bs?.bl != .literal { output.append("\n") }
+      if bs?.bl == .literal {
+        output.append("\n")
+      }
     }
     return (output, nil)
   }

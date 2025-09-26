@@ -10,10 +10,11 @@ import Foundation
   let key = "manpath"
   let defaultMansect = "1:2:3:4:5:6:7:8:9:n"
 
-  let defaultManpath: [String] = [
+  var defaultManpath: [String] = [
     "/usr/share/man",
     "/usr/local/share/man",
     "/opt/homebrew/share/man",
+    "/opt/homebrew/Cellar",
     "/opt/share/man",
     "/opt/local/share/man",
     "/Library/Developer/CommandLineTools/usr/share/man",
@@ -29,12 +30,17 @@ import Foundation
   // only adjust manpath if already set
 
   var addedManpath : [URL] = []
-  var manpath : [URL] { addedManpath + defaultManpath.map { URL(fileURLWithPath: $0) } }
+  var manpath : [URL] { addedManpath }
   var mansect : [String]?
 
   public init() {
     addedManpath = retrieveSecurityScopedBookmarks()
 
+    defaultManpath = defaultManpath.filter { k in
+      var b = ObjCBool(false)
+      FileManager.default.fileExists(atPath: k, isDirectory: &b)
+      return b.boolValue
+    }
   }
 
   func remove(path: String?) {
@@ -73,7 +79,7 @@ import Foundation
           bookmarkDataIsStale: &isStale
         )
 
-        if isStale /* || defaultManpath.contains(resolvedURL.relativePath) */ {
+        if isStale {
           print("stale: \(urlString)")
           stale.append(urlString)
           //                  print("Bookmark for URL \(urlString) is stale.")

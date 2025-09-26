@@ -79,11 +79,35 @@ struct manMLApp: App {
           openWindow(id: "help")
         }
       }
+      CommandGroup(replacing: .appSettings) {
+          Button("Settings…") {
+            openWindow(id: "app-settings")
+          }
+          .keyboardShortcut(",", modifiers: .command)
+      }
+
     }
+
+    /*/
 
     Settings {
       SettingsView(manpath: appState.manpath)
-    }.windowToolbarStyle(.unified(showsTitle: true))
+    }
+//      .windowResizability(.contentSize)
+   .windowToolbarStyle(.unified(showsTitle: true))
+*/
+
+
+    // Add a custom Preferences window instead
+    Window("Settings", id: "app-settings") {
+      SettingsView(manpath: appState.manpath)
+            .frame(minWidth: 400, maxWidth: 1000, minHeight: 300, maxHeight: 800)
+    }
+    .windowResizability(.contentSize)
+    .defaultPosition(.center)
+    .defaultSize(width: 600, height: 400)
+
+
   }
 
   /// Put your export content logic here.

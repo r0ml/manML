@@ -17,6 +17,7 @@ struct Token {
 actor Tokenizer {
   var fontStyling : [String] = []
   var colorStyling: [String] = []
+  var subscripting = false
   var fontSizing = false
   let initialDefinedString = [
     "`": "&lsquo;",
@@ -70,6 +71,7 @@ actor Tokenizer {
     nextToken = nil
     openingDelimiter = nil
     spacingMode = true
+    subscripting = false
   }
 
   func setMandoc(_ ap : AppState) async {
@@ -263,9 +265,27 @@ actor Tokenizer {
         }
 
       case "u": // superscript -- until \d
-        return ("<sup>", s)
+        if subscripting {
+          subscripting.toggle()
+          return ("</sub>", s)
+        } else {
+          subscripting.toggle()
+          return ("<sup>", s)
+        }
       case "d":
-        return ("</sup>", s)
+        if subscripting {
+          subscripting.toggle()
+          return ("</sup>", s)
+        } else {
+          subscripting.toggle()
+          return ("<sub>", s)
+        }
+
+      case "z":
+        if !s.isEmpty {
+          let j = s.removeFirst() // popEscapedChar("\\"+s)
+          return ("<span style=\"margin-left: -0.5em;\">\(j)</span>", s)
+        }
 
       case "s": // font size
         if fontSizing { res.append(contentsOf: "</span>"); fontSizing = false }
