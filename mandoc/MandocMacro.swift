@@ -562,17 +562,22 @@ extension Mandoc {
         // FIXME: I would like (in SYNOPSIS) to take each macroBlock of .Nm and put it in a hanging indent
         // but figuring out where the hanging lines are is tricky
         var arg : String
-        if let k = await peekToken(), !k.isMacro {
-          if name == nil { name = String(k.value) }
-          arg = String(k.value)
-          thisDelim = k.closingDelimiter
-          let _ = await next()
-        } else {
-          arg = name ?? "??"
-          thisDelim = " "
-        }
-        thisCommand.append(span("utility", arg, lineNo))
+        var kg = true
+        while kg {
+          thisCommand.append(thisDelim)
 
+          if let k = await peekToken(), !k.isMacro {
+            if name == nil { name = String(k.value) }
+            arg = String(k.value)
+            thisDelim = k.closingDelimiter
+          } else {
+            arg = name ?? "??"
+            thisDelim = " "
+            kg = false
+          }
+          let _ = await next()
+          thisCommand.append(span("utility", arg, lineNo))
+        }
       case "Ns":
         return await macro(bs, enders: enders)
 
