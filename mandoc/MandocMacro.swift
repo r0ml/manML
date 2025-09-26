@@ -565,16 +565,16 @@ extension Mandoc {
         var kg = true
         while kg {
           thisCommand.append(thisDelim)
-
-          if let k = await peekToken(), !k.isMacro {
+          let k = await peekToken()
+          if let k, !k.isMacro {
             if name == nil { name = String(k.value) }
             arg = String(k.value)
             thisDelim = k.closingDelimiter
           } else {
             arg = name ?? "??"
             thisDelim = " "
-            kg = false
           }
+          kg = !(k?.isMacro == true || thisDelim.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
           let _ = await next()
           thisCommand.append(span("utility", arg, lineNo))
         }
