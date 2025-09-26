@@ -295,7 +295,7 @@ extension Mandoc {
         nextLine()
         await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))
       }
-      output.append("\n")
+      if bs?.bl != .literal { output.append("\n") }
     }
     return (output, nil)
   }
