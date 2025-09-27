@@ -219,7 +219,7 @@ public class MacroProcessor {
   func evaluateRegisterValue(_ sx : String) -> Double {
     var s = Substring(sx)
     replaceRegisters(&s)
-    if let k = Tokenizer.troffCalcUnits(String(s)) {
+    if let k = troffCalcNumericUnits(String(s)) {
       return k
     }
     print(s)

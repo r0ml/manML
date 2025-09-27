@@ -157,7 +157,7 @@ final class SourceWrapper {
         // FIXME: maybe retry other pp[n] hits if pp[0] fai
         loadManPageFromFile(pp[0])
       }
-      self.error = "not found: \(manx)"
+//      self.error = "not found: \(manx)"
 
     } else if p.scheme == "file" {
       loadManPageFromFile(p)

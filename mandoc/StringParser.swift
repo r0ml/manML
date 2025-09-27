@@ -252,6 +252,43 @@ func parseFontControl<S: RangeReplaceableCollection & StringProtocol>(_ sx : ino
     default:
       res = nil
   }
-  if let res { sx = S(s) }
+  if res != nil { sx = S(s) }
   return res
+}
+
+func troffCalcNumericUnits(_ s : String) -> Double? {
+  let k = s.last
+  var unit : Double = 1
+  var val = s.dropLast()
+
+  switch k {
+    case "i": unit = 96.0        // inches → px
+    case "p": unit = (96.0 / 72) // points → px
+    case "n": unit = 8.0         // en, rough
+    case "m": unit = 16.0        // em, rough
+    case "u": unit = 0.22        // basic unit
+    default:                // assume px if no unit
+      val = Substring(s)
+  }
+  if let k = Double(val) { return k * unit }
+  // FIXME: what do I do here?
+  return nil
+}
+
+func troffCalcHTMLUnits(_ s : String) -> String {
+  let k = s.last
+  var unit = "px"
+  // FIXME: this 5.0 is a global default
+  var val = Double(s.dropLast()) ?? 5.0
+
+  switch k {
+    case "i": unit = "in" // inches
+    case "p": unit = "pt" // points
+    case "n": unit = "ch" // en
+    case "m": unit = "em" // em
+    case "u": unit = "px"; val = 0.22 * val       // basic unit
+    default:                // assume px if no unit
+      break
+  }
+  return "\(val)\(unit)"
 }

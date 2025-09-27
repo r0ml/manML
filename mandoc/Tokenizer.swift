@@ -155,24 +155,6 @@ actor Tokenizer {
   }
 */
 
-  static func troffCalcUnits(_ s : String) -> Double? {
-    let k = s.last
-    var unit : Double = 1
-    var val = s.dropLast()
-
-    switch k {
-      case "i": unit = 96.0        // inches → px
-      case "p": unit = (96.0 / 72) // points → px
-      case "n": unit = 8.0         // en, rough
-      case "m": unit = 16.0        // em, rough
-      case "u": unit = 0.22        // basic unit
-      default:                // assume px if no unit
-        val = Substring(s)
-    }
-    if let k = Double(val) { return k * unit }
-    // FIXME: what do I do here?
-    return nil
-  }
 
   /// Convert troff motion/line escapes into an SVG path string.
   func troffToSvgPath(_ troff: inout String) -> String {
@@ -188,7 +170,7 @@ actor Tokenizer {
 
       let cmd = match.output.1
       
-      if let val = Tokenizer.troffCalcUnits(String(match.output.2)) {
+      if let val = troffCalcNumericUnits(String(match.output.2)) {
 
         switch cmd {
           case "h": path += " h\(val)"     // horizontal motion

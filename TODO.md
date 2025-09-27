@@ -69,5 +69,3 @@
 - 5 pcap-savefile -- there's a tbl which should draw boxes -- doesn't format properly
 
 - is there a race when I try to open a new man page while a previous one is still rendering?
-
-- 5 sudo.conf   the .TP has a non-integer spacing -- uses a unit?

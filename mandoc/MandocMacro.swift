@@ -851,10 +851,9 @@ extension Mandoc {
 
             case "TP":
               // FIXME: get the indentation from the argument
-              var ind = await next()?.value
-              ind?.append(contentsOf: "ch")
-              if let ind {
-                tagOffset = String(ind)
+              var indn = await next()?.value
+              if let indn {
+                tagOffset = troffCalcHTMLUnits(String(indn))
               }
 
               if atEnd {
@@ -871,7 +870,7 @@ extension Mandoc {
               let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH", "SS", "HP", "LP"] ) // "TP", "PP", "SH"])
 
               
-              thisCommand = span("", taggedBlock(currentTag, k, lineNo, ind ?? tagOffset), lineNo)
+              thisCommand = span("", taggedBlock(currentTag, k, lineNo, tagOffset), lineNo)
 
               if nn != "TP" {
                 thisCommand.append("<div style=\"clear: both;\"></div>")

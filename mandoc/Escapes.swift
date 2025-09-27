@@ -468,5 +468,6 @@ let escapeSequences = [
    "~" : "&nbsp;",
    "^" : "&thinsp;", // another thin space
    "%" : "&#8203;", // non-breaking space
+   "0" : "&#8199;"  // digit-width space
 ]
 
