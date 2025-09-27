@@ -44,13 +44,15 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
         // FIXME: when I read the data, I can store the error as well as the contents
         state.error = ""
       } else {
-        var m : String
-        (state.error, m) = await Mandoc.readManFile(u, state.manpath)
+        state.loadManPage(u)
+/*        var m : String
+        (state.error, m) = await Mandoc.readManFile(u, state)
         if !state.error.isEmpty && m.isEmpty {
           state.manSource.manSource = []
           return Data()
         }
         state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
+ */
       }
       if state.manSource.manSource.isEmpty { return Data() }
       var html = await Mandoc.newParse(state)

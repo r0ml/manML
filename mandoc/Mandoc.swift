@@ -195,9 +195,11 @@ class Mandoc : @unchecked Sendable {
     return manu
   }
 
-  static func readManFile(_ manu : URL, _ manpath : Manpath) async -> (String, String) {
+  /*
+  static func readManFile(_ manu : URL, _ state : AppState) async -> (String, String) {
     //    let ad = (NSApp.delegate) as? AppDelegate
     //    let manu = canonicalize(man)
+    let manpath = state.manpath
     let j = manu.pathComponents + ["",""]
     let manx = "\(j[2]) \(j[1])"
     let (pp, defered) = Mandoc.mandocFind( manu, manpath)
@@ -214,8 +216,10 @@ class Mandoc : @unchecked Sendable {
        */
     } else if pp.count >= 1 {
          error = ""
+      // FIXME: maybe retry other pp[n] hits if pp[0] fai
          do {
            let d = try Data(contentsOf: pp[0])
+           state.fileURL = pp[0]
            // FIXME: this is a kludge for old man files that use LATIN1 without saying so
            let dd = d.replacing([0xB1], with: [0xC2, 0xB1])
            return (error, String(decoding: dd, as: UTF8.self))
@@ -225,15 +229,17 @@ class Mandoc : @unchecked Sendable {
        }
     return ("not found: \(manx)", "")
   }
+*/
 
-
+  /*
   static func readTextSafely(at url: URL) throws -> String {
       let handle = try FileHandle(forReadingFrom: url)
       defer { try? handle.close() }
       let data = try handle.readToEnd() ?? Data()
     return String(decoding: data, as: UTF8.self)
   }
-
+*/
+  
 
 }
 

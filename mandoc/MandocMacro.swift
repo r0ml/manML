@@ -955,7 +955,8 @@ extension Mandoc {
               title = "\(name)(\(section))"
               date = String(await next()?.value ?? " ")
               os = String(await next()?.value ?? " ")
-              let h = String(await next()?.value ?? "Unknown" )
+              let ds = Substring(sections[String(section)] ?? "Unknown")
+              let h = String(await next()?.value ?? ds)
               thisCommand = pageHeader(name, section, h ) // + "<br>"
 
             case "HP": // Hanging paragraph.  Argument specifies amount of hang

@@ -39,6 +39,8 @@ final class SourceWrapper {
   var manpath : Manpath = Manpath()
   var sourceLine : Int? = nil
   var lineSource : String = ""
+  var fileURL : URL? = nil
+
   @ObservationIgnored var manSource = SourceWrapper()
 
   var mantext : String = ""
@@ -47,8 +49,6 @@ final class SourceWrapper {
 
   var page : WebPage?
 
-//  var externalURL : URL?
-  
   var canBack : Bool = false
   var canNext : Bool = false
 
@@ -59,20 +59,16 @@ final class SourceWrapper {
   @MainActor func doInTask() {
 
     guard let u = URLScheme(scheme) else {
-        assertionFailure("Couldn't create URLScheme for mymanml")
-        return
+      assertionFailure("Couldn't create URLScheme for mymanml")
+      return
     }
 
     if let _ = handler { print("already registered"); return }
     handler = SchemeHandler(self)
     var config = WebPage.Configuration()
     config.urlSchemeHandlers[u] = handler
-    
+
     config.defaultNavigationPreferences.allowsContentJavaScript = true
-
-
-
-
 
     let ucc = WKUserContentController()
     ucc.add( ClickBridge(
@@ -84,12 +80,12 @@ final class SourceWrapper {
     page = WebPage(configuration: config, navigationDecider: ExternalLinkDecider() )
     page?.isInspectable = true
 
-//    print("====> \(scheme) registered")
+    //    print("====> \(scheme) registered")
   }
 
   @MainActor func doTheLoad(_ url : URL?) {
     if let url {
-    page?.load(url)
+      page?.load(url)
       if let p = page {
         self.mantext = urlToMantext(url)
 
@@ -113,17 +109,17 @@ final class SourceWrapper {
   let myJavascriptString = """
       document.addEventListener('click', function(event) {
         // Example of sending a message to Swift with click details
-
+      
         console.log(event);
-
+      
       // possibly use event.srcElement and look for a parent with an x-source attribute
-
+      
         let efp = document.elementsFromPoint(event.clientX, event.clientY);
-
+      
         console.log(efp);
-
+      
         var jj = -1;
-
+      
         for (var i = 0; i < efp.length; i++) {
       //    console.log(efp[i])
           if (efp[i].hasAttribute("x-source")) {
@@ -136,4 +132,51 @@ final class SourceWrapper {
       }, {'passive':true, 'capture':true} );
       """
 
+  func loadManPage(_ p : URL) {
+
+    if p.scheme == scheme {
+
+      let manpath = self.manpath
+      let j = p.pathComponents + ["",""]
+      let manx = "\(j[2]) \(j[1])"
+      let (pp, defered) = Mandoc.mandocFind( p, manpath)
+      defer {
+        for i in defered { i.stopAccessingSecurityScopedResource() }
+      }
+
+      if pp.count == 0 {
+        self.error = "not found: \(manx)"
+        self.manSource.manSource = []
+
+        /*    } else if pp.count > 1 {
+         error = "multiple found"
+         let a = makeMenu(pp)
+         a.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+         */
+      } else if pp.count >= 1 {
+        // FIXME: maybe retry other pp[n] hits if pp[0] fai
+        loadManPageFromFile(pp[0])
+      }
+      self.error = "not found: \(manx)"
+
+    } else if p.scheme == "file" {
+      loadManPageFromFile(p)
+    }
+  }
+
+  func loadManPageFromFile(_ p : URL) {
+    error = ""
+    do {
+      let d = try Data(contentsOf: p)
+      self.fileURL = p
+      // FIXME: this is a kludge for old man files that use LATIN1 without saying so
+      let dd = d.replacing([0xB1], with: [0xC2, 0xB1])
+      let m = String(decoding: dd, as: UTF8.self)
+      self.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
+    } catch(let e) {
+      self.error = e.localizedDescription
+      self.manSource.manSource = []
+      self.fileURL = nil
+    }
+  }
 }

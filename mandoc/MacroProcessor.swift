@@ -142,36 +142,43 @@ public class MacroProcessor {
 
         case "so":
           // FIXME: this redirection could be pointing to a particular file -- but I turn it into a manpath search
+          var u : URL
+
           let k = line.split(separator: "/").last ?? ""
-          let j = (k.split(separator: ".").map { String($0) })+["", ""]
-          redirects += 1
-          if redirects > 3 {
-            appState.error = "too many redirects"
-            return []
-          }
-
-          if let u = URL(string: "\(scheme):///\(j[0])/\(j[1])") {
-            let (e, mm) = await Mandoc.readManFile( u, appState.manpath)
-            appState.error = e
-            if !e.isEmpty {
-              return []
+          if k.count > 2 {
+            var bb = appState.fileURL?.deletingLastPathComponent().deletingLastPathComponent()
+            if bb?.path.contains("/usr/share/man") == true {
+              bb = URL(filePath: "/usr/share/man")
             }
-            let m = mm.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
-
-            // FIXME: infinite loops can happen here.
-            // if mx == m it is a tight loop.  In theory, it can alternate.  Needs to be fixed.
-            // stick a counter in
-            if appState.manSource.manSource == m {
-              appState.error = "indirection loop detected"
-              return []
-            }
-            appState.manSource.manSource = m
-            self.source = ArraySlice(m)
-            continue
+            u = URL(filePath: String(line), relativeTo: bb).standardizedFileURL
           } else {
-            appState.error = "invalid redirection: \(line)"
-            return []
+            let j = (k.split(separator: ".").map { String($0) })+["", ""]
+            redirects += 1
+            if redirects > 3 {
+              appState.error = "too many redirects"
+              return []
+            }
+
+            if let uu = URL(string: "\(scheme):///\(j[0])/\(j[1])") {
+              u = uu
+            } else {
+              appState.error = "invalid redirection: \(line)"
+              return []
+            }
           }
+
+          /*              // FIXME: infinite loops can happen here.
+                        // if mx == m it is a tight loop.  In theory, it can alternate.  Needs to be fixed.
+                        // stick a counter in
+                        if appState.manSource.manSource == m {
+                          appState.error = "indirection loop detected"
+                          return []
+                        }
+          */
+
+          appState.loadManPage(u)
+          self.source = ArraySlice(appState.manSource.manSource)
+          continue
 
         case "if":
           let j = popName(&line)
