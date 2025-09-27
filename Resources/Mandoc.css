@@ -17,8 +17,8 @@ pre { margin-top: 0.2em; margin-bottom: 0.2em; }
   margin-bottom: 0.5em;
 }
 
-.nf p {
-  margin-block-start: 0;
+.nf > p:first-child {
+  margin-block-start: -1.5em;
   margin-block-end: 0;
 
 }
