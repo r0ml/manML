@@ -22,6 +22,7 @@
 
 - man funzip (excessive whitespace in EXAMPLES)
 
+- sometimes, when .nf or Bd -literal, there is too much whitespace if I append the \n at the end of the line -- hosts.equiv shows the problem with EXAMPLES being turned into pre
 
 - LEGACY mode fails on man jq -- it terminates reading the stdout too soon -- borrow the code from ShellTesting .  Noticed because the BUGS section has an extra final dot in the render.
 
@@ -62,3 +63,5 @@
 - 5 classes.conf: need to change the way escape sequences are processed to support both \(co and \[co]   using the regex from   replaceRegisters
 
 - 5 cryptex -- blows up on tbl processing
+
+- 5 launchd.plist -- has many BL Errors -- I made -ohang = -hang -- but the -ohang doesn't indent the tags.

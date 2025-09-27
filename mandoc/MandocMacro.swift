@@ -878,7 +878,8 @@ extension Mandoc {
               }
 
             case "P", "PP", "LP", "Pp", "Lp":
-              if inExample {
+              // FIXME: This causes as many problems as it solves
+              if false && inExample {
                 thisCommand = "<p class=\"example\">"
               } else {
                 thisCommand = "<p/>"

@@ -39,8 +39,9 @@ class Mandoc : @unchecked Sendable {
     let mp = MacroProcessor(ap, sourceWrapper.manSource)
 //    let ll = coalesceLines(sw.manSource)
 
-      let ll = await mp.preprocess()
-      sourceWrapper.manSource = Array(ll)
+      let lla = await mp.preprocess()
+    let ll = coalesceLines(lla)
+    sourceWrapper.manSource = Array(ll)
       origInput = Array(ll)
       lines = ArraySlice(ll)
   }
@@ -128,7 +129,7 @@ class Mandoc : @unchecked Sendable {
     } else {
       await setz(String(line.dropFirst()))
       let j = await parseLine(enders: enders)
-      return j.value + j.closingDelimiter 
+      return j.value + j.closingDelimiter
     }
   }
 

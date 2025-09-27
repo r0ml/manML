@@ -44,6 +44,10 @@ a.manref:hover { text-decoration: underline; }
 .author { background-color: #ececec; color: black; font-style: bold; font-family: "Baskerville"; }
 
 .bd-literal { margin-top: 0.5em; margin-bottom: 0.5em; }
+.bd-filled {
+  white-space: normal;
+  font-family: "Times Roman";
+}
 .bd-ragged {
     text-align: left;     /* ragged-right */
     text-wrap: pretty;    /* nicer breaks (optional; modern browsers) */

@@ -172,7 +172,7 @@ extension Mandoc {
       case "-enum":
         thisCommand = "<ol style=\"margin-top: 0.5em; \">"
         bs.bl = ._enum
-      case "-hang":
+      case "-hang", "-ohang":
         thisCommand = "<div class=\"hang\" style=\"text-indent: -\(width); padding-left: \(width); --compact: \(isCompact ? 0 : 0.5)em; margin-top: 0.5em \">"
         bs.bl = .hang
       case "-hyphen":
@@ -295,9 +295,10 @@ extension Mandoc {
         nextLine()
         await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))
       }
-      if bs == nil || bs?.bl == .literal {
+      // FIXME: sometimes when this is literal, there are too many carriage returns
+//      if bs == nil || bs?.bl == .literal {
         output.append("\n")
-      }
+//      }
     }
     return (output, nil)
   }
