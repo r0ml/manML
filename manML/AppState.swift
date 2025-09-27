@@ -83,6 +83,29 @@ final class SourceWrapper {
     //    print("====> \(scheme) registered")
   }
 
+
+  @MainActor func doTheLoad(_ item : WebPage.BackForwardList.Item) {
+      page?.load(item)
+      if let p = page {
+        self.mantext = urlToMantext(item.initialURL)
+
+        let events = p.navigations
+        Task {
+          for try await event in events {
+            if event == .finished {
+              try await p.callJavaScript(myJavascriptString)
+
+              canBack = !p.backForwardList.backList.isEmpty
+              canNext = !p.backForwardList.forwardList.isEmpty
+            }
+          }
+        }
+      } else {
+        print("null URL")
+      }
+    }
+
+
   @MainActor func doTheLoad(_ url : URL?) {
     if let url {
       page?.load(url)
@@ -143,7 +166,7 @@ final class SourceWrapper {
       defer {
         for i in defered { i.stopAccessingSecurityScopedResource() }
       }
-
+      self.error = ""
       if pp.count == 0 {
         self.error = "not found: \(manx)"
         self.manSource.manSource = []
@@ -157,15 +180,12 @@ final class SourceWrapper {
         // FIXME: maybe retry other pp[n] hits if pp[0] fai
         loadManPageFromFile(pp[0])
       }
-//      self.error = "not found: \(manx)"
-
     } else if p.scheme == "file" {
       loadManPageFromFile(p)
     }
   }
 
   func loadManPageFromFile(_ p : URL) {
-    error = ""
     do {
       let d = try Data(contentsOf: p)
       self.fileURL = p

@@ -108,16 +108,16 @@ func parseFontControl<S: RangeReplaceableCollection & StringProtocol>(_ sx : ino
     case "f":   // font style
       let m = s.isEmpty ? nil : s.removeFirst()
       switch m {
-        case "B":
+        case "B", "3":
           res = #"<span class="bold">"#
           formatState.fontStyling.append("bold")
-        case "I":
+        case "I", "2":
           res = #"<span class="italic">"#
           formatState.fontStyling.append("italic")
         case "C":
           formatState.fontStyling.append("pre")
           res = "<span class=pre>"
-        case "R": // regular font
+        case "R", "1": // regular font
           var rr = ""
           while formatState.fontStyling.count > 0 {
             rr.append("</span>")
@@ -129,6 +129,8 @@ func parseFontControl<S: RangeReplaceableCollection & StringProtocol>(_ sx : ino
             res = "</span>"
             formatState.fontStyling.removeLast()
           }
+
+          // FIXME: needs to be  "BI" -- which is also "4"
 
         case "[":
           let j = s.prefix { $0 != "]" }

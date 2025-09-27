@@ -58,8 +58,6 @@
 
 ======================================
 
-- 4 domainsid : the redirect is to a specific directory, not a relative directory
-
 - 5 classes.conf: need to change the way escape sequences are processed to support both \(co and \[co]   using the regex from   replaceRegisters
 
 - 5 cryptex -- blows up on tbl processing
@@ -69,3 +67,9 @@
 - 5 pcap-savefile -- there's a tbl which should draw boxes -- doesn't format properly
 
 - is there a race when I try to open a new man page while a previous one is still rendering?
+
+===================================
+
+- 7 operator: Bl -column  isn't implemented.
+
+- 7 UserSelector -- uses \[char46]  which will require special handling => &#46;

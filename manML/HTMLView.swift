@@ -30,6 +30,7 @@ struct HTMLView : View {
   var body : some View {
     if let page = state.page {
       WebView(page)
+        .webViewBackForwardNavigationGestures(.enabled)
         .findNavigator(isPresented: $finding)
         .toolbar {
           ToolbarItem {

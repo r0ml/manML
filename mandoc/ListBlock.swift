@@ -288,16 +288,18 @@ extension Mandoc {
 
         nextLine()
 
-        let pl = await parseLine(bs, enders: enders)
-        output.append(contentsOf: pl.value )
-        output.append(contentsOf: pl.closingDelimiter)
+        if let pl = await parseLine(bs, enders: enders) {
+            output.append(contentsOf: pl.value )
+            output.append(contentsOf: pl.closingDelimiter)
+          output.append("\n")
+      }
       } else {
         nextLine()
         await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))
+        output.append("\n")
       }
       // FIXME: sometimes when this is literal, there are too many carriage returns
 //      if bs == nil || bs?.bl == .literal {
-        output.append("\n")
 //      }
     }
     return (output, nil)

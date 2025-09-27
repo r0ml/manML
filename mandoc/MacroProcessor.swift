@@ -143,15 +143,15 @@ public class MacroProcessor {
         case "so":
           // FIXME: this redirection could be pointing to a particular file -- but I turn it into a manpath search
           var u : URL
-
-          let k = line.split(separator: "/").last ?? ""
-          if k.count > 2 {
+          let kk = line.split(separator: "/")
+          if kk.count > 2 {
             var bb = appState.fileURL?.deletingLastPathComponent().deletingLastPathComponent()
             if bb?.path.contains("/usr/share/man") == true {
               bb = URL(filePath: "/usr/share/man")
             }
             u = URL(filePath: String(line), relativeTo: bb).standardizedFileURL
           } else {
+            let k = kk.last ?? ""
             let j = (k.split(separator: ".").map { String($0) })+["", ""]
             redirects += 1
             if redirects > 3 {

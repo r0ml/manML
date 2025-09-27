@@ -49,13 +49,13 @@ struct ContentView: View {
 
           Button("<") {
             if let previous = state.page?.backForwardList.backList.last {
-              state.doTheLoad(previous.initialURL)
+              state.doTheLoad(previous)
             }
           }.disabled( !state.canBack )
 
           Button(">") {
             if let next = state.page?.backForwardList.forwardList.first {
-              state.doTheLoad(next.initialURL)
+              state.doTheLoad(next)
             }
           }.disabled( !state.canNext )
 
