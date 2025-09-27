@@ -141,6 +141,7 @@ public class MacroProcessor {
           break   // not implemented
 
         case "so":
+          // FIXME: this redirection could be pointing to a particular file -- but I turn it into a manpath search
           let k = line.split(separator: "/").last ?? ""
           let j = (k.split(separator: ".").map { String($0) })+["", ""]
           redirects += 1

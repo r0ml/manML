@@ -61,8 +61,11 @@ let escapeSequences = [
 
    // Legal symbols
    "(co" : "©", // copyright
+   "[co]" : "©", // copyright
    "(rg" : "®", // registered
+   "[rg]" : "®", // registered
    "(tm" : "™", // trademarked
+   "[tm]" : "™", // trademarked
 
    // Punctuation
    "(em": "—", //  em-dash
@@ -465,5 +468,5 @@ let escapeSequences = [
    "~" : "&nbsp;",
    "^" : "&thinsp;", // another thin space
    "%" : "&#8203;", // non-breaking space
-
 ]
+

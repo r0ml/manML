@@ -15,10 +15,8 @@ struct Token {
 
 // Designed to be a singleton reused tokenizer
 actor Tokenizer {
-  var fontStyling : [String] = []
-  var colorStyling: [String] = []
-  var subscripting = false
-  var fontSizing = false
+  var formatState = FormatState()
+
   let initialDefinedString = [
     "`": "&lsquo;",
     "``": "&ldquo;",
@@ -61,9 +59,7 @@ actor Tokenizer {
 
   private func reinit() {
     mandoc = Mandoc()
-    fontStyling = []
-    colorStyling = []
-    fontSizing = false
+    formatState = FormatState()
     definedString = initialDefinedString
     definedMacro = [:]
     string = ""
@@ -71,7 +67,6 @@ actor Tokenizer {
     nextToken = nil
     openingDelimiter = nil
     spacingMode = true
-    subscripting = false
   }
 
   func setMandoc(_ ap : AppState) async {
@@ -107,7 +102,7 @@ actor Tokenizer {
 
     whiler:  while let c = s.first {
       if c == "\\" {
-        var x : Substring
+        var x : any StringProtocol
         (x, s) = popEscapedChar(s)
         res.append(contentsOf: x)
       } else if c == "<" {
@@ -125,223 +120,26 @@ actor Tokenizer {
       }
     }
 
-    if fontSizing { res.append(contentsOf: "</span>") }
+    if formatState.fontSizing { res.append(contentsOf: "</span>") }
     // This gets called and wrapped in a <span> -- so if I try to leave the span open for fonting, it gets closed by the invoking handleLine()
-    for _ in fontStyling { res.append(contentsOf: "</span>") }
-    for _ in colorStyling { res.append(contentsOf: "</span>") }
+    for _ in formatState.fontStyling { res.append(contentsOf: "</span>") }
+    for _ in formatState.colorStyling { res.append(contentsOf: "</span>") }
     return res
   }
 
-  private func popDefinedString(_ sx : String) -> (String, String) {
-    var s = sx.dropFirst(2)
-    guard !s.isEmpty else { return ("", String(s) ) }
-
-    var lookup = String(s.removeFirst())
-
-//  \*x  single char name
-//  \*(xx  double char name
-//  \*[xyz]  multichar name
-
-    if lookup == "(" {
-      lookup = String(s.prefix(2))
-      s = s.dropFirst(2)
-    } else if lookup == "[" {
-      // at this point, I'm looking for a defined string -- but there is no marker for where the string ends.
-      // So we keep trying adding one character at a time until we give up
-      lookup = String(s.prefix { $0 != "]" } )
-      s = s.dropFirst(lookup.count + 1)
-    }
-    if let mx = definedString[lookup] {
-      return (mx, String(s) )
-    } else {
-      return ( "undefined:\(lookup)", String(s) )
-    }
-  }
 
   private func holdovers() -> String {
     var res = ""
-    for i in fontStyling {
+    if formatState.moved {
+      res.append("</span>")
+    }
+    for i in formatState.fontStyling {
       res.append("<span class=\"\(i)\">")
     }
-    for i in colorStyling {
+    for i in formatState.colorStyling {
       res.append("span style=\"color: \(i);\">")
     }
     return res
-  }
-
-  private func parseFontControl(_ sx : String ) -> (String, String) {
-    var s = sx
-    var res = ""
-
-    let k = s.removeFirst()
-    switch k {
-      case "m":
-        guard s.hasPrefix("[") else { return ("\\m", s) }
-        var cc = s.prefix { $0 != "]" }
-        s = String(s.dropFirst(cc.count + 1))
-        cc.removeFirst() // cc is now the color
-        if cc.isEmpty {
-          colorStyling.removeLast()
-          res.append("</span>")
-        } else {
-          // FIXME: should this be append or replace?
-          if colorStyling.isEmpty {
-            colorStyling.append(String(cc))
-          } else {
-            res.append("</span>")
-            colorStyling.removeLast()
-            colorStyling.append(String(cc))
-          }
-          res.append("<span style=\"color: \(cc);\">")
-        }
-      case "c":
-        if s.first == "[" {
-          let j = s.prefix { $0 != "]" }
-          s.removeFirst(j.count + 1)
-          if j.isEmpty {
-            res.append( "</span>")
-          } else {
-            res.append("<span class=\"(j)\">")
-          }
-        }
-
-      case "f":   // font style
-        let m = s.isEmpty ? nil : s.removeFirst()
-        switch m {
-          case "B":
-            res.append( #"<span class="bold">"# )
-            fontStyling.append("bold")
-          case "I":
-            res = #"<span class="italic">"#
-            fontStyling.append("italic")
-          case "R": // regular font
-            while fontStyling.count > 0 {
-              res.append("</span>")
-              fontStyling.removeLast()
-            }
-          case "P":
-            if fontStyling.count > 0 {
-              res.append("</span>")
-              fontStyling.removeLast()
-            }
-
-          case "[":
-            let j = s.prefix { $0 != "]" }
-            s.removeFirst(j.count + 1)
-            switch j.dropFirst() {
-              case "B":
-                fontStyling.append("bold")
-                res.append( #"<span class="bold">"# )
-              case "R":
-                while fontStyling.count > 0 {
-                  fontStyling.removeLast()
-                  res.append("</span>")
-                }
-              case "I":
-                res.append( #"<span class="italic">"# )
-                fontStyling.append("italic")
-              case "P", "":
-                if fontStyling.count > 0 {
-                  fontStyling.removeLast()
-                  res.append("</span>")
-                }
-              default:
-                res = "<span class=\"unimplemented\">unknown font: \(j.dropFirst())</span>"
-            }
-
-          case "(": // changes to courier if followed by CW
-            if s.hasPrefix("CW") { s.removeFirst(2)
-              fontStyling.append("pre")
-              res.append("<span class=pre>" )
-            } else if s.hasPrefix("BI") {
-              s.removeFirst(2)
-              fontStyling.append("bold italic")
-              res.append("<span class=\"bold italic\">" )
-            } else if s.hasPrefix("CI") {
-              s.removeFirst(2)
-              fontStyling.append("courier italic")
-              res.append("<span class=\"courier italic\">")
-            }
-
-
-          default:
-            break
-        }
-
-      case "u": // superscript -- until \d
-        if subscripting {
-          subscripting.toggle()
-          return ("</sub>", s)
-        } else {
-          subscripting.toggle()
-          return ("<sup>", s)
-        }
-      case "d":
-        if subscripting {
-          subscripting.toggle()
-          return ("</sup>", s)
-        } else {
-          subscripting.toggle()
-          return ("<sub>", s)
-        }
-
-      case "z":
-        if !s.isEmpty {
-          let j = s.removeFirst() // popEscapedChar("\\"+s)
-          return ("<span style=\"margin-left: -0.5em;\">\(j)</span>", s)
-        }
-
-        // FIXME: can I do all this stuff with an SVG element?
-      case "h": // move horizontally
-        if s.first == "'" {
-          let arg = popQuote(&s)
-          res = "<span class=backslash-h></span>"
-          return (res, s)
-        } else {
-          fatalError("what to do with \\h not followed by '")
-        }
-      case "L": // draw verticsl line
-        if s.first == "'" {
-          let arg = popQuote(&s)
-          res = "<span class=backslash-L></span>"
-          return (res, s)
-        } else {
-          fatalError("what to do with \\L not followed by '")
-        }
-      case "l":  // draw horizontal line
-        if s.first == "'" {
-          let arg = popQuote(&s)
-          res = "<span class=backslash-l></span>"
-          return (res, s)
-        } else {
-          fatalError("what to do with \\l not followed by '")
-        }
-
-
-
-      case "s": // font size
-        if fontSizing { res.append(contentsOf: "</span>"); fontSizing = false }
-        // FIXME: technically, should use all digits -- but the typesetting for 3 atan2 is badly formed
-        // this kludge makes it work
-        if let k = s.prefixMatch(of: /[-+]?(1\d|\d)/),
-           let kk = Int(String(k.output.0) ) {
-          if kk != 0 {
-            fontSizing = true
-            var fs = 1.0
-            let baseline : Double = 11
-            if kk > 0 { fs = (baseline + fs ) / baseline }
-            else { fs = (baseline - fs ) / baseline }
-            res = "<span style=\"font-size: \(fs)em;\">"
-          } else {
-            fontSizing = false
-            res = "</span>"
-          }
-          s.removeFirst(k.output.0.count)
-        }
-      default:
-        res = String(k)
-    }
-    return (res, s)
   }
 
   /// Convert a troff unit into CSS pixels (approximate).
@@ -412,55 +210,44 @@ actor Tokenizer {
 //          <path d="\(path)" stroke="black" fill="none"/>
 //        </svg>
 
-  private func popEscapedChar(_ sx : String) -> (Substring, String) {
+  private func popEscapedChar(_ sx : String) -> (any StringProtocol, String) {
     var s = sx
-    let ss = s.dropFirst()
 
-    // if this is a predefined character sequence, look it up and return it
-    for (i,j) in escapeSequences {
-      if ss.hasPrefix(i) {
-        s = String(ss.dropFirst(i.count))
-        return (Substring(j), s)
-      }
+    if let j = popEscape(&s) {
+      return (j, s)
     }
 
-    // if it is a defined string, look it up and return it
-    if let k = s.dropFirst().first, k == "*" {
-      let (res, s) = popDefinedString(s)
-      return (Substring(res), s)
+    if let j = popDefinedString(&s, definedString) {
+      return (j, s)
     }
 
-
-    var res = troffToSvgPath(&s)
-    if !res.isEmpty { return (Substring(res),s)}
-
+    if s.hasPrefix("\\\\") {
+      return ("\\", String(s.dropFirst(2)))
+    }
+/*
+ var res = troffToSvgPath(&s)
+    if !res.isEmpty {
+      return (res,s)
+    }
+*/
+    
     // if it is a font control sequence, parse that
     guard !s.isEmpty else { return ("", s) }
-    
-    if !s.isEmpty {
-      let (res, s) = parseFontControl(String(ss))
-      return (Substring(res), s)
-    } else {
-      // keep the trailing backslash?
-      return ("\\", s)
+
+    if let res = parseFontControl(&s, &formatState) {
+      return (res, s)
     }
+
+    return ( mandoc.span("unimplemented", safify(sx.prefix(2)), mandoc.lineNo), String(sx.dropFirst(2)))
+      // keep the trailing backslash?
+  //    return ("\\", s)
+
   }
 
   func reset() {
-    fontStyling = []
-    fontSizing = false
+    formatState = FormatState()
   }
 
-  func popQuote(_ line : inout String) -> String {
-    if line.starts(with: "'") {
-      line.removeFirst()
-      let nam = String(line.prefix { $0 != "'" } )
-      line = String(line.dropFirst(nam.count + 1))
-      return nam
-    } else {
-      fatalError("what to do if popQuote is called with no quote?")
-    }
-  }
 
   func popName(_ line : inout Substring, _ b : Bool = false) -> String {
     if line.starts(with: "\"") {
@@ -510,7 +297,7 @@ actor Tokenizer {
       return (escaped(res.0), res.1)
     } else {
       // for that weird construction: "el\\{\\"
-      var k : Substring
+      var k : any StringProtocol
         while !string.isEmpty {
           if string.hasPrefix("\\{") {
             if res.0.isEmpty {
@@ -534,11 +321,7 @@ actor Tokenizer {
           } else {
             k = string.prefix(1)
 
-            if Tokenizer.closingDelimiters.contains(k) && !res.0.isEmpty && !res.1.isEmpty {
-//              print(k)
-              break
-            }
-            if k == " " || k == "\t" { break }
+            if String(k) == " " || String(k) == "\t" { break }
             string.removeFirst()
             res.0.append(contentsOf: safify(k) )
             res.1.append(contentsOf: k)
@@ -548,9 +331,6 @@ actor Tokenizer {
       }
   }
 
-  func safify(_ s : any StringProtocol) -> String {
-    return CFXMLCreateStringByEscapingEntities(nil, String(s) as CFString, nil) as String
-  }
 
   func next() -> Token? {
     if nextToken != nil {

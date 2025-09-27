@@ -67,7 +67,7 @@ extension Mandoc {
       let cs = line.split(separator: tblsep, omittingEmptySubsequences: false)
       var lay = thisLayout.map { $0 }
       for d in cs {
-        let l = lay.removeFirst()
+        let l = lay.count == 1 ? lay[0] : lay.removeFirst()
         let dd = await span("", Tokenizer.shared.escaped(d), lineNo)
         if let lw = l.width?.myDescription {
             output.append("<td style=\"width:\(lw)\">\(dd)</td>")

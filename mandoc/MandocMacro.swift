@@ -377,9 +377,10 @@ extension Mandoc {
         }
       case "Ev":
         while let j = await nextArg(enders: enders) {
+          thisCommand.append(thisDelim)
           thisCommand.append(span("environment", j.value, lineNo) )
-          thisCommand.append(j.closingDelimiter.replacing(" ", with: "&ensp;"))
-          //          thisDelim = j.closingDelimiter
+//          thisCommand.append(j.closingDelimiter.replacing(" ", with: "&ensp;"))
+          thisDelim = j.closingDelimiter
         }
       case "Ex":
         let _ = await next() // should equal "-std"
@@ -567,9 +568,17 @@ extension Mandoc {
           thisCommand.append(thisDelim)
           let k = await peekToken()
           if let k, !k.isMacro {
+
             if name == nil { name = String(k.value) }
             arg = String(k.value)
-            thisDelim = k.closingDelimiter
+
+            // This is a kludge for 3 feclearexcept
+            if arg.last == "," {
+              thisDelim = ", "
+              arg = String(arg.dropLast())
+            } else {
+              thisDelim = k.closingDelimiter
+            }
           } else {
             arg = name ?? "??"
             thisDelim = " "

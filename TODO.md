@@ -1,10 +1,14 @@
 #  TODO
 
+
 - maybe use "apply" as a screenshot
 - clear the last man search, and restore it after it has finished rendering successfully
 - for all those weird special casings for existing man pages -- have a mode to produce a list of warnings and suggestions to improve quality of man pages.
+- maybe add a toggle to allow trying to render in troff mode instead of nroff mode (even groff)
 
 * the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
+
+- the back button only goes back 1, then cycles
 
 # Bad man source
 
@@ -31,6 +35,8 @@
 
 - man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc)
 
+- 1 xmllint : for \h'-04'...
+
 ====================================
 
 - man 2 chown : too many "<br> s" in SYNOPSIS?
@@ -48,3 +54,11 @@
 - 3 ckalloc -- tricky Tcl -- typesetting of ARGUMENTS is wrong.
 
 - 3 endwin -- the 'IP \(bu 4'  should indent the bullets by 4ch
+
+======================================
+
+- 4 domainsid : the redirect is to a specific directory, not a relative directory
+
+- 5 classes.conf: need to change the way escape sequences are processed to support both \(co and \[co]   using the regex from   replaceRegisters
+
+- 5 cryptex -- blows up on tbl processing
