@@ -69,6 +69,7 @@ let standards = [
 let sections = [ "1" : "General Commands Maual",
                  "2" : "System Calls Manual",
                  "3" : "Library Functions Manual",
+                 "3X": "Miscellaneous Library Functions Manual",
                  "4" : "Special Files and Device Drivers Manual",
                  "5" : "File Formats Manual",
                  "6" : "Games Manual",
