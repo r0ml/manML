@@ -319,7 +319,7 @@ func troffCalcNumericUnits(_ s : String) -> Double? {
 
 func troffCalcHTMLUnits(_ s : String) -> String {
   let k = s.last
-  var unit = "px"
+  var unit = "ch"
   // FIXME: this 5.0 is a global default
   var val = Double(s.dropLast()) ?? 5.0
 
@@ -329,7 +329,7 @@ func troffCalcHTMLUnits(_ s : String) -> String {
     case "n": unit = "ch" // en
     case "m": unit = "em" // em
     case "u": unit = "px"; val = 0.22 * val       // basic unit
-    default:                // assume px if no unit
+    default:                // assume ch if no unit
       break
   }
   return "\(val)\(unit)"
