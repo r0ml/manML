@@ -8,8 +8,6 @@
 
 * the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
 
-- the back button only goes back 1, then cycles
-
 # Bad man source
 
 * man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
@@ -34,7 +32,7 @@
 
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
 
-- man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc)
+- man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc).  Also good for fixing the too-much-whitespace problem
 
 - 1 xmllint : for \h'-04'...
 
@@ -58,8 +56,6 @@
 
 ======================================
 
-- 5 classes.conf: need to change the way escape sequences are processed to support both \(co and \[co]   using the regex from   replaceRegisters
-
 - 5 cryptex -- blows up on tbl processing
 
 - 5 launchd.plist -- has many BL Errors -- I made -ohang = -hang -- but the -ohang doesn't indent the tags.
@@ -71,5 +67,3 @@
 ===================================
 
 - 7 operator: Bl -column  isn't implemented.
-
-- 7 UserSelector -- uses \[char46]  which will require special handling => &#46;

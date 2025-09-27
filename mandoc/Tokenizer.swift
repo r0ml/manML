@@ -195,9 +195,10 @@ actor Tokenizer {
   private func popEscapedChar(_ sx : String) -> (any StringProtocol, String) {
     var s = sx
 
-    if let j = popEscape(&s) {
+/*    if let j = popEscape(&s) {
       return (j, s)
     }
+*/
 
     if let j = popDefinedString(&s, definedString) {
       return (j, s)

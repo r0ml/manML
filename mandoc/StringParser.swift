@@ -7,6 +7,7 @@ func safify(_ s : any StringProtocol) -> String {
   return CFXMLCreateStringByEscapingEntities(nil, String(s) as CFString, nil) as String
 }
 
+/*
 func popEscape<S: RangeReplaceableCollection & StringProtocol>( _ s : inout S) -> String? {
   // if this is a predefined character sequence, look it up and return it
   guard s.first == "\\" else { return nil }
@@ -24,30 +25,69 @@ func popEscape<S: RangeReplaceableCollection & StringProtocol>( _ s : inout S) -
   }
   return nil
 }
+*/
 
 func popDefinedString<S: RangeReplaceableCollection & StringProtocol>(_ sx : inout S, _ definedString : [ String : String] ) -> String? {
-  guard sx.hasPrefix("\\*") else { return nil }
-  var s = sx.dropFirst(2)
-  guard !s.isEmpty else { return nil }
+  guard sx.hasPrefix("\\") else { return nil }
 
-  var lookup = String(s.removeFirst())
-
-//  \*x  single char name
-//  \*(xx  double char name
-//  \*[xyz]  multichar name
-
-  if lookup == "(" {
-    lookup = String(s.prefix(2))
-    sx = S(s.dropFirst(2))
-  } else if lookup == "[" {
-    lookup = String(s.prefix { $0 != "]" } )
-    sx = S(s.dropFirst(lookup.count + 1))
+  let s1 = sx.prefix(2).dropFirst()
+  if let r1 = shortEscapes[String(s1)] {
+    sx.removeFirst(2)
+    return r1
   }
-  if let mx = definedString[lookup] {
-    return mx
-  } else {
-    return "undefined:[\(lookup)]"
+
+  let s2 = sx.prefix(3).dropFirst()
+  if let r2 = escapeAccents[String(s2)] {
+    sx.removeFirst(3)
+    return r2
   }
+
+  let k = sx.dropFirst().first
+  if k == "(" {
+    let s3 = sx.dropFirst(2).prefix(2)
+    if let r3 = builtinStrings[String(s3)] {
+      sx.removeFirst(4)
+      return r3
+    }
+  } else if k == "[" {
+    let s4 = sx.dropFirst(2).prefix { $0 != "]" }
+    if s4.hasPrefix("char") {
+      if let s5 = Int(s4.dropFirst(4)) {
+        sx.removeFirst(3+s4.count)
+        if let j = UnicodeScalar(s5) {
+          return String(j)
+        }
+      }
+    } else {
+      if let r4 = builtinStrings[String(s4)] {
+        sx.removeFirst(3+s4.count)
+        return r4
+      }
+    }
+  } else if k == "*" {
+    var o = 2
+    var n = sx.dropFirst(2).prefix(1)
+      if n == "(" {
+        o = 3
+        n = sx.dropFirst(3).prefix(2)
+      } else if n == "[" {
+        o = 4
+        n = sx.dropFirst(3).prefix { $0 != "]" }
+      }
+    if let r6 = builtinDefinedStrings[String(n)] {
+      sx.removeFirst(o+n.count)
+      return r6
+    } else if let r7 = definedString[String(n)] {
+      sx.removeFirst(o+n.count)
+      return r7
+    }
+  }
+  return nil
+
+  //  \*x  single char name
+  //  \*(xx  double char name
+  //  \*[xyz]  multichar name
+
 }
 
 func popQuoted<S: RangeReplaceableCollection & StringProtocol>(_ sx : inout S) -> String? {
@@ -294,3 +334,30 @@ func troffCalcHTMLUnits(_ s : String) -> String {
   }
   return "\(val)\(unit)"
 }
+
+func replaceRegisters<S: StringProtocol>(_ linex : S, _ definedRegisters: [String: String]) -> String {
+    // This replaces defined registers
+    let drm = /\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
+  var line = String(linex)
+    while true {
+      let mx = line.matches(of: drm)
+
+      if let m = mx.last {
+        if let mm = m.output.multi ?? m.output.double ?? m.output.single {
+          let v = definedRegisters[String(mm)] ?? "0"
+          if let _ = m.output.multi {
+            line.replace(/\\n\[(?<multi>[^\]]+)\]/ , with: v )
+          } else if let _ = m.output.double {
+            line.replace(/\\n\((?<double>..)/, with: v)
+          } else if let _ = m.output.single {
+            line.replace(/\\n(?<single>[^\(\[])/, with: v)
+          }
+        }
+      } else {
+        break
+      }
+    }
+  return line
+
+  }
+

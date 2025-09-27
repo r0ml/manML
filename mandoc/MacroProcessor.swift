@@ -9,31 +9,8 @@ public class MacroProcessor {
    it calculates the indent width and stores/retrieves it from an-margin.
    */
   var definedRegisters : [String : String] = ["an-margin":"0"]
-  var definedString : [String:String]
+  var definedString : [String:String] = [:]
   var definedMacro = [String: [Substring] ]()
-  let initialDefinedString = [
-    "`": "&lsquo;",
-    "``": "&ldquo;",
-    "'" : "&rsquo;",
-    "''" : "&rdquo;",
-    "Gt" : "&gt;",
-    "Lt" : "&lt;",
-    "Le" : "&le;",
-    "Ge" : "&ge;",
-    "Eq" : "=",
-    "Ne" : "&ne;",
-    "Pm" : "&plusmn;",
-    "Am" : "&amp;",
-    "Ba" : "|",
-    "Br" : "[",
-    "Ket" : "]",
-    "Lq" : "&ldquo;",
-    "Rq" : "&rdquo;",
-    "Fn-font": "\\c[function-name]",
-    "No-font": "\\c[]",
-
-//    "Aq" : "&lt;...&rt;",  // The value of Aq alternates between < and > -- so I don't know that I can implement this one.
-  ]
 
   var bannedMacros : Set<String> = [
 //    "BS", "BE", "VS", "VE", "INDENT", "UNINDENT"
@@ -43,7 +20,6 @@ public class MacroProcessor {
   var redirects = 0
 
   public init(_ ap : AppState, _ source : [Substring]) {
-    definedString = initialDefinedString
     appState = ap
     self.source = ArraySlice(source)
   }
@@ -111,7 +87,7 @@ public class MacroProcessor {
         continue
       }
 
-      replaceRegisters(&line)
+      line = Substring(replaceRegisters(line, definedRegisters))
 
 
       switch command {
@@ -217,8 +193,8 @@ public class MacroProcessor {
   }
 
   func evaluateRegisterValue(_ sx : String) -> Double {
-    var s = Substring(sx)
-    replaceRegisters(&s)
+    var s = sx
+    s = replaceRegisters(s, definedRegisters)
     if let k = troffCalcNumericUnits(String(s)) {
       return k
     }
@@ -349,29 +325,6 @@ public class MacroProcessor {
     return output
   }
 
-  func replaceRegisters(_ line : inout Substring) {
-      // This replaces defined registers
-      let drm = /\\n(?:\[(?<multi>[^\]]+)\]|\((?<double>..)|(?<single>[^\(\[]))/
-      while true {
-        let mx = line.matches(of: drm)
-
-        if let m = mx.last {
-          if let mm = m.output.multi ?? m.output.double ?? m.output.single {
-            let v = definedRegisters[String(mm)] ?? "0"
-            if let _ = m.output.multi {
-              line.replace(/\\n\[(?<multi>[^\]]+)\]/ , with: v )
-            } else if let _ = m.output.double {
-              line.replace(/\\n\((?<double>..)/, with: v)
-            } else if let _ = m.output.single {
-              line.replace(/\\n(?<single>[^\(\[])/, with: v)
-            }
-          }
-        } else {
-          break
-        }
-      }
-
-    }
 }
 
 
