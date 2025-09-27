@@ -65,3 +65,7 @@
 - 5 cryptex -- blows up on tbl processing
 
 - 5 launchd.plist -- has many BL Errors -- I made -ohang = -hang -- but the -ohang doesn't indent the tags.
+
+- 5 pcap-savefile -- there's a tbl which should draw boxes -- doesn't format properly
+
+- is there a race when I try to open a new man page while a previous one is still rendering?

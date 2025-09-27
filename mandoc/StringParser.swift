@@ -114,6 +114,9 @@ func parseFontControl<S: RangeReplaceableCollection & StringProtocol>(_ sx : ino
         case "I":
           res = #"<span class="italic">"#
           formatState.fontStyling.append("italic")
+        case "C":
+          formatState.fontStyling.append("pre")
+          res = "<span class=pre>"
         case "R": // regular font
           var rr = ""
           while formatState.fontStyling.count > 0 {
