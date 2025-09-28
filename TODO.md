@@ -54,6 +54,7 @@
 
 - 3 endwin -- the 'IP \(bu 4'  should indent the bullets by 4ch
 
+- 3 exec is a mess -- I need to sort out the .Nm, .Fo, .Fc, and .Ft mess.
 ======================================
 
 - 5 cryptex -- blows up on tbl processing

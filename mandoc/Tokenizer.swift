@@ -436,8 +436,8 @@ actor Tokenizer {
   }
 
 
-  func rawRest() -> Substring {
-    let res = (nextToken?.unsafeValue ?? nextWord?.1 ?? "") + string
+  func rawRest() -> String {
+    let res = (nextToken?.unsafeValue ?? "") +  (nextToken?.closingDelimiter ?? "") + (nextWord?.1 ?? "") + string
     string = ""
     nextWord = nil
     nextToken = nil

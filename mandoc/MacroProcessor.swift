@@ -10,43 +10,41 @@ public class MacroProcessor {
    */
   var definedRegisters : [String : String] = ["an-margin":"0"]
   var definedString : [String:String] = [:]
-  var definedMacro = [String: [Substring] ]()
+  var definedMacro = [String: Array<String> ]()
 
   var bannedMacros : Set<String> = [
 //    "BS", "BE", "VS", "VE", "INDENT", "UNINDENT"
   ]
-  var source : ArraySlice<Substring>
+  var source : ArraySlice<String>
   var appState : AppState
   var redirects = 0
 
-  public init(_ ap : AppState, _ source : [Substring]) {
+  public init(_ ap : AppState, _ source : [String]) {
     appState = ap
     self.source = ArraySlice(source)
   }
 
-  public func preprocess() async -> [Substring] {
-    var res : [Substring] = []
+  public func preprocess() async -> [String] {
+    var res : [String] = []
     while !source.isEmpty {
       var line = source.removeFirst()
-      if line.hasPrefix(".\\\"") || line.hasPrefix("'.\\\"") || line.hasPrefix("./\"") {
+      if isCommentLine(line) {
         continue // skip comment lines
       }
-      if let k = line.firstMatch(of: /\\\"/) {
-        let _ = String(line.suffix(from: k.endIndex)) // the comment
-        line = line.prefix(upTo: k.startIndex) // trailing comment removed
-      }
 
+      line = stripComment(line)
+      
       // This replaces defined string
       // FIXME: change this to look for "\\*" strings and substitute the ones I find, if any.
       for (k,v) in definedString {
         switch k.count {
-          case 1: line = Substring(line.replacingOccurrences(of: "\\*\(k)", with: v))
-          case 2: line = Substring(line.replacingOccurrences(of: "\\*(\(k)", with: v))
-          default: line = Substring(line.replacingOccurrences(of: "\\*[\(k)]", with: v))
+          case 1: line = line.replacingOccurrences(of: "\\*\(k)", with: v)
+          case 2: line = line.replacingOccurrences(of: "\\*(\(k)", with: v)
+          default: line = line.replacingOccurrences(of: "\\*[\(k)]", with: v)
         }
       }
 
-      print(line)
+//      print(line)
 
       guard line.hasPrefix(".") || line.hasPrefix("'") else {
         res.append(line)  // not a macro line
@@ -55,7 +53,7 @@ public class MacroProcessor {
 
 
       line.removeFirst() // drop the '.'
-      line = line.drop { $0.isWhitespace }
+      line = String(line.drop { $0.isWhitespace })
 
       let command = popName(&line, true)
       if command.isEmpty { continue }
@@ -79,7 +77,7 @@ public class MacroProcessor {
           }
         }
 
-        m = Array(coalesceLines(m))
+        m = coalesceLines(m)
         m = m.map { $0.replacing("\\\\", with: "\\") }
 
         // Feed the macro replacement back into the source stream
@@ -87,7 +85,7 @@ public class MacroProcessor {
         continue
       }
 
-      line = Substring(replaceRegisters(line, definedRegisters))
+      line = replaceRegisters(line, definedRegisters)
 
 
       switch command {
@@ -202,27 +200,27 @@ public class MacroProcessor {
     return 10
   }
 
-  func definitionBlock() -> [Substring] {
-    var k = [Substring]()
+  func definitionBlock() -> [String] {
+    var k = [String]()
     while !source.isEmpty {
       let line = source.removeFirst()
       if line == ".." { break }
-      k.append(line)
+      k.append(String(line))
     }
     return k
   }
 
-  func popName(_ line : inout Substring, _ b : Bool = false) -> String {
+  func popName(_ line : inout String, _ b : Bool = false) -> String {
     if line.starts(with: "\"") {
       line.removeFirst()
       let nam = String(line.prefix { $0 != "\"" } )
-      line = line.dropFirst(nam.count + 1)
-      line = line.drop { $0.isWhitespace }
+      line = String(line.dropFirst(nam.count + 1))
+      line = String(line.drop { $0.isWhitespace })
       return nam
     } else {
       let nam = String(line.prefix { !($0.isWhitespace || (b && $0 == "\\") ) } )
-      line = line.dropFirst(nam.count)
-      line = line.drop { $0.isWhitespace }
+      line = String(line.dropFirst(nam.count))
+      line = String(line.drop { $0.isWhitespace })
       return nam
     }
   }
@@ -270,9 +268,9 @@ public class MacroProcessor {
     return false
   }
 
-  func doIf(_ b : Bool, _ line : Substring) -> [Substring] {
+  func doIf(_ b : Bool, _ line : String) -> [String] {
     var ifNest = 0
-    var output : [Substring] = []
+    var output : [String] = []
     if !b {
       var k = line
       // FIXME: doesnt handle { embedded in strings
@@ -294,10 +292,10 @@ public class MacroProcessor {
       var j = k
       var sk = false
       if k.hasPrefix("\\{") {
-        j = j.dropFirst(2)
+        j = String(j.dropFirst(2))
         sk = true
       } else if k.hasPrefix("{") {
-        j = j.dropFirst(1)
+        j = String(j.dropFirst(1))
         sk = true
       }
       if j.hasSuffix("\\") { j.removeLast() }
@@ -306,7 +304,7 @@ public class MacroProcessor {
         if j.hasSuffix("\\}") { j.removeLast(2); ifNest -= 1}
         if j.hasSuffix("}") { j.removeLast(); ifNest -= 1 }
 
-        j = Substring(j.trimmingCharacters(in: .whitespaces))
+        j = j.trimmingCharacters(in: .whitespaces)
 //        print("eval: \(j)")
         if !j.isEmpty { output.append(j) }
         while ifNest > 0, !source.isEmpty {

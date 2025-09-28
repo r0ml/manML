@@ -121,13 +121,14 @@ extension Mandoc {
 
       case "An": // Author name
         let z = await peekToken()
-        if z?.value == "-split" { authorSplit = true; let _ = await rest(); break }
-        else if z?.value == "-nosplit" { authorSplit = false; let _ = await rest(); break }
+        var authorSplit = false
+        if z?.value == "-split" { authorSplit = true; let _ = await next()  }
+        else if z?.value == "-nosplit" { authorSplit = false; let _ = await next() }
         // FIXME: would be better if the ending delimiter here were outside the span of authorx
-        if let k = await parseLine(enders: enders, flag: true) {
-          thisCommand = span("author", k.value , lineNo)
-          thisDelim = k.closingDelimiter
-        }
+        let k = await Tokenizer.shared.rawRest()  // parseLine(enders: enders, flag: true) {
+          thisCommand = span("author", k , lineNo)
+        if authorSplit { thisCommand = "<div>\(thisCommand)</div>" }
+          thisDelim = " "
 
       case "Ao": // enclose in angle bracketrs
         thisCommand = "<"
@@ -557,9 +558,10 @@ extension Mandoc {
 
       case "Nm":
 
-        if inSynopsis && bs?.bl == nil {
+ /*       if inSynopsis && bs?.bl == nil {
           thisCommand.append("<br>")
         }
+*/
 
         // FIXME: I would like (in SYNOPSIS) to take each macroBlock of .Nm and put it in a hanging indent
         // but figuring out where the hanging lines are is tricky
@@ -588,6 +590,10 @@ extension Mandoc {
           let _ = await next()
           thisCommand.append(span("utility", arg, lineNo))
         }
+        if inSynopsis && bs?.bl == nil {
+          thisCommand = "<div>\(thisCommand)</div>"
+        }
+
       case "Ns":
         return await macro(bs, enders: enders)
 

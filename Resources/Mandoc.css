@@ -59,6 +59,8 @@ a.manref:hover { text-decoration: underline; }
   }
 
 .bibliographic { margin-top: 0.5em; }
+.block-display { display: inline-block }
+
 .bold { font-weight: bold; }
 .command { font-weight: bold; color: purple; }
 .defined-variable { color: green; font-weight: bold; font-style: italic; }

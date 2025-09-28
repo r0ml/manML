@@ -7,8 +7,6 @@ import AppKit
 // FIXME: I'm not really Sendable
 class Mandoc : @unchecked Sendable {
 
-  private var origInput : [Substring] = []
-  //  private var input : String = ""
   var date : String?
   var title : String?
   var os : String = ""
@@ -18,17 +16,13 @@ class Mandoc : @unchecked Sendable {
 
   // ============================
 
-  var lines : ArraySlice<Substring> = []
-
+  var lines : ArraySlice<String> = []
   var rsState : RsState?
-
   var relativeStart : [Int] = []
 
   // ============================
   var inSynopsis = false
   var inExample = false
-  
-  var authorSplit = false
 
   // ============================
   var sourceWrapper : SourceWrapper!
@@ -42,7 +36,6 @@ class Mandoc : @unchecked Sendable {
       let lla = await mp.preprocess()
     let ll = coalesceLines(lla)
     sourceWrapper.manSource = Array(ll)
-      origInput = Array(ll)
       lines = ArraySlice(ll)
   }
 
@@ -61,37 +54,14 @@ class Mandoc : @unchecked Sendable {
 
     while !lines.isEmpty {
       var line = String(lines.first!)
-
-
-      /*      if line.isEmpty {
-       output.append("<br>")
-       lines.removeFirst()
-       continue
-       }
-       */
-
-      if line.hasPrefix(".\\\"") || line.hasPrefix("./\"") {
+      if isCommentLine(line) {
         output.append(commentBlock())
         if lines.isEmpty { return output }
         line = String(lines.first!)
       }
-
-      var cc : String? = nil
-      if let k = line.firstMatch(of: /\\\"/) {
-        cc = String(line.suffix(from: k.endIndex))
-        line = String(line.prefix(upTo: k.startIndex))
-      }
-
+      line = stripComment(line)
       lines.removeFirst()
-
-      await output.append(handleLine(Substring(line), enders: []))
-
-      if let cc {
-        // FIXME: took this out for debuggery
-//        output.append( "<!-- \(cc) -->")
-      }
-      output.append("\n")
-
+      await output.append(handleLine(line, enders: []))
     }
     return output
   }
@@ -118,11 +88,11 @@ class Mandoc : @unchecked Sendable {
   }
 
 
-  func handleLine( _ line : Substring, enders: [String]) async -> String {
+  func handleLine( _ line : String, enders: [String]) async -> String {
     if line.isEmpty {
       // FIXME: perhaps this should just be return "" ?
       return "<p/>\n"
-    } else if line.hasPrefix(".\\\"") || line.hasPrefix("'/\"") {
+    } else if isCommentLine(line) {
       return "<!-- \(line.dropFirst(3)) -->\n"
     } else if line.first != "." && line.first != "'" {
       return await span("body", String(Tokenizer.shared.escaped(line)), lineNo)+"\n"
@@ -289,11 +259,11 @@ extension Mandoc {
     return lines.isEmpty
   }
 
-  var peekLine : Substring {
+  var peekLine : String {
     return lines.first!
   }
 
-  func getLines() -> ArraySlice<Substring> {
+  func getLines() -> ArraySlice<String> {
     return lines
   }
 

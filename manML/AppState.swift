@@ -26,9 +26,9 @@ final class ExternalLinkDecider: WebPage.NavigationDeciding {
 }
 
 final class SourceWrapper {
-  var manSource : [Substring]
+  var manSource : [String]
 
-  init(_ x : [Substring] = []) {
+  init(_ x : [String] = []) {
     manSource = x
   }
 }
@@ -192,7 +192,7 @@ final class SourceWrapper {
       // FIXME: this is a kludge for old man files that use LATIN1 without saying so
       let dd = d.replacing([0xB1], with: [0xC2, 0xB1])
       let m = String(decoding: dd, as: UTF8.self)
-      self.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
+      self.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline).map { String($0) }
     } catch(let e) {
       self.error = e.localizedDescription
       self.manSource.manSource = []

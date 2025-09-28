@@ -253,24 +253,15 @@ extension Mandoc {
         continue
       }
 
-      if line.hasPrefix(".\\\"") || line.hasPrefix("./\"") {
+      if isCommentLine(line) {
         // FIXME: took this out for debuggery
         // output.append(commentBlock())
         if lines.isEmpty { return (output, nil) }
         line = peekLine
       }
 
-      var cc : String? = nil
-      if let k = line.firstMatch(of: /\\\"/) {
-        cc = String(line.suffix(from: k.endIndex))
-        line = line.prefix(upTo: k.startIndex)
+        line = stripComment(line)
         await setz(String(line.dropFirst()))
-      }
-      if let cc {
-        // FIXME: took this out for debuggery
-        //        output.append(contentsOf: "<!-- \(cc) -->")
-      }
-
 
       if line.hasPrefix(".") || line.hasPrefix("'") {
         await setz(String(line.dropFirst()))
@@ -310,7 +301,7 @@ extension Mandoc {
     
     while !lines.isEmpty {
       let line = lines.first!
-      if line.hasPrefix(".\\\"") || line.hasPrefix("./\"") {
+      if isCommentLine(line) {
         lines.removeFirst()
         output.append( contentsOf: line.dropFirst(3) )
         output.append("\n")
@@ -322,33 +313,6 @@ extension Mandoc {
     return "<!--" + output + "-->"
   }
 
-  // coalesce lines which end with a "\\"
-  func popNextLine() -> Substring {
-    var k = lines.removeFirst()
-    while k.hasSuffix("\\") {
-      k.removeLast()
-      if lines.isEmpty { break }
-      k.append(contentsOf: lines.removeFirst())
-    }
-    return k
-  }
-
 }
 
-
-func coalesceLines(_ a : Array<Substring>) -> ArraySlice<Substring> {
-  var res = ArraySlice<Substring>()
-  var ll = Substring("")
-  for i in a {
-    if i.hasSuffix("\\") {
-      ll.append(contentsOf: i.dropLast())
-      continue
-    } else {
-      ll.append(contentsOf: i)
-      res.append(ll)
-      ll = ""
-    }
-  }
-  return res
-}
 

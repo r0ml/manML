@@ -40,7 +40,7 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
     } else {
       if u.path.isEmpty {
         let m = SchemeHandler.fileData[u.query() ?? ""] ?? ""
-        state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline)
+        state.manSource.manSource = m.split(omittingEmptySubsequences: false,  whereSeparator: \.isNewline).map { String($0) }
         // FIXME: when I read the data, I can store the error as well as the contents
         state.error = ""
       } else {

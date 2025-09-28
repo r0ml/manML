@@ -361,3 +361,30 @@ func replaceRegisters<S: StringProtocol>(_ linex : S, _ definedRegisters: [Strin
 
   }
 
+func coalesceLines<S: StringProtocol>(_ a : Array<S>) -> Array<String> {
+  var res = Array<String>()
+  var ll = ""
+  for i in a {
+    if i.hasSuffix("\\") {
+      ll.append(contentsOf: i.dropLast())
+      continue
+    } else {
+      ll.append(contentsOf: i)
+      res.append(ll)
+      ll = ""
+    }
+  }
+  return res
+}
+
+func isCommentLine(_ s : any StringProtocol) -> Bool {
+   return s.hasPrefix(".\\\"") || s.hasPrefix("'.\\\"") || s.hasPrefix("./\"")
+}
+
+func stripComment(_ line : String) -> String {
+  if let k = line.firstMatch(of: /\\\"/) {
+    let _ = String(line.suffix(from: k.endIndex)) // the comment
+    return String(line.prefix(upTo: k.startIndex)) // trailing comment removed
+  }
+  return line
+}

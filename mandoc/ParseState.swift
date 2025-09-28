@@ -20,6 +20,7 @@ class RsState {
   var uri : String? // %U URI of reference document
   var volume : String? // %Volume number
 
+  // FIXME: change this so that the individual components (%A, %D, etc.) have line numbers from where they were set
   func formatted(_ m : Mandoc, _ lno : Int) -> String {
     var output = ""
     let separator = ",&ensp;"
