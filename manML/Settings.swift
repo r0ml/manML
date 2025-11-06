@@ -59,11 +59,13 @@ struct SettingsView : View {
               VStack(alignment: .leading) {
                 ForEach(unopened, id: \.self) { k in
                   Text(k)
-                    .onTapGesture { _ in openDirectoryPanel(k) }
+                    .onTapGesture { _ in
+                      Task { self.whichDir = k }
+                      openDirectoryPanel(k)
+                    }
                     .background(
                       GeometryReader { geo in
-                        Color.clear
-                          .onAppear {
+                          hilit(k).onAppear {
                             if self.rowHeight == nil || self.rowHeight! < geo.size.height {
                               self.rowHeight = geo.size.height
                             }
@@ -81,6 +83,10 @@ struct SettingsView : View {
       }
     }
 
+  }
+
+  func hilit( _ k : String?) -> some View {
+    return self.whichDir == k ? Color.blue : Color.clear
   }
 
   /// compares two URLs to see if they are the same.  Should work if one or the other is a symbolic link
