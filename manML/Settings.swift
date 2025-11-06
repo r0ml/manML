@@ -7,64 +7,84 @@ import SwiftUI
 
 struct SettingsView : View {
   var manpath : Manpath
-  @State var selectedDirectory : URL?
   @State var whichMan : String?
   @State var error : String = ""
+  @State var whichDir : String?
+  @State var rowHeight : CGFloat? = nil
 
   @Environment(\.openWindow) var openWindow
 
   var body : some View {
-    VStack {
-      Text(error).foregroundStyle(Color.red)
-      GroupBox {
-        VStack {
-          List(manpath.addedManpath, id: \.relativePath, selection: $whichMan) { k in
-            Text(k.relativePath)
-          }
-          
-          HStack {
-            Button(action: {
-              openDirectoryPanel()
-            }) {
-              Text("+")
-              /*        Text("Select Directory")
-               .padding()
-               .background(Color.blue)
-               .foregroundColor(.white)
-               .cornerRadius(8)
-               */
+    let unopened = manpath.defaultManpath.filter {
+      jj in
+      let j = URL(fileURLWithPath: jj)
+      return !manpath.addedManpath.contains { sameDirectory($0, j ) }
+    }
+
+    GeometryReader { geo in
+      let halfHeight = geo.size.height / 2
+      let rowHeight = self.rowHeight ?? 28 // fallback if not measured
+      let contentHeight = CGFloat(unopened.count) * rowHeight
+
+      VStack {
+        Text(error).foregroundStyle(Color.red)
+
+        GroupBox {
+          VStack {
+            List(manpath.addedManpath, id: \.relativePath, selection: $whichMan) { k in
+              Text(k.relativePath)
             }
-            Button(action: {
-              manpath.remove(path: whichMan)
-            }) {
-              Text("-")
+
+            HStack {
+              Button(action: {
+                openDirectoryPanel()
+              }) {
+                Text("+")
+              }
+              Button(action: {
+                manpath.remove(path: whichMan)
+                whichMan = nil
+              }) {
+                Text("-")
+              }
+              .disabled(whichMan == nil)
             }
           }
-        }
         } label: {
           Text("Accessible manual directories")
         }
-      GroupBox {
-        VStack {
-          let k = manpath.defaultManpath
-          let kk = k.filter {
-            jj in
-            let j = URL(fileURLWithPath: jj)
-            return !manpath.addedManpath.contains { sameDirectory($0, j ) }
-          }
-          List(kk, id: \.self) { k in
-            Text(k).onTapGesture {apGesture in
-              openDirectoryPanel(k)
+        if !unopened.isEmpty {
+          GroupBox {
+            ScrollView {
+              VStack(alignment: .leading) {
+                ForEach(unopened, id: \.self) { k in
+                  Text(k)
+                    .onTapGesture { _ in openDirectoryPanel(k) }
+                    .background(
+                      GeometryReader { geo in
+                        Color.clear
+                          .onAppear {
+                            if self.rowHeight == nil || self.rowHeight! < geo.size.height {
+                              self.rowHeight = geo.size.height
+                            }
+                          }
+                      }
+                    )
+                }
+              }
             }
+            .frame(maxHeight: min(contentHeight, halfHeight))
+          } label: {
+            Text("Tap to add to accessible manpath (security requires opening the directory)")
           }
         }
-      } label: {
-        Text("Tap to add to accessible manpath (security requires opening the directory)")
       }
     }
-    
+
   }
 
+  /// compares two URLs to see if they are the same.  Should work if one or the other is a symbolic link
+  ///  and they wind up at the same place
   func sameDirectory(_ url1: URL, _ url2: URL) -> Bool {
       let fm = FileManager.default
     do {
@@ -83,6 +103,7 @@ struct SettingsView : View {
     }
   }
 
+  /// opens a directory with the Open Panel in order to get a security scoped bookmark
   func openDirectoryPanel(_ arg : String? = nil) {
     let openPanel = NSOpenPanel()
     openPanel.canChooseFiles = false
@@ -98,19 +119,15 @@ struct SettingsView : View {
       Task { @MainActor in
         error = ""
         if a == .OK, let url = openPanel.url {
-          selectedDirectory = url
           storeSecurityScopedBookmark(for: url, key: "manpath")
         }
-        
-        //     NSApplication.shared.activate(ignoringOtherApps: true)
+        whichDir = nil
         (NSApp.windows.first { $0.title.contains(/Settings/) })?.makeKeyAndOrderFront(nil)
-        
-        //      openWindow(id: "settings-window")
       }
     })
   }
                     
-  
+  /// store a security scoped bookmark
   func storeSecurityScopedBookmark(for url: URL, key: String) {
       do {
           // Create a security-scoped bookmark
