@@ -4,20 +4,5 @@
 <dict>
 	<key>com.apple.security.files.bookmarks.app-scope</key>
 	<true/>
-	<key>com.apple.security.temporary-exception.files.absolute-path.read-only</key>
-	<array>
-		<string>/usr/share/man/</string>
-		<string>/usr/local/share/man/</string>
-		<string>/opt/homebrew/share/man/</string>
-		<string>/opt/share/man/</string>
-		<string>/opt/local/share/man/</string>
-		<string>/Library/Developer/CommandLineTools/usr/share/man/</string>
-		<string>/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/share/man</string>
-		<string>/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man/</string>
-		<string>/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man</string>
-		<string>/Applications/Xcode.app/Contents/Developer/usr/share/man/</string>
-		<string>/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/man/</string>
-		<string>/private/etc/man.conf</string>
-	</array>
 </dict>
 </plist>
