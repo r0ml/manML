@@ -91,7 +91,8 @@ struct manMLApp: App {
     /*/
 
     Settings {
-      SettingsView(manpath: appState.manpath)
+      SettingsView
+     .environment(appState.manpath)
     }
 //      .windowResizability(.contentSize)
    .windowToolbarStyle(.unified(showsTitle: true))
@@ -100,7 +101,7 @@ struct manMLApp: App {
 
     // Add a custom Preferences window instead
     Window("Settings", id: "app-settings") {
-      SettingsView(manpath: appState.manpath)
+      SettingsView().environment(appState)
             .frame(minWidth: 400, maxWidth: 1000, minHeight: 300, maxHeight: 800)
     }
     .windowResizability(.contentSize)

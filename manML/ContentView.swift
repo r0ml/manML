@@ -31,6 +31,7 @@ struct ContentView: View {
   var body: some View {
     if state.manpath.addedManpath.isEmpty {
       VStack {
+        let _ = openWindow(id: "app-settings")
         Button { openWindow(id: "app-settings") } label: { Text("Go to Settings").font(.largeTitle) }
         Text("and add directories to your MANPATH.").font(.largeTitle)
         Spacer().frame(maxHeight: 30)

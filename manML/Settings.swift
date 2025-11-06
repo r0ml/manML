@@ -6,19 +6,27 @@ import AppKit
 import SwiftUI
 
 struct SettingsView : View {
-  var manpath : Manpath
   @State var whichMan : String?
   @State var error : String = ""
   @State var whichDir : String?
   @State var rowHeight : CGFloat? = nil
 
+  var openPanel : NSOpenPanel = NSOpenPanel()
+
+
   @Environment(\.openWindow) var openWindow
+  @Environment(AppState.self) var appState
+
+  init() {
+    makeDirectoryPanel()
+  }
+
 
   var body : some View {
-    let unopened = manpath.defaultManpath.filter {
+    let unopened = appState.manpath.defaultManpath.filter {
       jj in
       let j = URL(fileURLWithPath: jj)
-      return !manpath.addedManpath.contains { sameDirectory($0, j ) }
+      return !appState.manpath.addedManpath.contains { sameDirectory($0, j ) }
     }
 
     GeometryReader { geo in
@@ -31,7 +39,7 @@ struct SettingsView : View {
 
         GroupBox {
           VStack {
-            List(manpath.addedManpath, id: \.relativePath, selection: $whichMan) { k in
+            List(appState.manpath.addedManpath, id: \.relativePath, selection: $whichMan) { k in
               Text(k.relativePath)
             }
 
@@ -42,47 +50,42 @@ struct SettingsView : View {
                 Text("+")
               }
               Button(action: {
-                manpath.remove(path: whichMan)
+                appState.manpath.remove(path: whichMan)
                 whichMan = nil
               }) {
                 Text("-")
               }
               .disabled(whichMan == nil)
             }
-          }
+          }//.padding([.leading, .trailing], 10)
         } label: {
           Text("Accessible manual directories")
         }
         if !unopened.isEmpty {
           GroupBox {
-            ScrollView {
-              VStack(alignment: .leading) {
-                ForEach(unopened, id: \.self) { k in
+//            ScrollView.init([.vertical]) {
+//              VStack(alignment: .leading) {
+//                ForEach(unopened, id: \.self) { k in
+
+                  List(unopened, id: \.self, selection: $whichDir) {k in
                   Text(k)
                     .onTapGesture { _ in
                       Task { self.whichDir = k }
                       openDirectoryPanel(k)
                     }
-                    .background(
-                      GeometryReader { geo in
-                          hilit(k).onAppear {
-                            if self.rowHeight == nil || self.rowHeight! < geo.size.height {
-                              self.rowHeight = geo.size.height
-                            }
-                          }
-                      }
-                    )
-                }
-              }
+  //              }
+//              }
             }
-            .frame(maxHeight: min(contentHeight, halfHeight))
+              .frame(maxHeight: min(contentHeight+20, halfHeight))
+            //   .padding(EdgeInsets(top: 1, leading: 10, bottom: 1, trailing: 10))
           } label: {
             Text("Tap to add to accessible manpath (security requires opening the directory)")
           }
         }
       }
-    }
 
+    }
+    .padding([.top, .bottom], 20)
   }
 
   func hilit( _ k : String?) -> some View {
@@ -110,13 +113,15 @@ struct SettingsView : View {
   }
 
   /// opens a directory with the Open Panel in order to get a security scoped bookmark
-  func openDirectoryPanel(_ arg : String? = nil) {
-    let openPanel = NSOpenPanel()
+  func makeDirectoryPanel() {
     openPanel.canChooseFiles = false
     openPanel.canChooseDirectories = true
     openPanel.allowsMultipleSelection = false
     openPanel.showsHiddenFiles = true
-    openPanel.prompt = "Select Directory"
+    openPanel.prompt = "Select to add to manpath"
+  }
+
+  func openDirectoryPanel(_ arg : String? = nil) {
     if let arg {
       openPanel.directoryURL = URL(fileURLWithPath: arg)
     }
@@ -151,15 +156,15 @@ struct SettingsView : View {
           return
         }
         
-        if (manpath.addedManpath.contains { sameDirectory($0, url)  }) {
+        if (appState.manpath.addedManpath.contains { sameDirectory($0, url)  }) {
           error = "already in manpath: \(url.relativePath)"
           return
         }
           // Add or update the bookmark for the given URL
           bookmarks[url.absoluteString] = bookmarkData
           
-        manpath.addedManpath.append(url)
-        
+        appState.manpath.addedManpath.append(url)
+
           // Save updated bookmarks to UserDefaults
           UserDefaults.standard.set(bookmarks, forKey: key)
       } catch {
