@@ -55,7 +55,7 @@ final class SchemeHandler : URLSchemeHandler, Sendable {
  */
       }
       if state.manSource.manSource.isEmpty { return Data() }
-      var html = await Mandoc.newParse(state)
+      let html = await Mandoc.newParse(state)
       return html.data(using: .utf8 ) ?? Data()
     }
   }

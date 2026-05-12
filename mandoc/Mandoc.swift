@@ -130,7 +130,12 @@ class Mandoc : @unchecked Sendable {
       mm = "\(m[2]) \(m[1])"
     }
     do {
-      let p = ShellProcess.init("/bin/sh", "-c", "mandoc -T html `man -w \(mm)`", env: ["MANPATH": (manpath.manpath.map { $0.path }).joined(separator: ":") ])
+      let p2 = ShellProcess("/usr/bin/manpath")
+      let (_, o2, _) = try await p2.run()
+      let h = String((o2 ?? "").dropLast())
+      let h2 = String((manpath.manpath.map { $0.path }).joined(separator: ":"))
+      let h3 = h2.isEmpty ? h : h.isEmpty ? h2 : h + ":" + h2
+      let p = ShellProcess.init("/bin/sh", "-c", "mandoc -T html `man -w \(mm)`", env: ["MANPATH": h3 ])
       let (_ , o, e) = try await p.run()
 
       error = e!

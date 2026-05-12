@@ -133,13 +133,14 @@ import Foundation
   func find(_ name : String, _ section : String?) -> ([URL],[URL]) {
     var res = [URL]()
     var defered = [URL]()
-    var sect : [String]
+/*
+ var sect : [String]
     if let section {
       sect = [section]
     } else {
       sect = mansect ?? []
     }
-
+*/
 
     for p in manpath { 
       let z = p.startAccessingSecurityScopedResource()

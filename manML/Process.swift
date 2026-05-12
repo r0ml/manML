@@ -100,7 +100,6 @@ public actor ShellProcess {
   }
 
   public init(_ execu: URL, _ args : [String], env: [String:String] = [:], cd: URL? = nil) {
-    let envv = ProcessInfo.processInfo.environment
     var envx = ProcessInfo.processInfo.environment
     env.forEach { envx[$0] = $1 }
 

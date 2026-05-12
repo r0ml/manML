@@ -255,14 +255,14 @@ func parseFontControl<S: RangeReplaceableCollection & StringProtocol>(_ sx : ino
       }
     case "L": // draw verticsl line
       if s.first == "'" {
-        let arg = popQuoted(&s)
+//        let arg = popQuoted(&s)
         res = "<span class=backslash-L></span>"
       } else {
         fatalError("what to do with \\L not followed by '")
       }
     case "l":  // draw horizontal line
       if s.first == "'" {
-        let arg = popQuoted(&s)
+//        let arg = popQuoted(&s)
         res = "<span class=backslash-l></span>"
       } else {
         fatalError("what to do with \\l not followed by '")

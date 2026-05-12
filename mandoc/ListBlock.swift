@@ -32,7 +32,7 @@ extension Mandoc {
       
     }
     
-    let isCompact = k == "-compact"
+    // let isCompact = k == "-compact"
 
     let bs = BlockState()
     switch j {
@@ -185,8 +185,6 @@ extension Mandoc {
         width = "0"
         thisCommand = "<ul style=\"margin-left: \(width); margin-top: 0.5em;list-style-type: circle; \">"
         bs.bl = .item
-      case "-ohang":
-        thisCommand = span("unimplemented", "Bl " + jj, lineNo )
       case "-tag":
         thisCommand = "<div class=\"tag-list\" style=\"margin-top: 0.5em; --tag-width: \(width); --compact: \(isCompact ? 0 : 0.5)ch \">"
         bs.bl = .tag

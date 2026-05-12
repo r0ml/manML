@@ -441,7 +441,7 @@ actor Tokenizer {
     string = ""
     nextWord = nil
     nextToken = nil
-    return res
+    return String(res)
   }
 
   func rest() -> Token {

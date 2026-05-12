@@ -110,7 +110,7 @@ extension Mandoc {
               lay.width = Measurement(value: nn, unit: Unit(symbol: String(k)))
             }
           } else {
-            var k = s.prefix { $0.isNumber }
+            let k = s.prefix { $0.isNumber }
             s.removeFirst(k.count)
             if let nn = Double(k) {
               lay.width = Measurement(value: nn, unit: Unit(symbol: "ch"))

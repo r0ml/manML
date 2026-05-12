@@ -861,7 +861,7 @@ extension Mandoc {
 
             case "TP":
               // FIXME: get the indentation from the argument
-              var indn = await next()?.value
+              let indn = await next()?.value
               if let indn {
                 tagOffset = troffCalcHTMLUnits(String(indn))
               }
@@ -1014,12 +1014,12 @@ extension Mandoc {
               let _ = await rest()
 
             case "in":
-              let inx = await rest()
+              let _ = await rest()
               //              print(inx)
               break
 
               // FIXME: this mucks up dyld_usage;   Should I have a state variable holding the current desired indent level and apply it to divs?
-              let (j, _) = await macroBlock(enders+["in"])
+/*              let (j, _) = await macroBlock(enders+["in"])
               var iny = "0"
               if inx.value.first == "+" {
                 iny = (inx.value.dropFirst()+"en")
@@ -1027,6 +1027,7 @@ extension Mandoc {
               } else {
                 thisCommand = j
               }
+ */
             case "mk": // groff mark position -- but mandoc ignores
               let _ = await rest()
 
