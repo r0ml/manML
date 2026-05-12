@@ -456,6 +456,7 @@ extension Mandoc {
         let bs = BlockState()
         bs.functionDef = true
         let (k, _) = await macroBlock( enders + ["Fc"], bs)
+          // Fixed synopsis for setuid
         let k2 = k.hasSuffix(" \n") ? k.dropLast(2) : Substring(k)
         thisCommand.append(contentsOf: k2.dropLast(faDelim.count) )
         thisCommand.append(");")
