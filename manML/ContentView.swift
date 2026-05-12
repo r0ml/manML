@@ -112,6 +112,11 @@ struct ContentView: View {
               "Use legacy mandoc formatting")
           }
         }
+        ToolbarItem(id: "manpath") {
+          Button("Manpath") {
+            openWindow(id: "app-settings")
+          }
+        }
 
       }
 

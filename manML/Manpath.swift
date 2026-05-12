@@ -88,6 +88,7 @@ import Foundation
         }
       } catch {
         print("Failed to resolve bookmark for \(urlString): \(error.localizedDescription)")
+        stale.append(urlString)
       }
     }
     if !stale.isEmpty {
