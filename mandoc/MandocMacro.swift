@@ -456,7 +456,8 @@ extension Mandoc {
         let bs = BlockState()
         bs.functionDef = true
         let (k, _) = await macroBlock( enders + ["Fc"], bs)
-        thisCommand.append(contentsOf: k.dropLast(faDelim.count) )
+        let k2 = k.hasSuffix(" \n") ? k.dropLast(2) : Substring(k)
+        thisCommand.append(contentsOf: k2.dropLast(faDelim.count) )
         thisCommand.append(");")
 
       case "Ft":
@@ -590,9 +591,10 @@ extension Mandoc {
           let _ = await next()
           thisCommand.append(span("utility", arg, lineNo))
         }
-        if inSynopsis && bs?.bl == nil {
-          thisCommand = "<div>\(thisCommand)</div>"
-        }
+        // Removed because was causing a newline in Synopsis for xargs
+//        if inSynopsis && bs?.bl == nil {
+//          thisCommand = "<div>\(thisCommand)</div>"
+//        }
 
       case "Ns":
         return await macro(bs, enders: enders)

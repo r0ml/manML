@@ -36,7 +36,7 @@ struct HTMLView : View {
           ToolbarItem {
             Button("Find", systemImage: "magnifyingglass") {
               finding.toggle()
-            }
+            }.help("Search in this page")
             .keyboardShortcut(KeyEquivalent("f"), modifiers: [.command])
           }
 
