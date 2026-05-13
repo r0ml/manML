@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E7803D622FB4AADB0070BCB5 /* signing.local.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E7803D612FB4AACE0070BCB5 /* signing.local.xcconfig */; };
+		E7803D642FB4AB860070BCB5 /* signing.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E7803D632FB4AB7E0070BCB5 /* signing.xcconfig */; };
 		E7AEBD842CF108A100E468CF /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD832CF1089D00E468CF /* README.md */; };
 		E7AEBD892CF1264200E468CF /* TODO.md in Resources */ = {isa = PBXBuildFile; fileRef = E7AEBD882CF1264200E468CF /* TODO.md */; };
 		E7CC1E112E7AEAE50099ABF0 /* Notes.txt in Resources */ = {isa = PBXBuildFile; fileRef = E7CC1E102E7AEAE50099ABF0 /* Notes.txt */; };
@@ -14,6 +16,8 @@
 
 /* Begin PBXFileReference section */
 		E71176602CE0411C00236F4A /* manML.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = manML.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E7803D612FB4AACE0070BCB5 /* signing.local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = signing.local.xcconfig; sourceTree = "<group>"; };
+		E7803D632FB4AB7E0070BCB5 /* signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = signing.xcconfig; sourceTree = "<group>"; };
 		E7AEBD832CF1089D00E468CF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E7AEBD882CF1264200E468CF /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		E7CC1E102E7AEAE50099ABF0 /* Notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Notes.txt; sourceTree = "<group>"; };
@@ -65,6 +69,8 @@
 		F487F49C141EADEF0093D633 = {
 			isa = PBXGroup;
 			children = (
+				E7803D612FB4AACE0070BCB5 /* signing.local.xcconfig */,
+				E7803D632FB4AB7E0070BCB5 /* signing.xcconfig */,
 				E7AEBD882CF1264200E468CF /* TODO.md */,
 				E7CC1E102E7AEAE50099ABF0 /* Notes.txt */,
 				E7AEBD832CF1089D00E468CF /* README.md */,
@@ -154,6 +160,8 @@
 		E711765E2CE0411C00236F4A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				E7803D642FB4AB860070BCB5 /* signing.xcconfig in Resources */,
+				E7803D622FB4AADB0070BCB5 /* signing.local.xcconfig in Resources */,
 				E7AEBD892CF1264200E468CF /* TODO.md in Resources */,
 				E7AEBD842CF108A100E468CF /* README.md in Resources */,
 				E7CC1E112E7AEAE50099ABF0 /* Notes.txt in Resources */,
@@ -172,6 +180,7 @@
 /* Begin XCBuildConfiguration section */
 		E711766C2CE0411D00236F4A /* Debug configuration for PBXNativeTarget "manML" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E7803D632FB4AB7E0070BCB5 /* signing.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -218,6 +227,7 @@
 		};
 		E711766D2CE0411D00236F4A /* Release configuration for PBXNativeTarget "manML" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E7803D632FB4AB7E0070BCB5 /* signing.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -258,6 +268,7 @@
 		};
 		F487F4C6141EADEF0093D633 /* Debug configuration for PBXProject "manML" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E7803D632FB4AB7E0070BCB5 /* signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -302,6 +313,7 @@
 		};
 		F487F4C7141EADEF0093D633 /* Release configuration for PBXProject "manML" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E7803D632FB4AB7E0070BCB5 /* signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
