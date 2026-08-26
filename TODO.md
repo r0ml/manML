@@ -35,6 +35,8 @@
 - man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc).  Also good for fixing the too-much-whitespace problem
 
 - 1 xmllint : for \h'-04'...
+- 
+env and compress don’t move to the next line in the synopsis section
 
 ====================================
 
@@ -55,6 +57,7 @@
 - 3 endwin -- the 'IP \(bu 4'  should indent the bullets by 4ch
 
 - 3 exec is a mess -- I need to sort out the .Nm, .Fo, .Fc, and .Ft mess.
+- 3 iconv  accept "" and "char" renders as accept " and "char"
 ======================================
 
 - 5 cryptex -- blows up on tbl processing
@@ -70,3 +73,5 @@
 - 7 operator: Bl -column  isn't implemented.
 
 - caffeinate example formats wrong
+- pmset formatting problems
+- awk doesn't handle \\f
