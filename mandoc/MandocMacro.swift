@@ -763,13 +763,13 @@ extension Mandoc {
         thisCommand = "<q class=\"single\">\(thisCommand)</q>"
       case "Ss":
         let j = await rest().value
-        thisCommand = "<h5 id=\"\(j)\">\(j)</h5>"
+        thisCommand = span(nil, "<h5 id=\"\(j)\">\(j)</h5>", lineNo)
       case "St":
         let j = await next()?.value ?? "??"
         thisCommand = span("standard", standards[String(j)] ?? "(unknown)", lineNo)
       case "Sx":
         let j = await rest().value
-        thisCommand = "<a class=\"manref\" href=\"#\(j)\">\(j)</a>"
+        thisCommand = span(nil, "<a class=\"manref\" href=\"#\(j)\">\(j)</a>", lineNo)
       case "Sy":
         while let j = await macro(enders: enders) {
           thisCommand.append(thisDelim)
@@ -901,7 +901,7 @@ extension Mandoc {
               if false && inExample {
                 thisCommand = "<p class=\"example\">"
               } else {
-                thisCommand = "<p/>"
+                thisCommand = "<br>"
               }
 
             case "RS":
@@ -1138,7 +1138,7 @@ extension Mandoc {
 
             case "SS":
               let j = await rest().value
-              thisCommand = "<h5>" + span(nil, j, lineNo) + "</h5>"
+              thisCommand = span(nil, "<h5>"+j+"</h5>", lineNo)
 
             case "SM":
               let sm = await Tokenizer.shared.rawRest() // eat the line

@@ -18,9 +18,7 @@
 - sometimes, when .nf or Bd -literal, there is too much whitespace if I append the \n at the end of the line -- hosts.equiv shows the problem with EXAMPLES being turned into pre
 
 - LEGACY mode fails on man jq -- it terminates reading the stdout too soon -- borrow the code from ShellTesting .  Noticed because the BUGS section has an extra final dot in the render.
-
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
-
 - man nslookup    (conditionals make everything disappear)
 
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
@@ -54,8 +52,6 @@ env and compress don’t move to the next line in the synopsis section
 - 3 exec is a mess -- I need to sort out the .Nm, .Fo, .Fc, and .Ft mess.
 - 3 iconv  accept "" and "char" renders as accept " and "char"
 ======================================
-
-- 5 cryptex -- blows up on tbl processing
 
 - 5 launchd.plist -- has many BL Errors -- I made -ohang = -hang -- but the -ohang doesn't indent the tags.
 

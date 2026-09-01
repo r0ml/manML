@@ -160,8 +160,9 @@ extension Mandoc {
         thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"
         bs.bl = .bullet
       case "-column":
-        //        thisCommand = span("unimplemented", "Bl " + jj )
-        thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width); border-spacing: 3em 0;\">"
+        //        thisCommand = span("unimplemented", "Bl " + jj )\
+        width = "1em"
+        thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width); border-spacing: 1em 0;\">"
         bs.bl = .table
       case "-dash":
         thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"
