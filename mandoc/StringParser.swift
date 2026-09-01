@@ -318,11 +318,22 @@ func troffCalcNumericUnits(_ s : String) -> Double? {
 }
 
 func troffCalcHTMLUnits(_ s : String) -> String {
-  let k = s.last
-  var unit = "ch"
-  // FIXME: this 5.0 is a global default
-  var val = Double(s.dropLast()) ?? 5.0
+  guard let k = s.last else {
+    // FIXME: this 5.0 is a global default
+    return "5ch"
+  }
+  var val : Double? 
+  if k.isNumber {
+    val = Double(s)
+  } else {
+    val = Double(s.dropLast())
+  }
 
+  guard var val else {
+    return "5ch"
+  }
+  
+  var unit = "ch"
   switch k {
     case "i": unit = "in" // inches
     case "p": unit = "pt" // points

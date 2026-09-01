@@ -26,7 +26,7 @@ class Mandoc : @unchecked Sendable {
 
   // ============================
   var sourceWrapper : SourceWrapper!
-  var tagOffset : String = "3ch"
+  var tagOffset : String = "11ch"
 
   func setSourceWrapper(_ ap : AppState) async {
     sourceWrapper = ap.manSource

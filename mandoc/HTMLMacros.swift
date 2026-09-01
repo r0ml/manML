@@ -13,14 +13,14 @@ extension Mandoc {
     return m
   }
 
-  func taggedBlock(_ tag : String, _ description : any StringProtocol, _ lno : Int, _ indx : (any StringProtocol)?) -> String {
+  func taggedBlock(_ tag : String, _ description : any StringProtocol, _ lno : Int, _ indx : (any StringProtocol)?, compact: Bool = false) -> String {
     var ind : String
     if let indx {
       ind = String(indx)
     } else {
       ind = tagOffset
     }
-    var m = "<div style=\"--tag-width:\(ind);\" class=\"list-item\">"
+    var m = "<div style=\"--tag-width:\(ind);--compact:\(compact ? "0" : "0.5ch") \" class=\"list-item\">"
 
     m += span("tag", tag + "&nbsp;", lno)
     m.append(#"<div class="tag-description">"# + description + "</div>")
@@ -28,6 +28,24 @@ extension Mandoc {
     return m
   }
 
+  // for .TP ?
+  func taggedSpan(_ tag : String, _ description : any StringProtocol, _ lno : Int, _ indx : (any StringProtocol)?) -> String {
+    var ind : String
+    if let indx {
+      ind = String(indx)
+    } else {
+      ind = tagOffset
+    }
+    var m = "<span style=\"--tag-width:\(ind);\" class=\"list-item\">"
+
+    m += span("tag", tag + "&nbsp;", lno)
+    m.append(#"<span>"# + description + "</span>")
+    m.append(#"</span>"#)
+    return m
+  }
+
+  
+  
   func pageHeader(_ name : any StringProtocol , _ section : any StringProtocol, _ title : any StringProtocol) -> String {
     let mm = "\(String(name))(\(section))"
     var tit : String

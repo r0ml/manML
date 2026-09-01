@@ -592,7 +592,12 @@ extension Mandoc {
             thisDelim = " "
           }
           kg = !(k?.isMacro == true || thisDelim.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-          let _ = await next()
+          // 8 caffeinate had .Nm Fl i -- and the Fl got eaten here.
+          let n = await peekToken()
+          
+//          let _ = await next()
+          
+          
           thisCommand.append(span("utility", arg, lineNo))
         }
         // Removed because was causing a newline in Synopsis for xargs
@@ -883,8 +888,7 @@ extension Mandoc {
                 currentTag = await handleLine(line, enders: enders)
               }
 
-              let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH", "SS", "HP", "LP"] ) // "TP", "PP", "SH"])
-
+              let (k, nn) = await macroBlock( enders + ["TP", "PP", "SH", "SS", "HP", "LP", "br"] ) // "TP", "PP", "SH"])
               
               thisCommand = span("", taggedBlock(currentTag, k, lineNo, tagOffset), lineNo)
 
