@@ -508,7 +508,10 @@ extension Mandoc {
           case .hang:
             thisCommand = "<div style=\"margin-top: var(--compact);\">\(currentTag) \(currentDescription)</div>"
           case .table:
-            thisCommand = "<tr><td>\(currentTag) \(currentDescription)</td></tr>"
+            // FIXME: in 7 operator, the .Bl -column wants to parse
+            // what turns out to be the currentTag to be tab separated columns
+            let ct = currentTag.replacingOccurrences(of: "\t", with: "</td><td>")
+            thisCommand = "<tr><td>\(ct) \(currentDescription)</td></tr>"
           case .inset:
             thisCommand = "<div style=\"margin-top: 0.8em;\">\(currentTag) \(currentDescription)</div>"
 

@@ -161,7 +161,7 @@ extension Mandoc {
         bs.bl = .bullet
       case "-column":
         //        thisCommand = span("unimplemented", "Bl " + jj )
-        thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width)\">"
+        thisCommand = "<table style=\"margin-top: 0.5em; padding-left: \(width); border-spacing: 3em 0;\">"
         bs.bl = .table
       case "-dash":
         thisCommand = "<ul style=\"margin-top: 0.5em; list-style-type: disc;\">"

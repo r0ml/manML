@@ -69,9 +69,6 @@ env and compress don’t move to the next line in the synopsis section
 - is there a race when I try to open a new man page while a previous one is still rendering?
 
 ===================================
-
-- 7 operator: Bl -column  isn't implemented.
-
 - caffeinate example formats wrong
 - pmset formatting problems
 - awk doesn't handle \\f
