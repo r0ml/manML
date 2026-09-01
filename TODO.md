@@ -58,7 +58,3 @@ env and compress don’t move to the next line in the synopsis section
 - 5 pcap-savefile -- there's a tbl which should draw boxes -- doesn't format properly
 
 - is there a race when I try to open a new man page while a previous one is still rendering?
-
-===================================
-- pmset formatting problems
-- awk doesn't handle \\f

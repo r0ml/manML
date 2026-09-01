@@ -901,7 +901,7 @@ extension Mandoc {
               if false && inExample {
                 thisCommand = "<p class=\"example\">"
               } else {
-                thisCommand = "<br>"
+                thisCommand = "<div><p></div>"
               }
 
             case "RS":

@@ -168,6 +168,8 @@ func parseFontControl<S: RangeReplaceableCollection & StringProtocol>(_ sx : ino
           if formatState.fontStyling.count > 0 {
             res = "</span>"
             formatState.fontStyling.removeLast()
+          } else {
+            res = ""
           }
 
           // FIXME: needs to be  "BI" -- which is also "4"
