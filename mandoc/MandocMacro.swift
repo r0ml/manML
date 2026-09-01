@@ -1124,6 +1124,7 @@ extension Mandoc {
               //              if j.hasSuffix("\n.") { j.removeLast(2) }
 
               let jj = j.replacing(/\n?<br\/?>\n?/, with: "<p style=\"margin-block-start: 0.2em; margin-block-end: 0.2  em;\"/>")
+                .replacing(/<\/span>\n<\/span>/, with: "</span></span>") // MONSTER KLUDGE for funzip Examples -- trying to work around .nf ended with .fi
 
               if !j.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 thisCommand = "<div class=nf style=\"margin-top: 0.6em; margin-bottom: 0.6em;\">\(jj)</div>"

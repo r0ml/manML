@@ -50,7 +50,7 @@ extension Mandoc {
 
     } while !line.hasSuffix(".")
 
-    output = "<table>\n"
+    output = "<table style=\"border-spacing: 3em 0;\">\n"
 
     let tblsep = "\t"
     var thisLayout = layout.first!
