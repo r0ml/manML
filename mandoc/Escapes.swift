@@ -45,7 +45,8 @@ let shortEscapes : [String:String] = [
    "^" : "&thinsp;", // another thin space
    "%" : "&#8203;", // non-breaking space
    "0" : "&#8199;",  // digit-width space
-
+   "+" : "+",
+   
    "t" : "<span style=\"white-space: pre;tab-size: 4\">&#9;</span>", // tab
 //   "/" : "÷",
 

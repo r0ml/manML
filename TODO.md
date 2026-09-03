@@ -26,26 +26,13 @@
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
 
 - man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc).  Also good for fixing the too-much-whitespace problem
-
-- 1 xmllint : for \h'-04'...
 - 
 env and compress don’t move to the next line in the synopsis section
 
 ====================================
-
-- man 2 chown : too many "<br> s" in SYNOPSIS?
-
-- 2 FD_CLR  (. Fc ;  fas a carriage return)
-
-- 2 fsetattrlist : does the EXAMPLe need more whitespace to start at the Bd -literal
-
-- 2 settimeofday : .Ao Pa sys/time.h Ac -- the closing angle bracket is colored, and there is an extra blank after .h
-
+- - 2 settimeofday : .Ao Pa sys/time.h Ac -- the closing angle bracket is colored, and there is an extra blank after .h
 =====================================
-
-- 3 add_module_replacement : ENVIRONMENT VARIABLES indent too much (.IP problem)
-- 3 aliased -- tricky Perl  -- the definition .ds #H ...  was the problem
-- 3 ckalloc -- tricky Tcl -- typesetting of ARGUMENTS is wrong.
+- 3 ckalloc -- tricky Tcl -- typesetting of ARGUMENTS is wrong. -- make a line starting with \l == <hr/>
   ======================================
 
 - 5 launchd.plist -- has many BL Errors -- I made -ohang = -hang -- but the -ohang doesn't indent the tags.
