@@ -46,12 +46,7 @@ env and compress don’t move to the next line in the synopsis section
 - 3 add_module_replacement : ENVIRONMENT VARIABLES indent too much (.IP problem)
 - 3 aliased -- tricky Perl  -- the definition .ds #H ...  was the problem
 - 3 ckalloc -- tricky Tcl -- typesetting of ARGUMENTS is wrong.
-
-- 3 endwin -- the 'IP \(bu 4'  should indent the bullets by 4ch
-
-- 3 exec is a mess -- I need to sort out the .Nm, .Fo, .Fc, and .Ft mess.
-- 3 iconv  accept "" and "char" renders as accept " and "char"
-======================================
+  ======================================
 
 - 5 launchd.plist -- has many BL Errors -- I made -ohang = -hang -- but the -ohang doesn't indent the tags.
 

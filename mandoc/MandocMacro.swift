@@ -12,14 +12,17 @@ let faDelim = ",&ensp;"
 
 extension Mandoc {
 
+  /// get the next token and pop it from the stack
   func next() async -> Token? {
     return await Tokenizer.shared.next()
   }
 
+  /// peek at the next token without consuming it
   func peekToken() async -> Token? {
     return await Tokenizer.shared.peekToken()
   }
 
+  /// parse the next argument -- consuming as many tokens as it takes, and ending when one of the supplied end tokens is hit.
   func nextArg(enders: [String]) async -> Token? {
     return await Tokenizer.shared.nextArg(enders: enders)
   }
@@ -392,17 +395,21 @@ extension Mandoc {
         // Function argument
       case "Fa":
         //        let sep = parseState.wasFa ? ", " : ""
-        thisCommand.append(thisDelim)
-        if let j = await nextArg(enders: enders + [ "Fa", "Fc" ]) {
+        while let j = await next() {
+          thisCommand.append(thisDelim)
           await thisCommand.append(span("function-arg", Tokenizer.shared.escaped(j.value), lineNo))
-          thisDelim = bs?.functionDef == true ? faDelim : j.closingDelimiter
+//          thisDelim = bs?.functionDef == true ? faDelim : j.closingDelimiter
+          thisDelim = j.closingDelimiter
         }
+
       case "Fc":
-        let j = await next()
+        let _ = await rest()
         //        thisCommand = "<br/>"
-        if inSynopsis {
-          thisDelim = (j?.closingDelimiter ?? "") + "<br/>"
-        }
+//        if inSynopsis {
+//          thisDelim = (j?.closingDelimiter ?? "") + "<br/>"
+//        } else {
+          thisDelim = " "
+//        }
       case "Fd":
         let j = await rest()
         thisCommand = await span("directive", Tokenizer.shared.escaped(j.value), lineNo)
@@ -455,10 +462,20 @@ extension Mandoc {
         thisCommand = span("function-name", j.value, lineNo) + "&thinsp;("
         let bs = BlockState()
         bs.functionDef = true
-        let (k, _) = await macroBlock( enders + ["Fc"], bs)
+        while let m = await oneMacro(enders+["Fc"], bs) {
+          let (j, k) = m
+          if k == "Fc"  { break }
+          if j.isEmpty { continue }
+          thisCommand.append(thisDelim)
+          thisCommand.append(contentsOf: j)
+          thisDelim = ",&nbsp;"
+        }
+
+          thisDelim = ""
+//        let (k, _) = await macroBlock( enders + ["Fc"], bs)
           // Fixed synopsis for setuid
-        let k2 = k.hasSuffix(" \n") ? k.dropLast(2) : Substring(k)
-        thisCommand.append(contentsOf: k2.dropLast(faDelim.count) )
+//        let k2 = k.hasSuffix(" \n") ? k.dropLast(2) : Substring(k)
+//        thisCommand.append(contentsOf: k2.dropLast(faDelim.count) )
         thisCommand.append(");")
 
       case "Ft":
@@ -576,7 +593,7 @@ extension Mandoc {
           thisCommand.append(thisDelim)
           let k = await peekToken()
           if let k, !k.isMacro {
-
+            let _ = await next()
             if name == nil { name = String(k.value) }
             arg = String(k.value)
 
@@ -593,7 +610,7 @@ extension Mandoc {
           }
           kg = !(k?.isMacro == true || thisDelim.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
           // 8 caffeinate had .Nm Fl i -- and the Fl got eaten here.
-          let n = await peekToken()
+//          let n = await peekToken()
           
 //          let _ = await next()
           
@@ -1078,7 +1095,7 @@ extension Mandoc {
               if let dd = await next() {
                 // FIXME: somehow I'm seeing a \n here
                 let dx = dd.value.trimmingCharacters(in: .whitespacesAndNewlines)
-                if let i = Int(dx) { ind = Double(i)/16.0 }
+                if let i = Int(dx) { ind = Double(i) }
               }
 
               let _ = await rest()
@@ -1093,7 +1110,7 @@ extension Mandoc {
                 "</div>"
  */
 
-                thisCommand = "<div style=\"margin-top: 0.4em; margin-bottom: 0.4em;\">" + taggedParagraph(k, kk, lineNo) + "</div>"
+                thisCommand = "<div style=\"margin-top: 0.4em; margin-bottom: 0.4em;\">" + taggedParagraph(k, kk, lineNo, indent: ind) + "</div>"
               } else {
                 thisCommand = "<div style=\"margin-left: \(ind)ch; margin-top: 0.5em;\">" + kk + "</div>"
               }

@@ -111,9 +111,12 @@ actor Tokenizer {
       } else if c == ">" {
         res.append(contentsOf: "&gt;")
         s.removeFirst()
-      } else if c == "\"" && s.dropFirst().first == "\"" {
-        res.append(c)
-        s.removeFirst(2)
+        // FIXME: iconv(3) line displays "" ans " with this.
+        // so make sure that the "" is followed by non-blank?
+        // or don't do this at all
+//      } else if c == "\"" && s.dropFirst().first == "\"" {
+//        res.append(c)
+//        s.removeFirst(2)
       } else {
         res.append(c)
         s.removeFirst()

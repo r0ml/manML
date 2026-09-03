@@ -46,6 +46,10 @@ struct ContentView: View {
               if mantext.first != "/" { // because I might have a file path here from file drop
                 state.doTheLoad( Mandoc.canonicalize(mantext) )
               }
+              // FIXME: sandbox won't let me do this
+              // else {
+//                state.doTheLoad( URL(filePath: mantext))
+//              }
             }
 
           Button("<") {
@@ -72,21 +76,9 @@ struct ContentView: View {
             .contentShape(Rectangle()) // ensure it's hit-testable
             .allowsHitTesting(isTargeted)
             .dropDestination(for: URL.self) { urls, _ in // second argument is drop coordinates
-
-
               if let url = urls.first {
-
-                let ok = url.startAccessingSecurityScopedResource()
-                defer { if ok { url.stopAccessingSecurityScopedResource() } }
-                if let dd = try? Data(contentsOf: url) {
-                  // FIXME: this is a kludge for old man files which use LATIN1 without saying so.
-                  let ddd = dd.replacing([0xB1], with: [0xC2, 0xB1])
-                  let k = String(decoding: ddd, as: UTF8.self)
-                  state.handler?.cache(url.path, k)
-                  let fu = URL(string: scheme+"://?"+url.path)!
-                  state.doTheLoad(fu)
-                  return true
-                }
+                loadFromURL(url)
+                return true
               }
               return false
             } isTargeted: {
@@ -125,6 +117,19 @@ struct ContentView: View {
       }
 
       .padding()
+    }
+  }
+  
+  func loadFromURL(_ url: URL) {
+    let ok = url.startAccessingSecurityScopedResource()
+    defer { if ok { url.stopAccessingSecurityScopedResource() } }
+    if let dd = try? Data(contentsOf: url) {
+      // FIXME: this is a kludge for old man files which use LATIN1 without saying so.
+      let ddd = dd.replacing([0xB1], with: [0xC2, 0xB1])
+      let k = String(decoding: ddd, as: UTF8.self)
+      state.handler?.cache(url.path, k)
+      let fu = URL(string: scheme+"://?"+url.path)!
+      state.doTheLoad(fu)
     }
   }
 }

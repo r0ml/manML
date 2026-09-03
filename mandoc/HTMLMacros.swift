@@ -6,8 +6,10 @@
 import Foundation
 
 extension Mandoc {
-  func taggedParagraph(_ tag : String, _ description : any StringProtocol, _ lno : Int) -> String {
-    var m = #"<div class="list-item">"# + span("tag", tag + "&nbsp;", lno)
+  func taggedParagraph(_ tag : String, _ description : any StringProtocol, _ lno : Int, indent: Double? = nil) -> String {
+    var ind = ""
+    if let indent { ind = " style=\"--tag-width:\(indent)ch;\""}
+    var m = "<div \(ind) class=\"list-item\"> " + span("tag", tag + "&nbsp;", lno)
     m.append(#"<div class="tag-description">"# + description + "</div>")
     m.append(#"</div><div style="clear: both;"></div>"#)
     return m

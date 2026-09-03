@@ -241,6 +241,8 @@ extension Mandoc {
     return String(output.dropLast())
   }
   
+  /// return the results of processing a block of lines, ending with one of the macros in `enders`
+  /// the BlockState contains information about the state of processing
   func macroBlock(_ enders : [String], _ bs : BlockState? = nil) async -> (String, Substring?) {
     var output = ""
     while !atEnd {
@@ -312,6 +314,62 @@ extension Mandoc {
     return "<!--" + output + "-->"
   }
 
+  /// return the results of processing a block of lines, ending with one of the macros in `enders`
+  /// the BlockState contains information about the state of processing
+  func oneMacro(_ enders : [String], _ bs : BlockState? = nil) async -> (String, Substring?)? {
+    var output = ""
+    if lines.isEmpty { return nil }
+      var line = peekLine
+      if line.isEmpty {
+        nextLine();
+        //        output.append("<br class=br/>")
+        output.append("<p/>")
+        return (output, nil)
+      }
+
+      if isCommentLine(line) {
+        // FIXME: took this out for debuggery
+        // output.append(commentBlock())
+        if lines.isEmpty { return (output, nil) }
+        line = peekLine
+      }
+
+        line = stripComment(line)
+        await setz(String(line.dropFirst()))
+
+      if line.hasPrefix(".") || line.hasPrefix("'") {
+        await setz(String(line.dropFirst()))
+        if let pt = await peekToken() {
+          // FIXME: the "}" business should only be needed during conditional evaluation
+          if (enders.isEmpty && (pt.isMacro || additionalMacroList.contains(pt.value) )) || enders.contains( String(pt.value))    {
+            await setz("")
+            return (output, pt.value)
+          }
+        } else {
+          await setz("")
+          // FIXME: maybe I need this return when enders are empty?
+          //          return (output, nil)
+        } // if enders.contains("") { break}
+
+        nextLine()
+
+        if let pl = await parseLine(bs, enders: enders) {
+            output.append(contentsOf: pl.value )
+            output.append(contentsOf: pl.closingDelimiter)
+          output.append("\n")
+      }
+      } else {
+        nextLine()
+        await output.append(contentsOf: span("body", Tokenizer.shared.escaped(line), lineNo))
+        output.append("\n")
+      }
+      // FIXME: sometimes when this is literal, there are too many carriage returns
+//      if bs == nil || bs?.bl == .literal {
+//      }
+    return (output, nil)
+  }
+
+  
 }
 
 
