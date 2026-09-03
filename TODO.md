@@ -9,15 +9,13 @@
 # Bad man source
 * man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
 # BUGS
-
-- man page for c++ does not render properly -- .TP right justifying sometimes.
-- LEGACY mode fails on man jq -- it terminates reading the stdout too soon -- borrow the code from ShellTesting .  Noticed because the BUGS section has an extra final dot in the render.
 - man less fails because the file is less.1.gz -- need to be able to handle compressed man files.  Also true for lessecho and lesskey and more
 - man nslookup    (conditionals make everything disappear)
 - man 1 xmlcatalog and xmllint and xsltproc  loses it in SEE ALSO  -- xsltproc also has weirdness following -o
 - man 1 zipgrep : the description of   pattern   is wrong -- and it eats file[.zip] -- so problem with .IR ?  or .IP?
 - man 1 zipinfo : DETAILED DESCRIPTION :  defined options take arguments ($1, etc).  Also good for fixing the too-much-whitespace problem
 - env and compress don’t move to the next line in the synopsis section
+- when multiple numbers exist for a word (e.g. less(3pm) and less(1) or  iconv(1) and iconv(3), manML picks the higher number (should pick the lower number?)
 ====================================
 - - 2 settimeofday : .Ao Pa sys/time.h Ac -- the closing angle bracket is colored, and there is an extra blank after .h
 =====================================
