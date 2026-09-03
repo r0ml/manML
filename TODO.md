@@ -6,12 +6,8 @@
 - for all those weird special casings for existing man pages -- have a mode to produce a list of warnings and suggestions to improve quality of man pages.
 - maybe add a toggle to allow trying to render in troff mode instead of nroff mode (even groff)
 
-* the SYNOPSIS section should hanging indent the definition of the function if it is too long.  Or treat is a two column table with the name in the first column and the definition in the second (like a .Bl).  Noticed on man install
-
 # Bad man source
-
 * man avmediainfo has a .Bl error -- it is in the source -- there is a missing .Bd
-
 # BUGS
 
 - man page for c++ does not render properly -- .TP right justifying sometimes.

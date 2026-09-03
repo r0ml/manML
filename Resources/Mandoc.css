@@ -134,8 +134,15 @@ a.manref:hover { text-decoration: underline; }
 .standard { color: green; }
 
 .synopsis {
-  text-indent: -4em;
-  padding-inline-start: 4em;
+//  text-indent: -4em;
+//  padding-inline-start: 4em;
+}
+
+.synopsisFn {
+//  text-indent: hanging 4em;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1em
 }
 
 .diag { color: seagreen; font-weight: bold; }

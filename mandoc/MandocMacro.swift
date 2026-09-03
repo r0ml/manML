@@ -580,10 +580,9 @@ extension Mandoc {
 
       case "Nm":
 
- /*       if inSynopsis && bs?.bl == nil {
-          thisCommand.append("<br>")
-        }
-*/
+//        if inSynopsis && bs?.bl == nil {
+//          thisCommand.append("<br>")
+//        }
 
         // FIXME: I would like (in SYNOPSIS) to take each macroBlock of .Nm and put it in a hanging indent
         // but figuring out where the hanging lines are is tricky
@@ -618,9 +617,10 @@ extension Mandoc {
           thisCommand.append(span("utility", arg, lineNo))
         }
         // Removed because was causing a newline in Synopsis for xargs
-//        if inSynopsis && bs?.bl == nil {
-//          thisCommand = "<div>\(thisCommand)</div>"
-//        }
+        if inSynopsis && bs?.bl == nil {
+          let (j, _) = await macroBlock(enders+["Nm"])
+          thisCommand = "<div class=synopsisFn>\(thisCommand) <span>\(j)</span></div>"
+        }
 
       case "Ns":
         return await macro(bs, enders: enders)
@@ -747,11 +747,11 @@ extension Mandoc {
         thisCommand = "<a id=\"\(j.value)\"><h4>" + span(nil, j.value, lineNo) + "</h4></a>"
         inSynopsis = j.value.hasPrefix("SYNOPSIS")
         inExample = j.value == "EXAMPLE"
-        /*        if inSynopsis {
+
+        if inSynopsis {
          let (j, _) = await macroBlock( enders + ["Sh", "SH"])
          thisCommand.append("<div class=synopsis>\(j)</div>")
          }
-         */
 
       case "Sm": // spacing mode
         let j = await rest().value
